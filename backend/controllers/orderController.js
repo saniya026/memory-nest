@@ -4,6 +4,38 @@ import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 import { AppError } from '../middleware/errorHandler.js';
 import nodemailer from 'nodemailer';
 
+const sendOrderEmail = async (orderDetails) => {
+  try {
+    const transporter = nodemailer.createTransporter({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: 'alisaniya026@gmail.com',
+      subject: `New Order Received - ${orderDetails._id}`,
+      html: `
+        <h2>New Order Details</h2>
+        <p><b>Order ID:</b> ${orderDetails._id}</p>
+        <p><b>Occasion:</b> ${orderDetails.occasion}</p>
+        <p><b>Theme:</b> ${orderDetails.theme}</p>
+        <p><b>Message:</b> ${orderDetails.message}</p>
+        <p><b>Amount:</b> ₹${orderDetails.amount}</p>
+        <p><b>Photos:</b> ${orderDetails.photos.length} uploaded</p>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('Order email sent successfully');
+  } catch (error) {
+    console.log('Email error:', error);
+  }
+};
+
 export const createOrder = async (req, res, next) => {
   try {
     const { occasion, theme, message, specialInstructions, serviceId, amount, captions } = req.body;
@@ -40,6 +72,8 @@ export const createOrder = async (req, res, next) => {
       amount: orderAmount,
       status: 'pending',
     });
+    
+    await sendOrderEmail(order);
 
     const populated = await Order.findById(order._id).populate('service');
     res.status(201).json({ success: true, order: populated });
