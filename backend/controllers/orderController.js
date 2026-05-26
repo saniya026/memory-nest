@@ -2,6 +2,7 @@ import Order from '../models/Order.js';
 import Service from '../models/Service.js';
 import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 import { AppError } from '../middleware/errorHandler.js';
+import nodemailer from 'nodemailer';
 
 export const createOrder = async (req, res, next) => {
   try {
