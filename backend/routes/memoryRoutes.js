@@ -1,5 +1,5 @@
 import express from 'express';
-import Memory from '../models/Memory.js';
+import Memory from '../models/memory.js';
 import { upload } from '../config/cloudinary.js';
 import { protect } from '../middleware/auth.js';
 
