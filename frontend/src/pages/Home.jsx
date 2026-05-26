@@ -1,0 +1,35 @@
+import { useEffect, useState } from 'react';
+import api from '../api/axios';
+import Hero from '../components/home/Hero';
+import {
+  ContactSection,
+  PortfolioSection,
+  PricingSection,
+  ServicesSection,
+  TestimonialsSection,
+  LANDING_SERVICES,
+} from '../components/home/HomeSections';
+
+export default function Home() {
+  const [services, setServices] = useState(LANDING_SERVICES);
+
+  useEffect(() => {
+    api
+      .get('/services')
+      .then((r) => {
+        if (r.data.services?.length) setServices(r.data.services);
+      })
+      .catch(() => {});
+  }, []);
+
+  return (
+    <>
+      <Hero />
+      <ServicesSection services={services} />
+      <PortfolioSection />
+      <TestimonialsSection />
+      <PricingSection />
+      <ContactSection />
+    </>
+  );
+}
