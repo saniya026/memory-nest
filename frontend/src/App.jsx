@@ -11,7 +11,7 @@ import Login from './pages/auth/Login';
 import ResetPassword from './pages/auth/ResetPassword';
 import Signup from './pages/auth/Signup';
 import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
+import Checkout from './pages/Checkout2';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import Orders from './pages/dashboard/Orders';
 import UserDashboard from './pages/dashboard/UserDashboard';
@@ -84,8 +84,8 @@ export default function App() {
         <Route path="users" element={<AdminUsers />} />
         <Route path="services" element={<AdminServices />} />
         <Route path="pricing" element={<AdminPricing />} />
-      </Route>
-
+      </Route> 
+// test
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
