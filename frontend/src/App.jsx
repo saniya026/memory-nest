@@ -19,6 +19,11 @@ import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import Products from './pages/Products';
 import Profile from './pages/Profile';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Refund from './pages/Refund';
+import Return from './pages/Return';
+import Shipping from './pages/Shipping';
 
 export default function App() {
   return (
@@ -32,6 +37,12 @@ export default function App() {
         <Route path="signup" element={<Signup />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="reset-password/:token" element={<ResetPassword />} />
+
+        <Route path="terms" element={<Terms />} />
+<Route path="privacy" element={<Privacy />} />
+<Route path="refund" element={<Refund />} />
+<Route path="return" element={<Return />} />
+<Route path="shipping" element={<Shipping />} />
       </Route>
 
       {/* Customer — cart & checkout */}
