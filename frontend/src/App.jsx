@@ -11,7 +11,9 @@ import Login from './pages/auth/Login';
 import ResetPassword from './pages/auth/ResetPassword';
 import Signup from './pages/auth/Signup';
 import Cart from './pages/Cart';
-import Checkout from './pages/Checkout2';
+import Checkout from './pages/Checkout';
+import Wishlist from './pages/Wishlist';
+import MyMemories from './pages/dashboard/MyMemories';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import Orders from './pages/dashboard/Orders';
 import UserDashboard from './pages/dashboard/UserDashboard';
@@ -39,10 +41,10 @@ export default function App() {
         <Route path="reset-password/:token" element={<ResetPassword />} />
 
         <Route path="terms" element={<Terms />} />
-<Route path="privacy" element={<Privacy />} />
-<Route path="refund" element={<Refund />} />
-<Route path="return" element={<Return />} />
-<Route path="shipping" element={<Shipping />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="refund" element={<Refund />} />
+        <Route path="return" element={<Return />} />
+        <Route path="shipping" element={<Shipping />} />
       </Route>
 
       {/* Customer — cart & checkout */}
@@ -55,6 +57,7 @@ export default function App() {
       >
         <Route path="cart" element={<Cart />} />
         <Route path="checkout" element={<Checkout />} />
+        <Route path="wishlist" element={<Wishlist />} />
         <Route path="profile" element={<Profile />} />
       </Route>
 
@@ -68,6 +71,7 @@ export default function App() {
       >
         <Route path="dashboard" element={<UserDashboard />} />
         <Route path="dashboard/orders" element={<Orders />} />
+        <Route path="dashboard/memories" element={<MyMemories />} />
       </Route>
 
       {/* Admin — management only */}
@@ -84,8 +88,8 @@ export default function App() {
         <Route path="users" element={<AdminUsers />} />
         <Route path="services" element={<AdminServices />} />
         <Route path="pricing" element={<AdminPricing />} />
-      </Route> 
-// test
+      </Route>
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -45,9 +45,12 @@ export default function DesktopNavbar() {
                 </Link>
               ) : (
                 <Link to="/dashboard" className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                  My Orders
+                  Dashboard
                 </Link>
               )}
+              <Link to="/wishlist" className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                Saved
+              </Link>
               <Link to="/profile" className="btn-secondary !py-2 !px-4 text-sm">
                 {user?.name?.split(' ')[0]}
               </Link>

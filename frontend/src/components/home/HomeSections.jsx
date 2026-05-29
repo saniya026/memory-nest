@@ -183,25 +183,72 @@ export function PricingSection() {
 }
 
 export function ContactSection() {
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [sending, setSending] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setSending(true);
+    try {
+      await api.post('/contact', form);
+      toast.success('Message sent! We will reply soon.');
+      setForm({ name: '', email: '', message: '' });
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Could not send message');
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <section id="contact" className="py-16">
       <h2 className="section-title text-center">Contact Us</h2>
-      <div className="mx-auto mt-10 max-w-lg space-y-4 rounded-2xl bg-white/80 p-8 text-gray-600 shadow-card dark:bg-gray-800 dark:text-gray-300">
-        <p className="flex items-center gap-3">
-          <Mail className="h-5 w-5 text-rose" />
-          <a href="mailto:alisaniya026@gmail.com" className="hover:text-rose">
-            alisaniya026@gmail.com
-          </a>
-        </p>
-        <p className="flex items-center gap-3">
-          <Phone className="h-5 w-5 text-rose" />
-          <a href="tel:+917991400787" className="hover:text-rose">
-            +91 7991400787
-          </a>
-        </p>
-        <p className="flex items-center gap-3">
-          <MapPin className="h-5 w-5 text-rose" /> Crafted with love, worldwide
-        </p>
+      <div className="mx-auto mt-10 grid max-w-4xl gap-8 md:grid-cols-2">
+        <form onSubmit={submit} className="space-y-4 rounded-2xl bg-white/80 p-8 shadow-card dark:bg-gray-800">
+          <input
+            className="input-field"
+            placeholder="Your name"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            required
+          />
+          <input
+            type="email"
+            className="input-field"
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            required
+          />
+          <textarea
+            className="input-field"
+            rows={4}
+            placeholder="How can we help?"
+            value={form.message}
+            onChange={(e) => setForm({ ...form, message: e.target.value })}
+            required
+          />
+          <button type="submit" disabled={sending} className="btn-primary w-full">
+            {sending ? 'Sending...' : 'Send Message'}
+          </button>
+        </form>
+        <div className="space-y-4 rounded-2xl bg-white/80 p-8 text-gray-600 shadow-card dark:bg-gray-800 dark:text-gray-300">
+          <p className="flex items-center gap-3">
+            <Mail className="h-5 w-5 text-rose" />
+            <a href="mailto:alisaniya026@gmail.com" className="hover:text-rose">
+              alisaniya026@gmail.com
+            </a>
+          </p>
+          <p className="flex items-center gap-3">
+            <Phone className="h-5 w-5 text-rose" />
+            <a href="tel:+917991400787" className="hover:text-rose">
+              +91 7991400787
+            </a>
+          </p>
+          <p className="flex items-center gap-3">
+            <MapPin className="h-5 w-5 text-rose" /> Crafted with love, worldwide
+          </p>
+        </div>
       </div>
     </section>
   );

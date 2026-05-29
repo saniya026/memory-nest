@@ -6,7 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import contentRoutes from './routes/contentRoutes.js';
-
+import memoryRoutes from './routes/memoryRoutes.js';
 
 const app = express();
 
@@ -70,6 +70,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api', contentRoutes);
+app.use('/api/memories', memoryRoutes);
 
 app.use(errorHandler);
 

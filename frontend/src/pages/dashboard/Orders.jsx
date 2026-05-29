@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../../api/axios';
+import OrderStatusTimeline from '../../components/OrderStatusTimeline';
 
 const statusColors = {
   pending: 'bg-gray-200 text-gray-700',
@@ -47,18 +48,26 @@ export default function Orders() {
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
               {order.message || 'No message'}
             </p>
-            <div className="mt-3 flex items-center justify-between">
+            <OrderStatusTimeline status={order.status} />
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
               <span className="font-bold text-rose">₹{order.amount}</span>
-              {order.completedDesign?.url && (
-                <a
-                  href={order.completedDesign.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-primary !py-2 !px-4 text-sm"
-                >
-                  <Download className="h-4 w-4" /> Download
-                </a>
-              )}
+              <div className="flex gap-2">
+                {order.service?._id && (
+                  <Link to={`/products/${order.service._id}`} className="btn-secondary !py-2 !px-4 text-sm">
+                    Order Again
+                  </Link>
+                )}
+                {order.completedDesign?.url && (
+                  <a
+                    href={order.completedDesign.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-primary !py-2 !px-4 text-sm"
+                  >
+                    <Download className="h-4 w-4" /> Download
+                  </a>
+                )}
+              </div>
             </div>
             {order.photos?.length > 0 && (
               <div className="mt-3 flex gap-2 overflow-x-auto">

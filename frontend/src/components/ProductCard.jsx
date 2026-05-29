@@ -1,8 +1,28 @@
 import { motion } from 'framer-motion';
-import { ShoppingBag } from 'lucide-react';
+import { Heart, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useWishlist } from '../context/WishlistContext';
 
 export default function ProductCard({ service, onAdd, listView = false }) {
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const saved = isWishlisted(service._id);
+
+  const heartBtn = (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleWishlist(service);
+      }}
+      className={`rounded-full p-2 transition ${
+        saved ? 'text-rose' : 'text-gray-400 hover:text-rose'
+      }`}
+      aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+    >
+      <Heart className={`h-5 w-5 ${saved ? 'fill-current' : ''}`} />
+    </button>
+  );
   if (listView) {
     return (
       <motion.div
@@ -22,7 +42,8 @@ export default function ProductCard({ service, onAdd, listView = false }) {
           </div>
           <div className="mt-2 flex items-center justify-between">
             <span className="text-lg font-bold text-rose">₹{service.price}</span>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              {heartBtn}
               <Link to={`/products/${service._id}`} className="btn-secondary !py-2 !px-3 text-sm">
                 View
               </Link>
@@ -41,6 +62,8 @@ export default function ProductCard({ service, onAdd, listView = false }) {
       whileHover={{ y: -4 }}
       className="group overflow-hidden rounded-2xl bg-white shadow-card transition dark:bg-gray-800"
     >
+      <div className="relative">
+        <div className="absolute right-6 top-6 z-10">{heartBtn}</div>
       <Link to={`/products/${service._id}`}>
         <div className="card-polaroid mx-4 mt-4 !rotate-0 overflow-hidden !p-0">
           <img
@@ -55,6 +78,7 @@ export default function ProductCard({ service, onAdd, listView = false }) {
           <p className="mt-3 text-xl font-bold text-rose">₹{service.price}</p>
         </div>
       </Link>
+      </div>
       <div className="px-5 pb-5">
         <button type="button" onClick={() => onAdd?.(service)} className="btn-primary w-full !py-2.5 text-sm">
           <ShoppingBag className="h-4 w-4" /> Add to Cart

@@ -1,10 +1,12 @@
-import { LayoutDashboard, Package, Settings, Shield, ShoppingBag, Users } from 'lucide-react';
+import { BookHeart, Heart, LayoutDashboard, Package, Settings, Shield, ShoppingBag, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import Logo from './Logo';
 
 const customerLinks = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Overview', end: true },
   { to: '/dashboard/orders', icon: ShoppingBag, label: 'My Orders' },
+  { to: '/dashboard/memories', icon: BookHeart, label: 'Memory Journal' },
+  { to: '/wishlist', icon: Heart, label: 'Saved Designs' },
   { to: '/products', icon: Package, label: 'Browse Designs' },
 ];
 

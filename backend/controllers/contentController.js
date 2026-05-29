@@ -146,8 +146,24 @@ export const getAllUsers = async (req, res, next) => {
   }
 };
 
-export const submitContact = async (req, res) => {
-  const { name, email, message } = req.body;
-  console.log('[Contact]', { name, email, message });
-  res.json({ success: true, message: 'Thank you! We will get back to you soon.' });
+export const submitContact = async (req, res, next) => {
+  try {
+    const { name, email, message } = req.body;
+    if (!name?.trim() || !email?.trim() || !message?.trim()) {
+      throw new AppError('Name, email, and message are required', 400);
+    }
+
+    const { sendEmail } = await import('../utils/sendEmail.js');
+    const adminEmail = process.env.CONTACT_EMAIL || 'alisaniya026@gmail.com';
+    await sendEmail({
+      to: adminEmail,
+      subject: `MemoryNest contact from ${name.trim()}`,
+      html: `<p><b>Name:</b> ${name.trim()}</p><p><b>Email:</b> ${email.trim()}</p><p><b>Message:</b></p><p>${message.trim().replace(/\n/g, '<br>')}</p>`,
+    });
+
+    console.log('[Contact]', { name: name.trim(), email: email.trim() });
+    res.json({ success: true, message: 'Thank you! We will get back to you soon.' });
+  } catch (e) {
+    next(e);
+  }
 };
