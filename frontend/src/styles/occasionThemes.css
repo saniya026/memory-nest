@@ -1,0 +1,162 @@
+/* Occasion-themed designing page — variables set on .occasion-design-page */
+
+.occasion-design-page {
+  --occ-transition: 0.3s ease;
+  margin-left: calc(-1 * min(1rem, 4vw));
+  margin-right: calc(-1 * min(1rem, 4vw));
+  padding-left: min(1rem, 4vw);
+  padding-right: min(1rem, 4vw);
+  min-height: 60vh;
+  border-radius: 1.5rem;
+  background-color: var(--occ-bg);
+  color: var(--occ-text);
+  transition:
+    background-color var(--occ-transition),
+    color var(--occ-transition),
+    box-shadow var(--occ-transition);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle occasion textures */
+.occasion-design-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  transition: opacity var(--occ-transition);
+  z-index: 0;
+}
+
+.occasion-design-page[data-pattern='confetti']::before {
+  background-image:
+    radial-gradient(circle at 20% 30%, var(--occ-accent) 2px, transparent 2px),
+    radial-gradient(circle at 80% 20%, var(--occ-primary) 3px, transparent 3px),
+    radial-gradient(circle at 60% 80%, var(--occ-secondary) 4px, transparent 4px),
+    radial-gradient(circle at 10% 70%, var(--occ-primary) 2px, transparent 2px);
+  background-size: 120px 120px;
+}
+
+.occasion-design-page[data-pattern='hearts']::before {
+  background-image: radial-gradient(circle at 25% 25%, var(--occ-primary) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.occasion-design-page[data-pattern='lace']::before {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 8px,
+    rgba(212, 175, 135, 0.08) 8px,
+    rgba(212, 175, 135, 0.08) 9px
+  );
+}
+
+.occasion-design-page[data-pattern='lines']::before {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--occ-primary),
+    var(--occ-primary) 1px,
+    transparent 1px,
+    transparent 24px
+  );
+  opacity: 0.06;
+}
+
+.occasion-design-page[data-pattern='bubbles']::before {
+  background-image: radial-gradient(circle at 30% 40%, var(--occ-accent) 8px, transparent 8px),
+    radial-gradient(circle at 70% 60%, var(--occ-primary) 12px, transparent 12px);
+  background-size: 80px 80px;
+}
+
+.occasion-design-page[data-pattern='floral']::before {
+  background-image: radial-gradient(ellipse at 50% 50%, var(--occ-accent) 0%, transparent 70%);
+  background-size: 40px 60px;
+  background-position: 0 0, 20px 30px;
+}
+
+.occasion-design-page[data-pattern='dots']::before {
+  background-image: radial-gradient(circle, var(--occ-accent) 1px, transparent 1px);
+  background-size: 16px 16px;
+  opacity: 0.2;
+}
+
+.occasion-design-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.occasion-design-header {
+  background: var(--occ-surface);
+  border-bottom: 2px solid var(--occ-border);
+  transition:
+    background var(--occ-transition),
+    border-color var(--occ-transition);
+}
+
+.occasion-design-footer {
+  background: var(--occ-surface);
+  border-top: 2px solid var(--occ-border);
+  transition:
+    background var(--occ-transition),
+    border-color var(--occ-transition);
+}
+
+.occasion-surface {
+  background: var(--occ-surface);
+  border: 1px solid var(--occ-border);
+  transition:
+    background var(--occ-transition),
+    border-color var(--occ-transition);
+}
+
+.occasion-btn-primary {
+  background: linear-gradient(135deg, var(--occ-primary), var(--occ-accent));
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition:
+    transform 0.2s ease,
+    box-shadow var(--occ-transition),
+    filter var(--occ-transition);
+}
+
+.occasion-btn-primary:hover {
+  filter: brightness(1.05);
+  transform: scale(1.02);
+}
+
+.occasion-btn-secondary {
+  background: var(--occ-secondary);
+  color: var(--occ-text);
+  border: 2px solid var(--occ-border);
+  transition: all var(--occ-transition);
+}
+
+.occasion-input {
+  background: var(--occ-surface);
+  border: 1px solid var(--occ-border);
+  color: var(--occ-text);
+  transition:
+    border-color var(--occ-transition),
+    box-shadow var(--occ-transition);
+}
+
+.occasion-input:focus {
+  outline: none;
+  border-color: var(--occ-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--occ-primary) 25%, transparent);
+}
+
+.occasion-link {
+  color: var(--occ-primary);
+  transition: color var(--occ-transition);
+}
+
+.occasion-price {
+  color: var(--occ-primary);
+}
+
+.occasion-vibe {
+  color: var(--occ-text-muted);
+}
