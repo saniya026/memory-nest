@@ -22,12 +22,18 @@ export default function Hero() {
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link to="/products" className="btn-primary">
-              Browse Designs <ArrowRight className="h-5 w-5" />
+              Start Designing <ArrowRight className="h-5 w-5" />
             </Link>
-            <a href="#portfolio" className="btn-secondary">
-              View Portfolio
+            <Link to="/signup" className="btn-secondary">
+              Create Account
+            </Link>
+            <a href="#features" className="text-sm font-semibold text-rose self-center hover:underline">
+              See all features →
             </a>
           </div>
+          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+            🎂 Pick an occasion theme or create your own — colors update live on the design page
+          </p>
         </motion.div>
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

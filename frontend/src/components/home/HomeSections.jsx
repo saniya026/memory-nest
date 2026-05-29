@@ -53,7 +53,7 @@ export function ServicesSection({ services }) {
     <section id="services" className="py-16">
       <h2 className="section-title text-center">Our Services</h2>
       <p className="mx-auto mt-3 max-w-xl text-center text-gray-600 dark:text-gray-400">
-        Choose a memory page style crafted with love
+        Choose a style, then tap <strong>Customize & Design</strong> to pick your occasion theme
       </p>
       <div className="mt-10 hidden gap-6 md:grid md:grid-cols-2 lg:grid-cols-4">
         {services?.slice(0, 4).map((s) => (
