@@ -9,6 +9,7 @@ import {
   TestimonialsSection,
   LANDING_SERVICES,
 } from '../components/home/HomeSections';
+import ReviewsSection from '../components/reviews/ReviewsSection';
 
 export default function Home() {
   const [services, setServices] = useState(LANDING_SERVICES);
@@ -28,6 +29,7 @@ export default function Home() {
       <ServicesSection services={services} />
       <PortfolioSection />
       <TestimonialsSection />
+      <ReviewsSection />
       <PricingSection />
       <ContactSection />
     </>

@@ -35,8 +35,8 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const register = async (name, email, password) => {
-    const { data } = await api.post('/auth/register', { name, email, password });
+  const register = async (name, email, password, phone) => {
+    const { data } = await api.post('/auth/register', { name, email, password, phone });
     localStorage.setItem('mn_token', data.token);
     setUser(data.user);
     return data;
@@ -53,6 +53,11 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const setSession = (token, userData) => {
+    localStorage.setItem('mn_token', token);
+    setUser(userData);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -62,6 +67,7 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         updateProfile,
+        setSession,
         isAdmin: user?.role === 'admin',
         isCustomer: user?.role === 'user',
         isAuthenticated: !!user,

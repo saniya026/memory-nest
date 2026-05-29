@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
 import { useCart } from '../context/CartContext';
+import ReviewsSection from '../components/reviews/ReviewsSection';
 
 const OCCASIONS = ['Birthday', 'Friendship', 'Anniversary', 'Farewell', 'Custom'];
 const THEMES = ['Pastel Pink', 'Lavender Dream', 'Cream Scrapbook', 'Mint Garden', 'Golden Vintage'];
@@ -137,6 +138,7 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+      <ReviewsSection serviceId={id} title="Reviews for this design" />
     </div>
   );
 }

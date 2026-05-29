@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import Logo from '../../components/layout/Logo';
 
 export default function Signup() {
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -14,8 +14,8 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
-      await register(form.name, form.email, form.password);
-      toast.success('Account created!');
+      await register(form.name, form.email, form.password, form.phone);
+      toast.success('Welcome to your memory nest!');
       navigate('/dashboard');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Signup failed');
@@ -29,6 +29,9 @@ export default function Signup() {
       <div className="mb-8 text-center">
         <Logo className="justify-center text-2xl" />
         <h1 className="mt-4 font-display text-2xl font-bold">Create your nest</h1>
+        <p className="mt-2 text-sm text-gray-500">
+          Save your occasions, orders, and precious memories in one place
+        </p>
       </div>
       <form onSubmit={submit} className="space-y-4 rounded-2xl bg-white/90 p-8 shadow-card dark:bg-gray-800">
         <input
@@ -47,19 +50,27 @@ export default function Signup() {
           required
         />
         <input
+          type="tel"
+          className="input-field"
+          placeholder="Phone number"
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          required
+        />
+        <input
           type="password"
           className="input-field"
-          placeholder="Password (min 6 chars)"
+          placeholder="Password (min 6 characters)"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           minLength={6}
           required
         />
         <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? 'Creating...' : 'Sign Up'}
+          {loading ? 'Creating...' : 'Create Account'}
         </button>
         <p className="text-center text-sm text-gray-500">
-          Have an account? <Link to="/login" className="font-semibold text-rose">Login</Link>
+          Already have an account? <Link to="/login" className="font-semibold text-rose">Login</Link>
         </p>
       </form>
     </div>

@@ -1,4 +1,4 @@
-import { BookHeart, Heart, LayoutDashboard, Package, Settings, Shield, ShoppingBag, Users } from 'lucide-react';
+import { BookHeart, Heart, LayoutDashboard, MessageSquare, Package, Settings, Shield, ShoppingBag, User, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import Logo from './Logo';
 
@@ -8,6 +8,7 @@ const customerLinks = [
   { to: '/dashboard/memories', icon: BookHeart, label: 'Memory Journal' },
   { to: '/wishlist', icon: Heart, label: 'Saved Designs' },
   { to: '/products', icon: Package, label: 'Browse Designs' },
+  { to: '/profile', icon: User, label: 'Edit Profile' },
 ];
 
 const adminLinks = [
@@ -16,6 +17,7 @@ const adminLinks = [
   { to: '/admin/users', icon: Users, label: 'Customers' },
   { to: '/admin/services', icon: Package, label: 'Services' },
   { to: '/admin/pricing', icon: Settings, label: 'Pricing' },
+  { to: '/admin/reviews', icon: MessageSquare, label: 'Reviews' },
 ];
 
 export default function DashboardSidebar({ admin = false }) {

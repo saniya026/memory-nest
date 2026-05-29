@@ -6,6 +6,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminPricing from './pages/admin/AdminPricing';
 import AdminServices from './pages/admin/AdminServices';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminReviews from './pages/admin/AdminReviews';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Login from './pages/auth/Login';
 import ResetPassword from './pages/auth/ResetPassword';
@@ -88,6 +89,7 @@ export default function App() {
         <Route path="users" element={<AdminUsers />} />
         <Route path="services" element={<AdminServices />} />
         <Route path="pricing" element={<AdminPricing />} />
+        <Route path="reviews" element={<AdminReviews />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

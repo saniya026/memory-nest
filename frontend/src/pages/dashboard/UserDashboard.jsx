@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BookHeart, Heart, Package, ShoppingBag } from 'lucide-react';
+import { BookHeart, Heart, Package, ShoppingBag, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function UserDashboard() {
@@ -50,6 +50,16 @@ export default function UserDashboard() {
           <div>
             <h3 className="font-bold">New Order</h3>
             <p className="text-sm text-gray-500">Create a memory page</p>
+          </div>
+        </Link>
+        <Link
+          to="/profile"
+          className="flex items-center gap-4 rounded-2xl bg-white p-6 shadow-card transition hover:scale-[1.02] dark:bg-gray-800"
+        >
+          <User className="h-10 w-10 text-rose" />
+          <div>
+            <h3 className="font-bold">Edit Profile</h3>
+            <p className="text-sm text-gray-500">Name, phone & account</p>
           </div>
         </Link>
       </div>
