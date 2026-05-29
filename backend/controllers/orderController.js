@@ -3,22 +3,23 @@ import Service from '../models/Service.js';
 import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 import { AppError } from '../middleware/errorHandler.js';
 import nodemailer from 'nodemailer';
+const mongoose = require('mongoose');
+  
+  async function sendOrderEmail(orderDetails) {
+    try {
+      const transporter = nodemailer.createTransporter({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
 
-const sendOrderEmail = async (orderDetails) => {
-  try {
-    const transporter = nodemailer.createTransporter({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: 'alisaniya026@gmail.com',
-      subject: `New Order Received - ${orderDetails._id}`,
-      html: `
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: 'alisaniya026@gmail.com',
+        subject: `New Order Received - ${orderDetails._id}`,
+        html: `
         <h2>New Order Details</h2>
         <p><b>Order ID:</b> ${orderDetails._id}</p>
         <p><b>Occasion:</b> ${orderDetails.customOccasionName || orderDetails.occasion}</p>
@@ -28,14 +29,14 @@ const sendOrderEmail = async (orderDetails) => {
         <p><b>Amount:</b> ₹${orderDetails.amount}</p>
         <p><b>Photos:</b> ${orderDetails.photos.length} uploaded</p>
       `
-    };
+      };
 
-    await transporter.sendMail(mailOptions);
-    console.log('Order email sent successfully');
-  } catch (error) {
-    console.log('Email error:', error);
+      await transporter.sendMail(mailOptions);
+      console.log('Order email sent successfully');
+    } catch (error) {
+      console.log('Email error:', error);
+    }
   }
-};
 
 export const createOrder = async (req, res, next) => {
   try {
@@ -55,11 +56,38 @@ export const createOrder = async (req, res, next) => {
     let service = null;
     let orderAmount = Number(amount) || 999;
 
-    if (serviceId) {
-      service = await Service.findById(serviceId);
-      if (service) orderAmount = service.price;
-    }
+    // Line 55-56 ke neeche se replace kar
+let service = null;
+let orderAmount = Number(amount) || 999;
 
+if (serviceId) {
+
+  const mongoose = require('mongoose');
+  if (!mongoose.Types.ObjectId.isValid(serviceId)) {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid service selected. Please refresh and try again."
+    });
+  }
+  
+  
+  try {
+    service = await Service.findById(serviceId);
+    if (service) {
+      orderAmount = service.price;
+    } else {
+      return res.status(404).json({
+        success: false,
+        error: "Service not found"
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: "Database error while fetching service"
+    });
+  }
+}
     const photos = [];
     const captionList = captions ? JSON.parse(captions) : [];
 
