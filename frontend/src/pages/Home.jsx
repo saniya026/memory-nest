@@ -19,9 +19,10 @@ export default function Home() {
     api
       .get('/services')
       .then((r) => {
-        if (r.data.services?.length) setServices(r.data.services);
+        const fromApi = Array.isArray(r.data?.services) ? r.data.services : [];
+        setServices(fromApi.length > 0 ? fromApi : LANDING_SERVICES);
       })
-      .catch(() => {});
+      .catch(() => setServices(LANDING_SERVICES));
   }, []);
 
   return (

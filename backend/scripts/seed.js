@@ -1,4 +1,3 @@
-import Memory from '../models/memory.js'; // ya Memory.js - check kar file ka naam
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import User from '../models/User.js';
@@ -7,12 +6,11 @@ import Testimonial from '../models/Testimonial.js';
 import Pricing from '../models/Pricing.js';
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'alisaniya026@gmail.com';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Jub@id@1982';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin@123456';
 
 const seed = async () => {
   await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/memorynest');
 
-  // Single admin — demote any other admin accounts (no additional admins allowed)
   await User.updateMany(
     { email: { $ne: ADMIN_EMAIL.toLowerCase() }, role: 'admin' },
     { $set: { role: 'user' } }
@@ -40,7 +38,49 @@ const seed = async () => {
     Pricing.deleteMany({}),
   ]);
 
-  
+  await Service.insertMany([
+    {
+      title: 'Classic Scrapbook',
+      description: 'Timeless memory book with soft pastel polaroid layout and handwritten captions.',
+      price: 499,
+      image: 'https://images.unsplash.com/photo-1518199266791-5375a57590ae?w=600',
+      features: ['20 photo slots', 'Pastel theme', 'Delivery in 3 days'],
+      category: 'memory-page',
+      isActive: true,
+      sortOrder: 0,
+    },
+    {
+      title: 'Dreamy Lavender',
+      description: 'Lavender tones with floating photo frames, sparkles, and romantic captions.',
+      price: 599,
+      image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600',
+      features: ['25 photo slots', 'Lavender theme', 'Premium fonts'],
+      category: 'memory-page',
+      isActive: true,
+      sortOrder: 1,
+    },
+    {
+      title: 'Modern Minimal',
+      description: 'Clean minimal design with generous whitespace and elegant typography.',
+      price: 699,
+      image: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=600',
+      features: ['30 photo slots', 'Modern layout', 'Fast delivery'],
+      category: 'memory-page',
+      isActive: true,
+      sortOrder: 2,
+    },
+    {
+      title: 'Golden Vintage',
+      description: 'Retro scrapbook feel with warm gold accents and film-style borders.',
+      price: 549,
+      image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600',
+      features: ['22 photo slots', 'Vintage filters', 'Gift-ready PDF'],
+      category: 'memory-page',
+      isActive: true,
+      sortOrder: 3,
+    },
+  ]);
+  console.log('Services (designs) added to database');
 
   await Testimonial.insertMany([
     {
@@ -67,42 +107,13 @@ const seed = async () => {
       sortOrder: 0,
     },
   ]);
-// Add Real Designs/Products
-  const designs = [
-    {
-      name: "Classic Scrapbook",
-      price: 499,
-      image: "https://res.cloudinary.com/demo/image/upload/v1/samples/bike.jpg",
-      description: "Timeless memory book with 20 pages",
-      category: "scrapbook"
-    },
-    {
-      name: "Modern Layout", 
-      price: 699,
-      image: "https://res.cloudinary.com/demo/image/upload/v1/samples/animals/cat.jpg",
-      description: "Clean & minimal design with 30 pages",
-      category: "scrapbook"
-    },
-    {
-      name: "Vintage Style",
-      price: 599,
-      image: "https://res.cloudinary.com/demo/image/upload/v1/samples/landscapes/architecture-signs.jpg",
-      description: "Retro memories with 25 pages",
-      category: "scrapbook"
-    }
-  ];
 
-  await Memory.deleteMany();
-  await Memory.insertMany(designs);
-  console.log('Real Designs Added to DB 🔥');
-  console.log('Seed completed — admin-only site ready');
+  console.log('Seed completed — admin + services ready');
+  await mongoose.disconnect();
   process.exit(0);
 };
 
 seed().catch((e) => {
   console.error(e);
-  mongoose.disconnect();
-  console.log('Seeding Complete');
-  process.exit();
   process.exit(1);
 });

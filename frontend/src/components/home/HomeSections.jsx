@@ -49,22 +49,37 @@ const LANDING_TESTIMONIALS = [
 import ProductCard from '../ProductCard';
 
 export function ServicesSection({ services }) {
+  const list =
+    Array.isArray(services) && services.length > 0 ? services : LANDING_SERVICES;
+
   return (
     <section id="services" className="py-16">
       <h2 className="section-title text-center">Our Services</h2>
       <p className="mx-auto mt-3 max-w-xl text-center text-gray-600 dark:text-gray-400">
         Choose a style, then tap <strong>Customize & Design</strong> to pick your occasion theme
       </p>
-      <div className="mt-10 hidden gap-6 md:grid md:grid-cols-2 lg:grid-cols-4">
-        {services?.slice(0, 4).map((s) => (
-          <ProductCard key={s._id} service={s} />
-        ))}
-      </div>
-      <div className="mt-10 space-y-4 md:hidden">
-        {services?.slice(0, 4).map((s) => (
-          <ProductCard key={s._id} service={s} listView />
-        ))}
-      </div>
+
+      {list.length === 0 ? (
+        <p className="mt-10 text-center text-gray-500">
+          No designs yet.{' '}
+          <a href="/products" className="font-semibold text-rose hover:underline">
+            Browse all designs
+          </a>
+        </p>
+      ) : (
+        <>
+          <div className="mt-10 hidden gap-6 md:grid md:grid-cols-2 lg:grid-cols-4">
+            {list.slice(0, 4).map((s) => (
+              <ProductCard key={s._id} service={s} />
+            ))}
+          </div>
+          <div className="mt-10 space-y-4 md:hidden">
+            {list.slice(0, 4).map((s) => (
+              <ProductCard key={s._id} service={s} listView />
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 }

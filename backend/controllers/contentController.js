@@ -4,10 +4,34 @@ import Pricing from '../models/Pricing.js';
 import User from '../models/User.js';
 import { AppError } from '../middleware/errorHandler.js';
 
+const FALLBACK_SERVICES = [
+  {
+    _id: 'fallback-classic',
+    title: 'Classic Scrapbook',
+    description: 'Soft pastel polaroid layout with handwritten captions.',
+    price: 499,
+    image: 'https://images.unsplash.com/photo-1518199266791-5375a57590ae?w=600',
+    features: ['20 photo slots', 'Pastel theme'],
+    isActive: true,
+  },
+  {
+    _id: 'fallback-lavender',
+    title: 'Dreamy Lavender',
+    description: 'Lavender tones with floating photo frames and sparkles.',
+    price: 599,
+    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600',
+    features: ['25 photo slots', 'Lavender theme'],
+    isActive: true,
+  },
+];
+
 export const getServices = async (req, res, next) => {
   try {
     const query = req.user?.role === 'admin' ? {} : { isActive: true };
     const services = await Service.find(query).sort('sortOrder');
+    if (services.length === 0 && req.user?.role !== 'admin') {
+      return res.json({ success: true, services: FALLBACK_SERVICES, fallback: true });
+    }
     res.json({ success: true, services });
   } catch (e) {
     next(e);
@@ -16,6 +40,9 @@ export const getServices = async (req, res, next) => {
 
 export const getService = async (req, res, next) => {
   try {
+    const fallback = FALLBACK_SERVICES.find((s) => s._id === req.params.id);
+    if (fallback) return res.json({ success: true, service: fallback });
+
     const service = await Service.findById(req.params.id);
     if (!service) throw new AppError('Service not found', 404);
     res.json({ success: true, service });

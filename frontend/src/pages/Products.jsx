@@ -3,12 +3,21 @@ import { Link } from 'react-router-dom';
 import { Palette, Sparkles } from 'lucide-react';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
+import { LANDING_SERVICES } from '../components/home/HomeSections';
 
 export default function Products() {
-  const [services, setServices] = useState([]);
+  const [services, setServices] = useState(LANDING_SERVICES);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/services').then((r) => setServices(r.data.services || [])).catch(() => {});
+    api
+      .get('/services')
+      .then((r) => {
+        const fromApi = Array.isArray(r.data?.services) ? r.data.services : [];
+        setServices(fromApi.length > 0 ? fromApi : LANDING_SERVICES);
+      })
+      .catch(() => setServices(LANDING_SERVICES))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -42,9 +51,12 @@ export default function Products() {
         </div>
       </div>
 
-      {services.length === 0 && (
+      {loading && (
+        <p className="mt-8 text-center text-gray-500">Loading designs…</p>
+      )}
+      {!loading && services.length === 0 && (
         <p className="mt-8 text-center text-gray-500">
-          Loading designs… If empty, run <code className="text-rose">npm run seed</code> in backend.
+          No designs in database. Run <code className="text-rose">npm run seed</code> in the backend folder.
         </p>
       )}
 
