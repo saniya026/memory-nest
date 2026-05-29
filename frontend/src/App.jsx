@@ -27,8 +27,46 @@ import Privacy from './pages/Privacy';
 import Refund from './pages/Refund';
 import Return from './pages/Return';
 import Shipping from './pages/Shipping';
+import { useState, useEffect } from 'react';
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#000',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999
+      }}>
+        <video
+          autoPlay
+          muted
+          playsInline
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          onEnded={() => setShowSplash(false)}
+        >
+          <source src="/logo-splash.mp4" type="video/mp4" />
+        </video>
+      </div>
+    );
+  }
+
   return (
     <Routes>
       {/* Public — browse & auth */}
@@ -40,7 +78,6 @@ export default function App() {
         <Route path="signup" element={<Signup />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="reset-password/:token" element={<ResetPassword />} />
-
         <Route path="terms" element={<Terms />} />
         <Route path="privacy" element={<Privacy />} />
         <Route path="refund" element={<Refund />} />
