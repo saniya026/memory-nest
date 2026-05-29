@@ -18,6 +18,10 @@ export default function Checkout() {
         fd.append('serviceId', item.service._id);
         fd.append('occasion', draft.occasion || 'Custom');
         fd.append('theme', draft.theme || 'Pastel Pink');
+        if (draft.customOccasionName) fd.append('customOccasionName', draft.customOccasionName);
+        if (draft.customColorPreset) fd.append('customColorPreset', draft.customColorPreset);
+        if (draft.customColorPrimary) fd.append('customColorPrimary', draft.customColorPrimary);
+        if (draft.customColorSecondary) fd.append('customColorSecondary', draft.customColorSecondary);
         fd.append('message', draft.message || '');
         fd.append('specialInstructions', draft.specialInstructions || '');
         fd.append('amount', item.service.price);

@@ -175,3 +175,45 @@ export function getOccasionCssVars(theme) {
 export function getThemeById(id) {
   return OCCASION_THEMES[id] || OCCASION_THEMES[DEFAULT_OCCASION_ID];
 }
+
+/** Relative luminance — pick readable text on custom backgrounds */
+function luminance(hex) {
+  const c = hex.replace('#', '');
+  const r = parseInt(c.slice(0, 2), 16) / 255;
+  const g = parseInt(c.slice(2, 4), 16) / 255;
+  const b = parseInt(c.slice(4, 6), 16) / 255;
+  const [lr, lg, lb] = [r, g, b].map((v) =>
+    v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
+  );
+  return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb;
+}
+
+/**
+ * Build a full occasion theme from customer-defined name + colors.
+ * Used for "Add Your Own Occasion" flow.
+ */
+export function buildCustomOccasionTheme({ id, name, primary, secondary, presetLabel }) {
+  const darkBg = luminance(secondary) < 0.5;
+  return {
+    id,
+    label: name.trim(),
+    icon: '🎉',
+    primary,
+    secondary,
+    accent: primary,
+    bg: secondary,
+    surface: darkBg ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.92)',
+    text: darkBg ? '#F9FAFB' : '#1F2937',
+    textMuted: darkBg ? '#D1D5DB' : '#6B7280',
+    border: `${primary}66`,
+    vibe: presetLabel ? `${presetLabel} · Your special day` : 'Your custom celebration',
+    pattern: 'dots',
+    isCustom: true,
+    colorPresetLabel: presetLabel || '',
+    customColors: { primary, secondary },
+  };
+}
+
+export function createCustomOccasionId() {
+  return `custom-${Date.now()}`;
+}

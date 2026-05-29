@@ -69,7 +69,7 @@ export default function Orders() {
                 <p className="font-mono text-xs text-gray-400">{formatOrderId(order._id)}</p>
                 <h3 className="font-semibold">{order.service?.title || 'Custom Memory'}</h3>
                 <p className="text-sm text-gray-500">
-                  {order.occasion} · {order.theme}
+                  {order.customOccasionName || order.occasion} · {order.theme}
                 </p>
                 <p className="mt-1 text-xs text-gray-400">
                   {new Date(order.createdAt).toLocaleDateString(undefined, {

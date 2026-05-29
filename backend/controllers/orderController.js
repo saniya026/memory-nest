@@ -21,8 +21,9 @@ const sendOrderEmail = async (orderDetails) => {
       html: `
         <h2>New Order Details</h2>
         <p><b>Order ID:</b> ${orderDetails._id}</p>
-        <p><b>Occasion:</b> ${orderDetails.occasion}</p>
+        <p><b>Occasion:</b> ${orderDetails.customOccasionName || orderDetails.occasion}</p>
         <p><b>Theme:</b> ${orderDetails.theme}</p>
+        ${orderDetails.customColorPreset ? `<p><b>Custom colors:</b> ${orderDetails.customColorPreset} (${orderDetails.customColorPrimary} / ${orderDetails.customColorSecondary})</p>` : ''}
         <p><b>Message:</b> ${orderDetails.message}</p>
         <p><b>Amount:</b> ₹${orderDetails.amount}</p>
         <p><b>Photos:</b> ${orderDetails.photos.length} uploaded</p>
@@ -38,7 +39,19 @@ const sendOrderEmail = async (orderDetails) => {
 
 export const createOrder = async (req, res, next) => {
   try {
-    const { occasion, theme, message, specialInstructions, serviceId, amount, captions } = req.body;
+    const {
+      occasion,
+      theme,
+      message,
+      specialInstructions,
+      serviceId,
+      amount,
+      captions,
+      customOccasionName,
+      customColorPreset,
+      customColorPrimary,
+      customColorSecondary,
+    } = req.body;
     let service = null;
     let orderAmount = Number(amount) || 999;
 
@@ -67,6 +80,10 @@ export const createOrder = async (req, res, next) => {
       photos,
       occasion,
       theme,
+      customOccasionName: customOccasionName || '',
+      customColorPreset: customColorPreset || '',
+      customColorPrimary: customColorPrimary || '',
+      customColorSecondary: customColorSecondary || '',
       message: message || '',
       specialInstructions: specialInstructions || '',
       amount: orderAmount,

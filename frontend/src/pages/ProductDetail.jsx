@@ -5,6 +5,7 @@ import api from '../api/axios';
 import { useCart } from '../context/CartContext';
 import ReviewsSection from '../components/reviews/ReviewsSection';
 import OccasionSelector from '../components/design/OccasionSelector';
+import CustomEventModal from '../components/design/CustomEventModal';
 import {
   DEFAULT_OCCASION_ID,
   OCCASION_ORDER_VALUES,
@@ -21,6 +22,9 @@ export default function ProductDetail() {
   const { addToCart } = useCart();
   const [service, setService] = useState(null);
   const [occasionId, setOccasionId] = useState(DEFAULT_OCCASION_ID);
+  const [customOccasions, setCustomOccasions] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingCustom, setEditingCustom] = useState(null);
   const [form, setForm] = useState({
     theme: 'Pastel Pink',
     message: '',
@@ -29,20 +33,77 @@ export default function ProductDetail() {
   const [photos, setPhotos] = useState([]);
   const [captions, setCaptions] = useState([]);
 
-  const occasionTheme = useMemo(() => getThemeById(occasionId), [occasionId]);
+  const resolveTheme = (oid) => {
+    const custom = customOccasions.find((c) => c.id === oid);
+    if (custom) return custom;
+    return getThemeById(oid);
+  };
+
+  const occasionTheme = useMemo(() => resolveTheme(occasionId), [occasionId, customOccasions]);
   const cssVars = useMemo(() => getOccasionCssVars(occasionTheme), [occasionTheme]);
-  const orderOccasion = OCCASION_ORDER_VALUES[occasionId] || 'Custom';
+
+  const orderOccasion = useMemo(() => {
+    if (occasionTheme.isCustom) return 'Custom';
+    return OCCASION_ORDER_VALUES[occasionId] || 'Custom';
+  }, [occasionId, occasionTheme]);
+
+  const displayOccasionName = occasionTheme.isCustom
+    ? occasionTheme.label
+    : orderOccasion;
 
   useEffect(() => {
     api.get(`/services/${id}`).then((r) => setService(r.data.service)).catch(() => {});
   }, [id]);
 
-  const handleOccasionSelect = (id) => {
-    setOccasionId(id);
-    const theme = getThemeById(id);
-    if (id !== DEFAULT_OCCASION_ID) {
-      setForm((f) => ({ ...f, theme: `${theme.label} — ${theme.vibe.split(',')[0]}` }));
+  const handleOccasionSelect = (oid) => {
+    setOccasionId(oid);
+    const theme = resolveTheme(oid);
+    if (oid !== DEFAULT_OCCASION_ID) {
+      setForm((f) => ({
+        ...f,
+        theme: theme.isCustom
+          ? `${theme.label} — ${theme.colorPresetLabel || 'Custom colors'}`
+          : `${theme.label} — ${theme.vibe.split(',')[0]}`,
+      }));
     }
+  };
+
+  const handleCustomConfirm = (theme) => {
+    setCustomOccasions((prev) => {
+      const exists = prev.findIndex((c) => c.id === theme.id);
+      if (exists >= 0) {
+        const next = [...prev];
+        next[exists] = theme;
+        return next;
+      }
+      return [...prev, theme];
+    });
+    setOccasionId(theme.id);
+    setForm((f) => ({
+      ...f,
+      theme: `${theme.label} — ${theme.colorPresetLabel || 'Custom'}`,
+    }));
+    toast.success(`"${theme.label}" theme applied!`);
+  };
+
+  const handleRemoveCustom = (customId) => {
+    setCustomOccasions((prev) => prev.filter((c) => c.id !== customId));
+    if (occasionId === customId) setOccasionId(DEFAULT_OCCASION_ID);
+    toast.success('Custom occasion removed');
+  };
+
+  const openAddModal = () => {
+    setEditingCustom(null);
+    setModalOpen(true);
+  };
+
+  const openEditModal = (occ) => {
+    setEditingCustom({
+      id: occ.id,
+      label: occ.label,
+      presetId: occ.presetId,
+    });
+    setModalOpen(true);
   };
 
   const onPhotos = (e) => {
@@ -57,7 +118,8 @@ export default function ProductDetail() {
       toast.error('Please select an occasion first');
       return;
     }
-    addToCart(service, {
+
+    const draft = {
       occasion: orderOccasion,
       ...form,
       photos,
@@ -65,7 +127,16 @@ export default function ProductDetail() {
       amount: service.price,
       serviceId: service._id,
       occasionThemeId: occasionId,
-    });
+    };
+
+    if (occasionTheme.isCustom) {
+      draft.customOccasionName = occasionTheme.label;
+      draft.customColorPreset = occasionTheme.colorPresetLabel || '';
+      draft.customColorPrimary = occasionTheme.customColors?.primary || occasionTheme.primary;
+      draft.customColorSecondary = occasionTheme.customColors?.secondary || occasionTheme.secondary;
+    }
+
+    addToCart(service, draft);
     toast.success('Added to cart — complete checkout to place order');
     navigate('/cart');
   };
@@ -81,7 +152,6 @@ export default function ProductDetail() {
         data-pattern={occasionTheme.pattern}
         style={cssVars}
       >
-        {/* Themed header strip */}
         <header className="occasion-design-header -mx-4 mb-6 rounded-t-2xl px-4 py-4 md:mx-0 md:rounded-2xl">
           <Link to="/products" className="occasion-link text-sm font-semibold hover:underline">
             ← Back to designs
@@ -97,13 +167,27 @@ export default function ProductDetail() {
                 border: `1px solid ${occasionTheme.border}`,
               }}
             >
-              <span>{occasionTheme.icon}</span> {occasionTheme.label} · {occasionTheme.vibe}
+              <span>{occasionTheme.icon}</span> {occasionTheme.label}
+              {!occasionTheme.isCustom && ` · ${occasionTheme.vibe}`}
             </p>
           )}
         </header>
 
-        {/* Occasion selector */}
-        <OccasionSelector selectedId={occasionId} onSelect={handleOccasionSelect} />
+        <OccasionSelector
+          selectedId={occasionId}
+          onSelect={handleOccasionSelect}
+          customOccasions={customOccasions}
+          onAddCustom={openAddModal}
+          onEditCustom={openEditModal}
+          onRemoveCustom={handleRemoveCustom}
+        />
+
+        <CustomEventModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onConfirm={handleCustomConfirm}
+          initialData={editingCustom}
+        />
 
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
           <div
@@ -197,10 +281,10 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* Themed footer */}
         <footer className="occasion-design-footer mt-8 rounded-b-2xl px-4 py-4 text-center text-sm">
           <p className="occasion-vibe">
-            Occasion: <strong style={{ color: 'var(--occ-primary)' }}>{orderOccasion}</strong>
+            Occasion:{' '}
+            <strong style={{ color: 'var(--occ-primary)' }}>{displayOccasionName}</strong>
             {occasionId === DEFAULT_OCCASION_ID && ' — select one above to personalize'}
           </p>
         </footer>
