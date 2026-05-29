@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import AdminHome from './pages/admin/AdminHome';
@@ -31,14 +31,16 @@ import { useState, useEffect } from 'react';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
+      navigate('/login'); // Logo ke baad Login page
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [navigate]);
 
   if (showSplash) {
     return (
@@ -59,7 +61,10 @@ export default function App() {
           muted
           playsInline
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onEnded={() => setShowSplash(false)}
+          onEnded={() => {
+            setShowSplash(false);
+            navigate('/login');
+          }}
         >
           <source src="/logo-splash.mp4" type="video/mp4" />
         </video>
@@ -129,7 +134,7 @@ export default function App() {
         <Route path="reviews" element={<AdminReviews />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }
