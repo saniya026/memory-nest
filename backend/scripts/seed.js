@@ -42,7 +42,7 @@ const seed = async () => {
     {
       title: 'Classic Scrapbook',
       description: 'Timeless memory book with soft pastel polaroid layout and handwritten captions.',
-      price: 499,
+      price: 100,
       image: 'https://images.unsplash.com/photo-1518199266791-5375a57590ae?w=600',
       features: ['20 photo slots', 'Pastel theme', 'Delivery in 3 days'],
       category: 'memory-page',
@@ -52,7 +52,7 @@ const seed = async () => {
     {
       title: 'Dreamy Lavender',
       description: 'Lavender tones with floating photo frames, sparkles, and romantic captions.',
-      price: 599,
+      price: 100,
       image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600',
       features: ['25 photo slots', 'Lavender theme', 'Premium fonts'],
       category: 'memory-page',
