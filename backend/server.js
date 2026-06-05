@@ -4,6 +4,8 @@ import cors from 'cors';
 import { connectDB, getMongoHelpMessage } from './config/db.js';
 import memoryRoutes from './routes/memoryRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import designRoutes from './routes/designRoutes.js';
+app.use('/api/designs', designRoutes);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
