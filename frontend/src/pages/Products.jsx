@@ -3,20 +3,20 @@ import { Link } from 'react-router-dom';
 import { Palette, Sparkles } from 'lucide-react';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
-import { LANDING_SERVICES } from '../components/home/HomeSections';
+// LANDING_SERVICES hata de, zarurat nahi
 
 export default function Products() {
-  const [designs, setDesigns] = useState(LANDING_SERVICES);
+  const [designs, setDesigns] = useState([]); // Khali array, LANDING_SERVICES nahi
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api
       .get('/designs')
       .then((r) => {
-        const fromApi = Array.isArray(r.data)? r.data :[];
+        const fromApi = Array.isArray(r.data) ? r.data : [];
         setDesigns(fromApi);
       })
-      .catch(() => setDesigns(LANDING_SERVICES))
+      .catch(() => setDesigns([])) // Error pe khali array
       .finally(() => setLoading(false));
   }, []);
 
@@ -54,20 +54,20 @@ export default function Products() {
       {loading && (
         <p className="mt-8 text-center text-gray-500">Loading designs…</p>
       )}
-      {!loading && services.length === 0 && (
+      {!loading && designs.length === 0 && ( // designs likha, services nahi
         <p className="mt-8 text-center text-gray-500">
-          No designs in database. Run <code className="text-rose">npm run seed</code> in the backend folder.
+          No designs found. Add one from admin panel.
         </p>
       )}
 
       <div className="mt-6 space-y-4 md:hidden">
-        {services.map((s) => (
+        {designs.map((s) => ( // designs.map, services nahi
           <ProductCard key={s._id} service={s} listView />
         ))}
       </div>
 
       <div className="mt-8 hidden gap-6 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {services.map((s) => (
+        {designs.map((s) => ( // designs.map, services nahi
           <ProductCard key={s._id} service={s} />
         ))}
       </div>
