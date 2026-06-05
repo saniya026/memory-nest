@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import AdminHome from './pages/admin/AdminHome';
@@ -32,15 +32,20 @@ import { useState, useEffect } from 'react';
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
+    // Splash sirf 5 sec dikhao, redirect mat karo
     const timer = setTimeout(() => {
       setShowSplash(false);
-      navigate('/login'); // Logo ke baad Login page
+      // Agar user "/" pe hai tabhi home pe bhejo, warna usi page pe rehne do
+      if (location.pathname === '/') {
+        navigate('/');
+      }
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   if (showSplash) {
     return (
@@ -61,10 +66,7 @@ export default function App() {
           muted
           playsInline
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onEnded={() => {
-            setShowSplash(false);
-            navigate('/login');
-          }}
+          onEnded={() => setShowSplash(false)} // <-- navigate('/login') hata diya
         >
           <source src="/logo-splash.mp4" type="video/mp4" />
         </video>
@@ -134,7 +136,7 @@ export default function App() {
         <Route path="reviews" element={<AdminReviews />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
