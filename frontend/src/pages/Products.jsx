@@ -6,17 +6,17 @@ import ProductCard from '../components/ProductCard';
 import { LANDING_SERVICES } from '../components/home/HomeSections';
 
 export default function Products() {
-  const [services, setServices] = useState(LANDING_SERVICES);
+  const [designs, setDesigns] = useState(LANDING_SERVICES);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api
-      .get('/services')
+      .get('/designs')
       .then((r) => {
-        const fromApi = Array.isArray(r.data?.services) ? r.data.services : [];
-        setServices(fromApi.length > 0 ? fromApi : LANDING_SERVICES);
+        const fromApi = Array.isArray(r.data)? r.data :[];
+        setDesigns(fromApi);
       })
-      .catch(() => setServices(LANDING_SERVICES))
+      .catch(() => setDesigns(LANDING_SERVICES))
       .finally(() => setLoading(false));
   }, []);
 
