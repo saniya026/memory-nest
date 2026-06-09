@@ -48,21 +48,28 @@ export default function ProductDetail() {
   }, [occasionId, occasionTheme]);
 
   const displayOccasionName = occasionTheme.isCustom
-    ? occasionTheme.label
+   ? occasionTheme.label
     : orderOccasion;
 
+  // ✅ FIXED: /services -> /designs aur r.data.service -> r.data.design
   useEffect(() => {
-    api.get(`/services/${id}`).then((r) => setService(r.data.service)).catch(() => {});
+    api.get(`/designs/${id}`)
+     .then((r) => setService(r.data.design))
+     .catch((err) => {
+        console.error('Design fetch error:', err);
+        toast.error('Design not found');
+        setService(null);
+      });
   }, [id]);
 
   const handleOccasionSelect = (oid) => {
     setOccasionId(oid);
     const theme = resolveTheme(oid);
-    if (oid !== DEFAULT_OCCASION_ID) {
+    if (oid!== DEFAULT_OCCASION_ID) {
       setForm((f) => ({
-        ...f,
+       ...f,
         theme: theme.isCustom
-          ? `${theme.label} — ${theme.colorPresetLabel || 'Custom colors'}`
+         ? `${theme.label} — ${theme.colorPresetLabel || 'Custom colors'}`
           : `${theme.label} — ${theme.vibe.split(',')[0]}`,
       }));
     }
@@ -80,14 +87,14 @@ export default function ProductDetail() {
     });
     setOccasionId(theme.id);
     setForm((f) => ({
-      ...f,
+     ...f,
       theme: `${theme.label} — ${theme.colorPresetLabel || 'Custom'}`,
     }));
     toast.success(`"${theme.label}" theme applied!`);
   };
 
   const handleRemoveCustom = (customId) => {
-    setCustomOccasions((prev) => prev.filter((c) => c.id !== customId));
+    setCustomOccasions((prev) => prev.filter((c) => c.id!== customId));
     if (occasionId === customId) setOccasionId(DEFAULT_OCCASION_ID);
     toast.success('Custom occasion removed');
   };
@@ -121,7 +128,7 @@ export default function ProductDetail() {
 
     const draft = {
       occasion: orderOccasion,
-      ...form,
+     ...form,
       photos,
       captions,
       amount: service.price,
@@ -158,7 +165,7 @@ export default function ProductDetail() {
           </Link>
           <p className="occasion-vibe mt-1 text-xs uppercase tracking-wider">Memory designing studio</p>
           <h1 className="font-display mt-2 text-2xl font-bold md:text-3xl">{service.title}</h1>
-          {occasionId !== DEFAULT_OCCASION_ID && (
+          {occasionId!== DEFAULT_OCCASION_ID && (
             <p
               className="mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold"
               style={{
@@ -247,7 +254,7 @@ export default function ProductDetail() {
                 <select
                   className="occasion-input mt-1 w-full rounded-xl px-4 py-3"
                   value={form.theme}
-                  onChange={(e) => setForm({ ...form, theme: e.target.value })}
+                  onChange={(e) => setForm({...form, theme: e.target.value })}
                 >
                   {VISUAL_THEMES.map((t) => (
                     <option key={t}>{t}</option>
@@ -260,14 +267,14 @@ export default function ProductDetail() {
                 placeholder="Your message / story"
                 rows={3}
                 value={form.message}
-                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                onChange={(e) => setForm({...form, message: e.target.value })}
               />
               <textarea
                 className="occasion-input w-full rounded-xl px-4 py-3"
                 placeholder="Special instructions"
                 rows={2}
                 value={form.specialInstructions}
-                onChange={(e) => setForm({ ...form, specialInstructions: e.target.value })}
+                onChange={(e) => setForm({...form, specialInstructions: e.target.value })}
               />
 
               <button
