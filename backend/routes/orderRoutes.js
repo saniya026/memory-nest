@@ -1,6 +1,7 @@
 import express from 'express';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
+import Order from '../models/Order.js'; // ✅ Order model import kar
 import {
   createOrder,
   getMyOrders,
@@ -19,36 +20,31 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-router.use(protect); // sab routes protected
-
-// ✅ RAZORPAY ROUTES - Naye add kiye
-
-// 1. Create Razorpay Order + Save in DB
-router.post('/create-razorpay-order', async (req, res) => {
+// ✅ RAZORPAY ROUTES
+router.post('/create-razorpay-order', protect, async (req, res) => {
   try {
-    const { amount, serviceId, ...orderData } = req.body;
+    const { amount, items, serviceId, ...orderData } = req.body;
 
     const options = {
       amount: amount * 100, // paise me
       currency: 'INR',
-      receipt: `receipt_${Date.now()}`,
+      receipt: `rcpt_${Date.now()}`,
     };
 
     const razorpayOrder = await razorpay.orders.create(options);
 
-    // DB me save with razorpayOrderId
-    const order = await createOrder({
-      ...req,
-      body: {
-        ...orderData,
-        serviceId,
-        amount,
-        razorpayOrderId: razorpayOrder.id,
-        status: 'Created'
-      }
+    // ✅ Direct DB me save kar, createOrder controller mat call kar
+    const order = await Order.create({
+      user: req.user._id,
+      items: items || [{ service: serviceId, amount }],
+      totalAmount: amount,
+      razorpayOrderId: razorpayOrder.id,
+      paymentStatus: 'created',
+      ...orderData
     });
 
     res.json({
+      success: true,
       razorpayOrderId: razorpayOrder.id,
       amount: razorpayOrder.amount,
       key: process.env.RAZORPAY_KEY_ID,
@@ -60,10 +56,9 @@ router.post('/create-razorpay-order', async (req, res) => {
   }
 });
 
-// 2. Verify Payment after success
-router.post('/verify-payment', async (req, res) => {
+router.post('/verify-payment', protect, async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
 
     const sign = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSign = crypto
@@ -72,12 +67,13 @@ router.post('/verify-payment', async (req, res) => {
       .digest('hex');
 
     if (razorpay_signature === expectedSign) {
-      // Payment success - update order status
-      await updateOrderStatus({
-        params: { id: req.body.orderId },
-        body: { status: 'Paid', razorpayPaymentId: razorpay_payment_id }
-      }, res);
-      return res.json({ success: true });
+      // ✅ Direct DB update kar
+      await Order.findByIdAndUpdate(orderId, {
+        paymentStatus: 'paid',
+        razorpayPaymentId: razorpay_payment_id,
+        status: 'Paid'
+      });
+      return res.json({ success: true, message: 'Payment verified' });
     } else {
       return res.status(400).json({ success: false, message: 'Invalid signature' });
     }
@@ -87,8 +83,8 @@ router.post('/verify-payment', async (req, res) => {
 });
 
 // Customer - own orders only
-router.post('/', upload.array('photos', 20), createOrder);
-router.get('/my', getMyOrders);
+router.post('/', protect, upload.array('photos', 20), createOrder);
+router.get('/my', protect, getMyOrders);
 
 // Admin - all orders
 router.get('/', admin, getAllOrders);
