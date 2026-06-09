@@ -49,28 +49,23 @@ export default function ProductDetail() {
   }, [occasionId, occasionTheme]);
 
   const displayOccasionName = occasionTheme.isCustom
-  ? occasionTheme.label
+? occasionTheme.label
     : orderOccasion;
 
-  // ✅ FINAL FIX: /designs + cache busting + loading state
+  // ✅ FINAL FIX: Backend direct object bhejta hai, design key me nahi
   useEffect(() => {
     setLoading(true);
     api.get(`/designs/${id}?v=${Date.now()}`)
-    .then((r) => {
+  .then((r) => {
         console.log('Design API Response:', r.data);
-        if (r.data && r.data.design) {
-          setService(r.data.design);
-        } else {
-          toast.error('Design data not found');
-          setService(null);
-        }
+        setService(r.data); // Backend se direct object aa raha hai
       })
-    .catch((err) => {
+  .catch((err) => {
         console.error('Design fetch error:', err);
         toast.error('Failed to load design');
         setService(null);
       })
-    .finally(() => {
+  .finally(() => {
         setLoading(false);
       });
   }, [id]);
@@ -80,9 +75,9 @@ export default function ProductDetail() {
     const theme = resolveTheme(oid);
     if (oid!== DEFAULT_OCCASION_ID) {
       setForm((f) => ({
-      ...f,
+    ...f,
         theme: theme.isCustom
-        ? `${theme.label} — ${theme.colorPresetLabel || 'Custom colors'}`
+      ? `${theme.label} — ${theme.colorPresetLabel || 'Custom colors'}`
           : `${theme.label} — ${theme.vibe.split(',')[0]}`,
       }));
     }
@@ -100,7 +95,7 @@ export default function ProductDetail() {
     });
     setOccasionId(theme.id);
     setForm((f) => ({
-    ...f,
+  ...f,
       theme: `${theme.label} — ${theme.colorPresetLabel || 'Custom'}`,
     }));
     toast.success(`"${theme.label}" theme applied!`);
@@ -141,7 +136,7 @@ export default function ProductDetail() {
 
     const draft = {
       occasion: orderOccasion,
-    ...form,
+  ...form,
       photos,
       captions,
       amount: service.price,
