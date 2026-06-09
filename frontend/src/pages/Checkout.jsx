@@ -3,7 +3,7 @@ import Design from '../models/Design.js'; // Service ki jagah Design
 import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 import { AppError } from '../middleware/errorHandler.js';
 import nodemailer from 'nodemailer';
-import mongoose from 'mongoose';
+
 
 async function sendOrderEmail(orderDetails) {
   try {
