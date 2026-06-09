@@ -5,11 +5,11 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 export default function Checkout() {
-  const { cart, clearCart } = useCart();
+  const { cart = [], clearCart } = useCart(); // ✅ cart = [] default daal diya
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const total = cart.reduce((sum, item) => sum + item.amount, 0);
+  const total = cart.reduce((sum, item) => sum + item.amount, 0); // ✅ 0); fix
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -85,13 +85,27 @@ export default function Checkout() {
     }
   };
 
+  if (cart.length === 0) {
+    return (
+      <div className="mx-auto max-w-2xl p-6 text-center">
+        <h1 className="text-2xl font-bold mb-4">Cart is Empty</h1>
+        <button
+          onClick={() => navigate('/designs')}
+          className="bg-rose-500 text-white px-6 py-2 rounded-xl"
+        >
+          Browse Designs
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-2xl p-6">
       <h1 className="text-2xl font-bold mb-6">Checkout</h1>
       {cart.map((item, i) => (
         <div key={i} className="border-b py-4 flex justify-between">
           <div>
-            <p className="font-semibold">{item.service?.title}</p>
+            <p className="font-semibold">{item.service?.title || 'Custom Design'}</p>
             <p className="text-sm text-gray-600">{item.occasion}</p>
           </div>
           <p className="font-bold">₹{item.amount}</p>
@@ -103,7 +117,7 @@ export default function Checkout() {
       </div>
       <button
         onClick={handlePayment}
-        disabled={loading || cart.length === 0}
+        disabled={loading}
         className="mt-6 w-full bg-rose-500 hover:bg-rose-600 text-white py-3 rounded-xl font-semibold disabled:opacity-50 transition"
       >
         {loading? 'Processing...' : `Pay ₹${total} with Razorpay`}
