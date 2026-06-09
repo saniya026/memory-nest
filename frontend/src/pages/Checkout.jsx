@@ -5,11 +5,9 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 export default function Checkout() {
-  const { cart = [], clearCart } = useCart(); // ✅ cart = [] default daal diya
+  const { items, clearCart, total } = useCart(); // ✅ items aur total direct context se le
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const total = cart.reduce((sum, item) => sum + item.amount, 0); // ✅ 0); fix
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -22,7 +20,7 @@ export default function Checkout() {
   };
 
   const handlePayment = async () => {
-    if (cart.length === 0) return toast.error('Cart is empty');
+    if (items.length === 0) return toast.error('Cart is empty');
 
     setLoading(true);
     const res = await loadRazorpay();
@@ -33,21 +31,29 @@ export default function Checkout() {
     }
 
     try {
-      const item = cart[0];
+      // ✅ Pehla item le - tu multiple items handle karna chahe to loop laga
+      const item = items[0];
+      const orderData = item.orderDraft || {
+        serviceId: item.service._id,
+        amount: item.service.price,
+        occasion: 'Custom',
+        theme: 'Default',
+        message: '',
+      };
 
       const { data } = await api.post('/orders/create-razorpay-order', {
-        amount: total,
-        serviceId: item.serviceId,
-        occasion: item.occasion,
-        theme: item.theme,
-        message: item.message,
-        specialInstructions: item.specialInstructions,
-        customOccasionName: item.customOccasionName,
-        customColorPreset: item.customColorPreset,
-        customColorPrimary: item.customColorPrimary,
-        customColorSecondary: item.customColorSecondary,
-        photos: item.photos?.map(p => p.url || p) || [],
-        captions: item.captions || [],
+        amount: orderData.amount,
+        serviceId: orderData.serviceId,
+        occasion: orderData.occasion,
+        theme: orderData.theme,
+        message: orderData.message,
+        specialInstructions: orderData.specialInstructions,
+        customOccasionName: orderData.customOccasionName,
+        customColorPreset: orderData.customColorPreset,
+        customColorPrimary: orderData.customColorPrimary,
+        customColorSecondary: orderData.customColorSecondary,
+        photos: orderData.photos || [],
+        captions: orderData.captions || [],
       });
 
       const options = {
@@ -59,7 +65,7 @@ export default function Checkout() {
         order_id: data.razorpayOrderId,
         handler: async function (response) {
           await api.post('/orders/verify-payment', {
-           ...response,
+          ...response,
             orderId: data.orderId
           });
           toast.success('Payment successful! 🎉');
@@ -85,7 +91,7 @@ export default function Checkout() {
     }
   };
 
-  if (cart.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="mx-auto max-w-2xl p-6 text-center">
         <h1 className="text-2xl font-bold mb-4">Cart is Empty</h1>
@@ -102,13 +108,13 @@ export default function Checkout() {
   return (
     <div className="mx-auto max-w-2xl p-6">
       <h1 className="text-2xl font-bold mb-6">Checkout</h1>
-      {cart.map((item, i) => (
+      {items.map((item, i) => (
         <div key={i} className="border-b py-4 flex justify-between">
           <div>
             <p className="font-semibold">{item.service?.title || 'Custom Design'}</p>
-            <p className="text-sm text-gray-600">{item.occasion}</p>
+            <p className="text-sm text-gray-600">{item.orderDraft?.occasion || 'Custom'}</p>
           </div>
-          <p className="font-bold">₹{item.amount}</p>
+          <p className="font-bold">₹{item.service?.price || item.orderDraft?.amount}</p>
         </div>
       ))}
       <div className="mt-6 flex justify-between text-xl font-bold">
