@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
@@ -8,30 +8,13 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, isAuthenticated, isAdmin } = useAuth();
+  const { login } = useAuth(); // ✅ isAuthenticated, isAdmin hata diya
   const navigate = useNavigate();
   const location = useLocation();
   const flashMsg = location.state?.message;
 
   // ✅ Checkout ya jaha se aaya tha uska path
   const from = location.state?.from?.pathname || '/';
-
-  useEffect(() => {
-    if (flashMsg) toast.error(flashMsg);
-  }, [flashMsg]);
-
-  // ✅ Ye useEffect hata do ya change kar do
-  // Purana: hamesha /admin ya /dashboard bhej raha tha
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Agar 'from' hai to wahi bhejo, warna role ke hisaab se
-      if (location.state?.from) {
-        navigate(from, { replace: true });
-      } else {
-        navigate(isAdmin? '/admin' : '/dashboard', { replace: true });
-      }
-    }
-  }, [isAuthenticated, isAdmin, navigate, from, location.state]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -40,12 +23,10 @@ export default function Login() {
       const data = await login(email, password);
       toast.success(`Welcome back, ${data.user.name}!`);
 
-      // ✅ Sabse important: pehle 'from' check karo
-      if (location.state?.from) {
-        navigate(from, { replace: true });
-      } else {
-        navigate(data.user.role === 'admin'? '/admin' : '/dashboard', { replace: true });
-      }
+      // ✅ Login ke baad wapas checkout ya home pe bhejo
+      console.log('Login success, redirecting to:', from);
+      navigate(from, { replace: true });
+
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
     } finally {
