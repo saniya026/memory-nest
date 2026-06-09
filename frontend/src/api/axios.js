@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // ✅ /api hata diya yaha se
+  baseURL: import.meta.env.VITE_API_URL, // ✅ /api yaha mat lagana
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -19,7 +19,7 @@ api.interceptors.response.use(
       err.config?.url?.includes('/auth/login') ||
       err.config?.url?.includes('/auth/register');
 
-    if ((status === 401 || status === 403) && !isAuthRoute) {
+    if ((status === 401 || status === 403) &&!isAuthRoute) {
       localStorage.removeItem('mn_token');
       const path = window.location.pathname;
       const isPublic =

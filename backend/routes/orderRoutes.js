@@ -1,7 +1,7 @@
 import express from 'express';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
-import Order from '../models/Order.js'; // ✅ Order model import kar
+import Order from '../models/Order.js';
 import {
   createOrder,
   getMyOrders,
@@ -20,27 +20,30 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// ✅ RAZORPAY ROUTES
+// CREATE RAZORPAY ORDER
 router.post('/create-razorpay-order', protect, async (req, res) => {
   try {
-    const { amount, items, serviceId, ...orderData } = req.body;
+    const { amount, items } = req.body;
+
+    if (!items || items.length === 0) {
+      return res.status(400).json({ message: 'Cart is empty' });
+    }
 
     const options = {
-      amount: amount * 100, // paise me
+      amount: Math.round(amount * 100), // paise me convert
       currency: 'INR',
       receipt: `rcpt_${Date.now()}`,
     };
 
     const razorpayOrder = await razorpay.orders.create(options);
 
-    // ✅ Direct DB me save kar, createOrder controller mat call kar
     const order = await Order.create({
       user: req.user._id,
-      items: items || [{ service: serviceId, amount }],
+      items: items,
       totalAmount: amount,
       razorpayOrderId: razorpayOrder.id,
       paymentStatus: 'created',
-      ...orderData
+      status: 'created'
     });
 
     res.json({
@@ -52,33 +55,34 @@ router.post('/create-razorpay-order', protect, async (req, res) => {
     });
   } catch (err) {
     console.error('Razorpay order error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message || 'Payment init failed' });
   }
 });
 
+// VERIFY PAYMENT
 router.post('/verify-payment', protect, async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
 
     const sign = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSign = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-      .update(sign.toString())
-      .digest('hex');
+     .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+     .update(sign.toString())
+     .digest('hex');
 
     if (razorpay_signature === expectedSign) {
-      // ✅ Direct DB update kar
       await Order.findByIdAndUpdate(orderId, {
         paymentStatus: 'paid',
         razorpayPaymentId: razorpay_payment_id,
-        status: 'Paid'
+        razorpaySignature: razorpay_signature,
+        status: 'paid'
       });
       return res.json({ success: true, message: 'Payment verified' });
     } else {
       return res.status(400).json({ success: false, message: 'Invalid signature' });
     }
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 

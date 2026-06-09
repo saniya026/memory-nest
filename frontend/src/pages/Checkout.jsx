@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext'; // ✅ Ye add kar
+import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
-import { useNavigate, useLocation } from 'react-router-dom'; // ✅ useLocation add kar
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Checkout() {
   const { items, clearCart, total } = useCart();
-  const { user } = useAuth(); // ✅ User check karne ke liye
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation(); // ✅ Current path save karne ke liye
+  const location = useLocation();
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -23,10 +23,9 @@ export default function Checkout() {
   };
 
   const handlePayment = async () => {
-    // ✅ Sabse pehle login check
     if (!user) {
       toast.error('Please login to continue');
-      navigate('/login', { state: { from: location } }); // ✅ Checkout ka path save karke bhejo
+      navigate('/login', { state: { from: location } });
       return;
     }
 
@@ -41,28 +40,21 @@ export default function Checkout() {
     }
 
     try {
-      const item = items[0];
-      const orderData = item.orderDraft || {
-        serviceId: item.service._id,
-        amount: item.service.price,
-        occasion: 'Custom',
-        theme: 'Default',
-        message: '',
-      };
-
       const { data } = await api.post('/orders/create-razorpay-order', {
-        amount: orderData.amount,
-        serviceId: orderData.serviceId,
-        occasion: orderData.occasion,
-        theme: orderData.theme,
-        message: orderData.message,
-        specialInstructions: orderData.specialInstructions,
-        customOccasionName: orderData.customOccasionName,
-        customColorPreset: orderData.customColorPreset,
-        customColorPrimary: orderData.customColorPrimary,
-        customColorSecondary: orderData.customColorSecondary,
-        photos: orderData.photos || [],
-        captions: orderData.captions || [],
+        amount: total,
+        items: items.map(item => ({
+          service: item.service._id,
+          amount: item.service.price,
+          occasion: item.orderDraft?.occasion || 'Custom',
+          theme: item.orderDraft?.theme || 'Default',
+          message: item.orderDraft?.message || '',
+          specialInstructions: item.orderDraft?.specialInstructions,
+          customOccasionName: item.orderDraft?.customOccasionName,
+          customColorPreset: item.orderDraft?.customColorPreset,
+          customColorPrimary: item.orderDraft?.customColorPrimary,
+          customColorSecondary: item.orderDraft?.customColorSecondary,
+          photos: item.orderDraft?.photos || [],
+        }))
       });
 
       const options = {
@@ -70,19 +62,23 @@ export default function Checkout() {
         amount: data.amount,
         currency: 'INR',
         name: 'Memory Nest',
-        description: item.service?.title || 'Custom Memory Design',
+        description: `${items.length} Design${items.length > 1? 's' : ''}`,
         order_id: data.razorpayOrderId,
         handler: async function (response) {
-          await api.post('/orders/verify-payment', {
-         ...response,
-            orderId: data.orderId
-          });
-          toast.success('Payment successful! 🎉');
-          clearCart();
-          navigate('/orders');
+          try {
+            await api.post('/orders/verify-payment', {
+             ...response,
+              orderId: data.orderId
+            });
+            toast.success('Payment successful! 🎉');
+            clearCart();
+            navigate('/orders');
+          } catch (err) {
+            toast.error('Payment verification failed');
+          }
         },
         prefill: {
-          name: user?.name || 'Customer', // ✅ User ka naam use kar
+          name: user?.name || 'Customer',
           email: user?.email || '',
         },
         theme: { color: '#f43f5e' }
@@ -94,8 +90,9 @@ export default function Checkout() {
       });
       paymentObject.open();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Payment failed');
-      console.error(err);
+      const errorMsg = err.response?.data?.message || 'Payment failed';
+      toast.error(errorMsg);
+      console.error('Payment Error:', err.response?.data);
     } finally {
       setLoading(false);
     }
@@ -124,7 +121,7 @@ export default function Checkout() {
             <p className="font-semibold">{item.service?.title || 'Custom Design'}</p>
             <p className="text-sm text-gray-600">{item.orderDraft?.occasion || 'Custom'}</p>
           </div>
-          <p className="font-bold">₹{item.service?.price || item.orderDraft?.amount}</p>
+          <p className="font-bold">₹{item.service?.price}</p>
         </div>
       ))}
       <div className="mt-6 flex justify-between text-xl font-bold">
