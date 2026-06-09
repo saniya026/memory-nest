@@ -5,8 +5,9 @@ import { connectDB, getMongoHelpMessage } from './config/db.js';
 import memoryRoutes from './routes/memoryRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import designRoutes from './routes/designRoutes.js';
+import orderRoutes from './routes/orderRoutes.js'; // ✅ Ye add kar
 
-const app = express(); // ✅ Pehle app banao
+const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -16,7 +17,8 @@ app.use(express.json());
 // Routes - app banane ke BAAD
 app.use('/api/auth', authRoutes);
 app.use('/api/memories', memoryRoutes);
-app.use('/api/designs', designRoutes); // ✅ Ab sahi jagah hai
+app.use('/api/designs', designRoutes);
+app.use('/api/orders', orderRoutes); // ✅ Ye add kar - Sabse important
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'MemoryNest API Running' });
@@ -41,6 +43,7 @@ const startServer = async () => {
     console.log(`[Server] Running at http://localhost:${PORT}`);
     console.log(`[Server] Health check: http://localhost:${PORT}/api/health`);
     console.log(`[Server] Auth API: http://localhost:${PORT}/api/auth/register`);
+    console.log(`[Server] Orders API: http://localhost:${PORT}/api/orders`); // ✅ Add kar debug ke liye
   });
 };
 
