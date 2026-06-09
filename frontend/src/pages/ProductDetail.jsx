@@ -21,6 +21,7 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [service, setService] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [occasionId, setOccasionId] = useState(DEFAULT_OCCASION_ID);
   const [customOccasions, setCustomOccasions] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -48,17 +49,29 @@ export default function ProductDetail() {
   }, [occasionId, occasionTheme]);
 
   const displayOccasionName = occasionTheme.isCustom
-   ? occasionTheme.label
+  ? occasionTheme.label
     : orderOccasion;
 
-  // ✅ FIXED: /services -> /designs aur r.data.service -> r.data.design
+  // ✅ FINAL FIX: /designs + cache busting + loading state
   useEffect(() => {
-    api.get(`/designs/${id}`)
-     .then((r) => setService(r.data.design))
-     .catch((err) => {
+    setLoading(true);
+    api.get(`/designs/${id}?v=${Date.now()}`)
+    .then((r) => {
+        console.log('Design API Response:', r.data);
+        if (r.data && r.data.design) {
+          setService(r.data.design);
+        } else {
+          toast.error('Design data not found');
+          setService(null);
+        }
+      })
+    .catch((err) => {
         console.error('Design fetch error:', err);
-        toast.error('Design not found');
+        toast.error('Failed to load design');
         setService(null);
+      })
+    .finally(() => {
+        setLoading(false);
       });
   }, [id]);
 
@@ -67,9 +80,9 @@ export default function ProductDetail() {
     const theme = resolveTheme(oid);
     if (oid!== DEFAULT_OCCASION_ID) {
       setForm((f) => ({
-       ...f,
+      ...f,
         theme: theme.isCustom
-         ? `${theme.label} — ${theme.colorPresetLabel || 'Custom colors'}`
+        ? `${theme.label} — ${theme.colorPresetLabel || 'Custom colors'}`
           : `${theme.label} — ${theme.vibe.split(',')[0]}`,
       }));
     }
@@ -87,7 +100,7 @@ export default function ProductDetail() {
     });
     setOccasionId(theme.id);
     setForm((f) => ({
-     ...f,
+    ...f,
       theme: `${theme.label} — ${theme.colorPresetLabel || 'Custom'}`,
     }));
     toast.success(`"${theme.label}" theme applied!`);
@@ -128,7 +141,7 @@ export default function ProductDetail() {
 
     const draft = {
       occasion: orderOccasion,
-     ...form,
+    ...form,
       photos,
       captions,
       amount: service.price,
@@ -148,8 +161,19 @@ export default function ProductDetail() {
     navigate('/cart');
   };
 
+  if (loading) {
+    return <div className="py-20 text-center text-gray-500">Loading design...</div>;
+  }
+
   if (!service) {
-    return <div className="py-20 text-center">Loading...</div>;
+    return (
+      <div className="py-20 text-center">
+        <p className="text-gray-500">Design not found</p>
+        <Link to="/products" className="mt-4 inline-block text-rose hover:underline">
+          ← Back to designs
+        </Link>
+      </div>
+    );
   }
 
   return (
