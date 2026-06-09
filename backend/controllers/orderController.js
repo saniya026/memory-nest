@@ -1,5 +1,5 @@
 import Order from '../models/Order.js';
-import Service from '../models/Service.js';
+import Design from '../models/Design.js'; // Service ki jagah Design
 import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 import { AppError } from '../middleware/errorHandler.js';
 import nodemailer from 'nodemailer';
@@ -18,7 +18,7 @@ async function sendOrderEmail(orderDetails) {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: 'alisaniya026@gmail.com',
-      subject: `New Order Received - ${orderDetails._id}`,
+      subject: `New Order Paid - ${orderDetails._id}`,
       html: `
         <h2>New Order Details</h2>
         <p><b>Order ID:</b> ${orderDetails._id}</p>
@@ -27,6 +27,8 @@ async function sendOrderEmail(orderDetails) {
         ${orderDetails.customColorPreset? `<p><b>Custom colors:</b> ${orderDetails.customColorPreset} (${orderDetails.customColorPrimary} / ${orderDetails.customColorSecondary})</p>` : ''}
         <p><b>Message:</b> ${orderDetails.message}</p>
         <p><b>Amount:</b> ₹${orderDetails.amount}</p>
+        <p><b>Status:</b> ${orderDetails.status}</p>
+        <p><b>Payment ID:</b> ${orderDetails.razorpayPaymentId || 'N/A'}</p>
         <p><b>Photos:</b> ${orderDetails.photos.length} uploaded</p>
       `
     };
@@ -38,54 +40,44 @@ async function sendOrderEmail(orderDetails) {
   }
 }
 
-export const createOrder = async (req, res, next) => {
+export const createOrder = async (req) => {
   try {
     const {
       occasion,
       theme,
       message,
       specialInstructions,
-      serviceId,
+      serviceId, // ye ab Design ka ID hai
       amount,
       captions,
       customOccasionName,
       customColorPreset,
       customColorPrimary,
       customColorSecondary,
+      razorpayOrderId,
+      status,
+      photos: photoUrls
     } = req.body;
 
-    let service = null;
+    let design = null;
     let orderAmount = Number(amount) || 999;
 
     if (serviceId) {
       if (!mongoose.Types.ObjectId.isValid(serviceId)) {
-        return res.status(400).json({
-          success: false,
-          error: "Invalid service selected. Please refresh and try again."
-        });
+        throw new AppError("Invalid design selected. Please refresh and try again.", 400);
       }
 
-      try {
-        service = await Service.findById(serviceId);
-        if (service) {
-          orderAmount = service.price;
-        } else {
-          return res.status(404).json({
-            success: false,
-            error: "Service not found"
-          });
-        }
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          error: "Database error while fetching service"
-        });
+      design = await Design.findById(serviceId);
+      if (!design) {
+        throw new AppError("Design not found", 404);
       }
+      orderAmount = design.price;
     }
 
     const photos = [];
-    const captionList = captions? JSON.parse(captions) : [];
+    const captionList = captions? (typeof captions === 'string'? JSON.parse(captions) : captions) : [];
 
+    // Agar file upload hai
     if (req.files?.length) {
       for (let i = 0; i < req.files.length; i++) {
         const result = await uploadToCloudinary(req.files[i].buffer, 'memorynest/orders');
@@ -97,9 +89,20 @@ export const createOrder = async (req, res, next) => {
       }
     }
 
+    // Agar photo URLs already hain - Razorpay flow me
+    if (photoUrls?.length) {
+      photoUrls.forEach((url, i) => {
+        photos.push({
+          url,
+          publicId: '',
+          caption: captionList[i] || '',
+        });
+      });
+    }
+
     const order = await Order.create({
       user: req.user._id,
-      service: service?._id,
+      service: design?._id, // Design ka ID
       photos,
       occasion,
       theme,
@@ -110,15 +113,19 @@ export const createOrder = async (req, res, next) => {
       message: message || '',
       specialInstructions: specialInstructions || '',
       amount: orderAmount,
-      status: 'pending',
+      status: status || 'pending',
+      razorpayOrderId: razorpayOrderId || '',
     });
 
-    await sendOrderEmail(order);
+    // Email sirf paid hone par bhejo
+    if (status === 'paid') {
+      await sendOrderEmail(order);
+    }
 
     const populated = await Order.findById(order._id).populate('service');
-    res.status(201).json({ success: true, order: populated });
+    return populated;
   } catch (e) {
-    next(e);
+    throw e;
   }
 };
 
@@ -158,16 +165,34 @@ export const getAllOrders = async (req, res, next) => {
   }
 };
 
-export const updateOrderStatus = async (req, res, next) => {
+export const updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body;
-    const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true })
+    const { status, razorpayPaymentId, razorpaySignature } = req.body;
+    const updateData = { status };
+
+    if (razorpayPaymentId) updateData.razorpayPaymentId = razorpayPaymentId;
+    if (razorpaySignature) updateData.razorpaySignature = razorpaySignature;
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    )
      .populate('user', 'name email')
      .populate('service');
+
     if (!order) throw new AppError('Order not found', 404);
-    res.json({ success: true, order });
+
+    // Paid hone par email bhejo
+    if (status === 'paid') {
+      await sendOrderEmail(order);
+    }
+
+    if (res) res.json({ success: true, order });
+    return order;
   } catch (e) {
-    next(e);
+    if (res) res.status(500).json({ error: e.message });
+    throw e;
   }
 };
 

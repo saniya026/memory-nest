@@ -9,7 +9,7 @@ const photoSchema = new mongoose.Schema({
 const orderSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    service: { type: mongoose.Schema.Types.ObjectId, ref: 'Service' },
+    service: { type: mongoose.Schema.Types.ObjectId, ref: 'Design' },
     photos: [photoSchema],
     occasion: {
       type: String,
@@ -38,7 +38,7 @@ const orderSchema = new mongoose.Schema(
     amount: { type: Number, required: true },
     status: {
       type: String,
-      enum: ['pending', 'paid', 'processing', 'completed', 'cancelled'],
+      enum: ['pending', 'created', 'paid', 'processing', 'completed', 'cancelled'],
       default: 'pending',
     },
     completedDesign: {
@@ -46,6 +46,9 @@ const orderSchema = new mongoose.Schema(
       publicId: String,
     },
     payment: { type: mongoose.Schema.Types.ObjectId, ref: 'Payment' },
+    razorpayOrderId: { type: String, default: '' },
+    razorpayPaymentId: { type: String, default: '' },
+    razorpaySignature: { type: String, default: '' },
   },
   { timestamps: true }
 );
