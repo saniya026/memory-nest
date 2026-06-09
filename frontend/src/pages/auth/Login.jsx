@@ -13,15 +13,25 @@ export default function Login() {
   const location = useLocation();
   const flashMsg = location.state?.message;
 
+  // ✅ Checkout ya jaha se aaya tha uska path
+  const from = location.state?.from?.pathname || '/';
+
   useEffect(() => {
     if (flashMsg) toast.error(flashMsg);
   }, [flashMsg]);
 
+  // ✅ Ye useEffect hata do ya change kar do
+  // Purana: hamesha /admin ya /dashboard bhej raha tha
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(isAdmin ? '/admin' : '/dashboard', { replace: true });
+      // Agar 'from' hai to wahi bhejo, warna role ke hisaab se
+      if (location.state?.from) {
+        navigate(from, { replace: true });
+      } else {
+        navigate(isAdmin? '/admin' : '/dashboard', { replace: true });
+      }
     }
-  }, [isAuthenticated, isAdmin, navigate]);
+  }, [isAuthenticated, isAdmin, navigate, from, location.state]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -29,7 +39,13 @@ export default function Login() {
     try {
       const data = await login(email, password);
       toast.success(`Welcome back, ${data.user.name}!`);
-      navigate(data.user.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
+
+      // ✅ Sabse important: pehle 'from' check karo
+      if (location.state?.from) {
+        navigate(from, { replace: true });
+      } else {
+        navigate(data.user.role === 'admin'? '/admin' : '/dashboard', { replace: true });
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
     } finally {
@@ -74,7 +90,7 @@ export default function Login() {
           Forgot password?
         </Link>
         <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? 'Signing in...' : 'Login'}
+          {loading? 'Signing in...' : 'Login'}
         </button>
         <p className="text-center text-sm text-gray-500">
           New customer?{' '}

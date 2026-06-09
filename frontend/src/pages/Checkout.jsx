@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext'; // ✅ Ye add kar
 import api from '../api/axios';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; // ✅ useLocation add kar
 
 export default function Checkout() {
-  const { items, clearCart, total } = useCart(); // ✅ items aur total direct context se le
+  const { items, clearCart, total } = useCart();
+  const { user } = useAuth(); // ✅ User check karne ke liye
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation(); // ✅ Current path save karne ke liye
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -20,6 +23,13 @@ export default function Checkout() {
   };
 
   const handlePayment = async () => {
+    // ✅ Sabse pehle login check
+    if (!user) {
+      toast.error('Please login to continue');
+      navigate('/login', { state: { from: location } }); // ✅ Checkout ka path save karke bhejo
+      return;
+    }
+
     if (items.length === 0) return toast.error('Cart is empty');
 
     setLoading(true);
@@ -31,7 +41,6 @@ export default function Checkout() {
     }
 
     try {
-      // ✅ Pehla item le - tu multiple items handle karna chahe to loop laga
       const item = items[0];
       const orderData = item.orderDraft || {
         serviceId: item.service._id,
@@ -65,7 +74,7 @@ export default function Checkout() {
         order_id: data.razorpayOrderId,
         handler: async function (response) {
           await api.post('/orders/verify-payment', {
-          ...response,
+         ...response,
             orderId: data.orderId
           });
           toast.success('Payment successful! 🎉');
@@ -73,7 +82,8 @@ export default function Checkout() {
           navigate('/orders');
         },
         prefill: {
-          name: 'Customer',
+          name: user?.name || 'Customer', // ✅ User ka naam use kar
+          email: user?.email || '',
         },
         theme: { color: '#f43f5e' }
       };
@@ -84,7 +94,7 @@ export default function Checkout() {
       });
       paymentObject.open();
     } catch (err) {
-      toast.error('Payment failed');
+      toast.error(err.response?.data?.message || 'Payment failed');
       console.error(err);
     } finally {
       setLoading(false);
