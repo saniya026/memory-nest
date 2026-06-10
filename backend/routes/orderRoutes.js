@@ -29,8 +29,31 @@ router.post('/create-razorpay-order', protect, async (req, res) => {
       return res.status(400).json({ message: 'Cart is empty' });
     }
 
+    if (!amount || amount < 1) {
+      return res.status(400).json({ message: 'Invalid amount' });
+    }
+
+    // Items ko DB schema ke hisaab se format karo
+    const formattedItems = items.map(item => ({
+      service: item.service || undefined,
+      amount: Number(item.amount),
+      occasion: item.occasion || 'Custom',
+      theme: item.theme || 'Default',
+      message: item.message || '',
+      specialInstructions: item.specialInstructions || '',
+      customOccasionName: item.customOccasionName || '',
+      customColorPreset: item.customColorPreset || '',
+      customColorPrimary: item.customColorPrimary || '',
+      customColorSecondary: item.customColorSecondary || '',
+      photos: (item.photos || []).map(url => ({
+        url: typeof url === 'string'? url : url.url,
+        publicId: '',
+        caption: ''
+      }))
+    }));
+
     const options = {
-      amount: Math.round(amount * 100), // paise me convert
+      amount: Math.round(amount * 100), // ₹50 -> 5000 paise
       currency: 'INR',
       receipt: `rcpt_${Date.now()}`,
     };
@@ -39,7 +62,7 @@ router.post('/create-razorpay-order', protect, async (req, res) => {
 
     const order = await Order.create({
       user: req.user._id,
-      items: items,
+      items: formattedItems,
       totalAmount: amount,
       razorpayOrderId: razorpayOrder.id,
       paymentStatus: 'created',
@@ -66,9 +89,9 @@ router.post('/verify-payment', protect, async (req, res) => {
 
     const sign = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSign = crypto
-     .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-     .update(sign.toString())
-     .digest('hex');
+    .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+    .update(sign.toString())
+    .digest('hex');
 
     if (razorpay_signature === expectedSign) {
       await Order.findByIdAndUpdate(orderId, {

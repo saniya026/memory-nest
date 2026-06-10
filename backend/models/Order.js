@@ -7,7 +7,7 @@ const photoSchema = new mongoose.Schema({
 });
 
 const orderItemSchema = new mongoose.Schema({
-  service: { type: mongoose.Schema.Types.ObjectId, ref: 'Design', required: true },
+  service: { type: mongoose.Schema.Types.ObjectId, ref: 'Design', required: false }, // ✅ required false kiya
   photos: [photoSchema],
   occasion: {
     type: String,
