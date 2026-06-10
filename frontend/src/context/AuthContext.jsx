@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const sendOTP = async (emailOrPhone) => {
-    // TODO: Backend API - abhi fake
     await new Promise(r => setTimeout(r, 1000));
     toast.success(`OTP sent: Use 123456`);
     localStorage.setItem('tempAuth', emailOrPhone);
@@ -26,16 +25,16 @@ export const AuthProvider = ({ children }) => {
   const verifyOTP = async (otp) => {
     const emailOrPhone = localStorage.getItem('tempAuth');
     if (otp === '123456') {
-      const userData = { 
+      const userData = {
         id: Date.now(),
-        email: emailOrPhone, 
-        name: emailOrPhone.split('@')[0] || 'User' 
+        email: emailOrPhone,
+        name: emailOrPhone.split('@')[0] || 'User'
       };
       localStorage.setItem('memoryNestUser', JSON.stringify(userData));
       localStorage.removeItem('tempAuth');
       setUser(userData);
       toast.success('Welcome!');
-      navigate('/');
+      navigate('/home'); // ✅ Fixed
       return true;
     }
     toast.error('Wrong OTP. Use 123456');
@@ -55,15 +54,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated:!!user, 
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated:!!user,
       isAdmin: user?.email === 'admin@memorynest.com',
       loading,
       sendOTP,
       verifyOTP,
       resetPassword,
-      logout 
+      logout
     }}>
       {children}
     </AuthContext.Provider>

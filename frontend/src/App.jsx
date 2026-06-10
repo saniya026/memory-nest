@@ -17,7 +17,7 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import Login from './pages/auth/Login';
 import ResetPassword from './pages/auth/ResetPassword';
 import Signup from './pages/auth/Signup';
-import VerifyOTP from './pages/auth/VerifyOTP'; // ✅ Ye add kiya
+import VerifyOTP from './pages/auth/VerifyOTP';
 
 // Public pages
 import Cart from './pages/Cart';
@@ -44,20 +44,31 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, loading } = useAuth(); // ✅ Auth check
+  const { isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
+    // Auth loading complete hone ka wait karo
+    if (loading) return;
+
     const timer = setTimeout(() => {
       setShowSplash(false);
       
-      // ✅ Splash ke baad auth check
-      if (!loading && location.pathname === '/') {
-        navigate(isAuthenticated? '/home' : '/login', { replace: true });
+      // Splash ke baad login check karke redirect
+      if (location.pathname === '/') {
+        navigate(isAuthenticated ? '/home' : '/login', { replace: true });
       }
     }, 5000);
 
     return () => clearTimeout(timer);
   }, [navigate, location.pathname, isAuthenticated, loading]);
+
+  // Video end hone pe bhi same logic
+  const handleVideoEnd = () => {
+    setShowSplash(false);
+    if (location.pathname === '/') {
+      navigate(isAuthenticated ? '/home' : '/login', { replace: true });
+    }
+  };
 
   if (showSplash) {
     return (
@@ -78,7 +89,7 @@ export default function App() {
           muted
           playsInline
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onEnded={() => setShowSplash(false)}
+          onEnded={handleVideoEnd}
         >
           <source src="/logo-splash.mp4" type="video/mp4" />
         </video>
@@ -154,7 +165,9 @@ export default function App() {
         <Route path="reviews" element={<ReviewsAdmin />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Default redirect - Agar login nahi to login, warna home */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }
