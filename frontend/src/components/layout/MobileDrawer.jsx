@@ -7,13 +7,14 @@ export default function MobileDrawer({ open, onClose }) {
 
   if (!open) return null;
 
-  const anchorLinks = [
-    { href: '/#features', label: 'All Features' },
-    { href: '/#services', label: 'Services' },
-    { href: '/#portfolio', label: 'Portfolio' },
-    { href: '/#reviews', label: 'Reviews' },
-    { href: '/#pricing', label: 'Pricing' },
-    { href: '/#contact', label: 'Contact' },
+  // ✅ Anchor links update kiye
+  const navLinks = [
+    { to: '/#features', label: 'All Features', isAnchor: true },
+    { to: '/services', label: 'Services', isAnchor: false }, // ✅ Changed
+    { to: '/gallery', label: 'My Designs', isAnchor: false }, // ✅ Changed
+    { to: '/#reviews', label: 'Reviews', isAnchor: true },
+    { to: '/#pricing', label: 'Pricing', isAnchor: true },
+    { to: '/#contact', label: 'Contact', isAnchor: true },
   ];
 
   return (
@@ -26,25 +27,38 @@ export default function MobileDrawer({ open, onClose }) {
           </button>
         </div>
         <nav className="flex flex-col gap-3">
-          <Link to="/products" onClick={onClose} className="text-lg font-bold text-rose">
+          {/* ✅ Purana Design Studio link hata de agar nahi chahiye */}
+          {/* <Link to="/products" onClick={onClose} className="text-lg font-bold text-rose">
             🎨 Design Studio (Occasions)
-          </Link>
-          {anchorLinks.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              onClick={onClose}
-              className="text-base font-semibold text-gray-700 dark:text-gray-200"
-            >
-              {l.label}
-            </a>
-          ))}
+          </Link> */}
+
+          {navLinks.map((l) =>
+            l.isAnchor? (
+              <a
+                key={l.label}
+                href={l.to}
+                onClick={onClose}
+                className="text-base font-semibold text-gray-700 dark:text-gray-200"
+              >
+                {l.label}
+              </a>
+            ) : (
+              <Link
+                key={l.label}
+                to={l.to}
+                onClick={onClose}
+                className="text-base font-semibold text-gray-700 dark:text-gray-200 hover:text-rose"
+              >
+                {l.label}
+              </Link>
+            )
+          )}
 
           <hr className="my-2 border-lavender/40 dark:border-gray-700" />
 
-          {isAuthenticated ? (
+          {isAuthenticated? (
             <>
-              {isAdmin ? (
+              {isAdmin? (
                 <>
                   <Link to="/admin" onClick={onClose} className="font-semibold text-nest-purple">
                     Admin Panel

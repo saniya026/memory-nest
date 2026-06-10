@@ -3,10 +3,11 @@ import { useAuth } from '../../context/AuthContext';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
 
+// ✅ Anchor links hata diye, naye route add kiye
 const links = [
   { to: '/#features', label: 'Features' },
-  { to: '/#services', label: 'Services' },
-  { to: '/#portfolio', label: 'Portfolio' },
+  { to: '/services', label: 'Services' }, // ✅ Changed: /#services → /services
+  { to: '/gallery', label: 'My Designs' }, // ✅ Changed: /#portfolio → /gallery
   { to: '/#reviews', label: 'Reviews' },
   { to: '/#pricing', label: 'Pricing' },
   { to: '/#contact', label: 'Contact' },
@@ -21,26 +22,31 @@ export default function DesktopNavbar() {
         <Logo />
         <div className="flex items-center gap-8">
           {links.map((l) => (
-            <a
+            // ✅ NavLink use kar taaki active state dikhe
+            <NavLink
               key={l.to}
-              href={l.to}
-              className="text-sm font-semibold text-gray-600 transition hover:text-rose dark:text-gray-300 dark:hover:text-rose"
+              to={l.to}
+              className={({ isActive }) =>
+                `text-sm font-semibold transition hover:text-rose ${
+                  isActive
+                   ? 'text-rose'
+                    : 'text-gray-600 dark:text-gray-300 dark:hover:text-rose'
+                }`
+              }
             >
               {l.label}
-            </a>
+            </NavLink>
           ))}
-          <NavLink
-            to="/products"
-            className="text-sm font-semibold text-gray-600 hover:text-rose dark:text-gray-300"
-          >
+          {/* ✅ Purana /products wala "Designs" hata de agar nahi chahiye */}
+          {/* <NavLink to="/products" className="text-sm font-semibold text-gray-600 hover:text-rose dark:text-gray-300">
             Designs
-          </NavLink>
+          </NavLink> */}
         </div>
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          {isAuthenticated ? (
+          {isAuthenticated? (
             <>
-              {isAdmin ? (
+              {isAdmin? (
                 <Link to="/admin" className="text-sm font-semibold text-nest-purple">
                   Admin Panel
                 </Link>
@@ -52,7 +58,7 @@ export default function DesktopNavbar() {
               <Link to="/wishlist" className="text-sm font-semibold text-gray-600 dark:text-gray-300">
                 Saved
               </Link>
-              <Link to="/profile" className="btn-secondary !py-2 !px-4 text-sm">
+              <Link to="/profile" className="btn-secondary!py-2!px-4 text-sm">
                 {user?.name?.split(' ')[0]}
               </Link>
               <button type="button" onClick={logout} className="text-sm text-gray-500 hover:text-rose">
@@ -64,7 +70,7 @@ export default function DesktopNavbar() {
               <Link to="/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300">
                 Login
               </Link>
-              <Link to="/signup" className="btn-primary !py-2 !px-5 text-sm">
+              <Link to="/signup" className="btn-primary!py-2!px-5 text-sm">
                 Sign Up
               </Link>
             </>

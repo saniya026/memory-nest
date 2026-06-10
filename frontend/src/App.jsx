@@ -29,16 +29,18 @@ import Return from './pages/Return';
 import Shipping from './pages/Shipping';
 import { useState, useEffect } from 'react';
 
+// ✅ Ye 2 import add kar
+import Services from './pages/Services';
+import DesignGallery from './pages/DesignGallery';
+
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Splash sirf 5 sec dikhao, redirect mat karo
     const timer = setTimeout(() => {
       setShowSplash(false);
-      // Agar user "/" pe hai tabhi home pe bhejo, warna usi page pe rehne do
       if (location.pathname === '/') {
         navigate('/');
       }
@@ -66,7 +68,7 @@ export default function App() {
           muted
           playsInline
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onEnded={() => setShowSplash(false)} // <-- navigate('/login') hata diya
+          onEnded={() => setShowSplash(false)}
         >
           <source src="/logo-splash.mp4" type="video/mp4" />
         </video>
@@ -81,6 +83,11 @@ export default function App() {
         <Route index element={<Home />} />
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<ProductDetail />} />
+        
+        {/* ✅ Ye 2 route add kar de */}
+        <Route path="services" element={<Services />} /> {/* Payment wala */}
+        <Route path="gallery" element={<DesignGallery />} /> {/* Sirf showcase */}
+        
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
