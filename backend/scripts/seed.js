@@ -1,6 +1,14 @@
 import mongoose from 'mongoose';
-import 'dotenv/config';
-import Service from '../models/Service.js'; // <-- Bas ye line change ki
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Service from '../models/Service.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// .env root folder me hai to path do
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const services = [
   {
@@ -39,7 +47,9 @@ const services = [
 
 const seedDB = async () => {
   try {
-    // .env root me hai to path dena padega
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI not found in .env');
+    }
     await mongoose.connect(process.env.MONGODB_URI);
     await Service.deleteMany({}); 
     await Service.insertMany(services);
