@@ -5,7 +5,8 @@ import { connectDB, getMongoHelpMessage } from './config/db.js';
 import memoryRoutes from './routes/memoryRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import designRoutes from './routes/designRoutes.js';
-import orderRoutes from './routes/orderRoutes.js'; // ✅ Ye add kar
+import orderRoutes from './routes/orderRoutes.js';
+import serviceRoutes from './routes/serviceRoutes.js'; // ← 1. Ye add kar
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,7 +19,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/memories', memoryRoutes);
 app.use('/api/designs', designRoutes);
-app.use('/api/orders', orderRoutes); // ✅ Ye add kar - Sabse important
+app.use('/api/orders', orderRoutes);
+app.use('/api/services', serviceRoutes); // ← 2. Ye add kar
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'MemoryNest API Running' });
@@ -43,7 +45,8 @@ const startServer = async () => {
     console.log(`[Server] Running at http://localhost:${PORT}`);
     console.log(`[Server] Health check: http://localhost:${PORT}/api/health`);
     console.log(`[Server] Auth API: http://localhost:${PORT}/api/auth/register`);
-    console.log(`[Server] Orders API: http://localhost:${PORT}/api/orders`); // ✅ Add kar debug ke liye
+    console.log(`[Server] Orders API: http://localhost:${PORT}/api/orders`);
+    console.log(`[Server] Services API: http://localhost:${PORT}/api/services`); // ← 3. Ye add kar
   });
 };
 
