@@ -4,7 +4,7 @@ import Service from '../models/Service.js';
 
 const router = express.Router();
 
-// GET /api/services - Sabhi services
+// GET /api/services - Sabhi services dikhao
 router.get('/', async (req, res) => {
   try {
     const services = await Service.find({ isActive: true });
@@ -14,12 +14,9 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/services - Nayi service add karo, admin only
-router.post('/', authMiddleware, async (req, res) => {
+// POST /api/services - Nayi service add karo, auth ke bina
+router.post('/', async (req, res) => {
   try {
-    if (req.user.role!== 'admin') {
-      return res.status(403).json({ message: 'Access denied. Admin only.' });
-    }
     const service = new Service(req.body);
     const savedService = await service.save();
     res.status(201).json(savedService);
