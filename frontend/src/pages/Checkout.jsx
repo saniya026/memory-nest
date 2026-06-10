@@ -4,10 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Trash2 } from 'lucide-react'; // ye add kar
+import { Trash2 } from 'lucide-react';
 
 export default function Checkout() {
-  const { items, clearCart, total, removeFromCart } = useCart(); // removeFromCart add kiya
+  const { items, clearCart, total, removeFromCart } = useCart();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -44,8 +44,9 @@ export default function Checkout() {
       const { data } = await api.post('/orders/create-razorpay-order', {
         amount: total,
         items: items.map(item => ({
-          service: item.service._id,
-          amount: item.service.price,
+          cartItemId: item.id,
+          service: item.service?._id || null,
+          amount: item.service?.price || item.orderDraft?.amount || 50,
           occasion: item.orderDraft?.occasion || 'Custom',
           theme: item.orderDraft?.theme || 'Default',
           message: item.orderDraft?.message || '',
@@ -63,12 +64,12 @@ export default function Checkout() {
         amount: data.amount,
         currency: 'INR',
         name: 'Memory Nest',
-        description: `${items.length} Design${items.length > 1? 's' : ''}`,
+        description: `${items.length} Design${items.length > 1 ? 's' : ''}`,
         order_id: data.razorpayOrderId,
         handler: async function (response) {
           try {
             await api.post('/orders/verify-payment', {
-             ...response,
+              ...response,
               orderId: data.orderId
             });
             toast.success('Payment successful! 🎉');
@@ -116,17 +117,23 @@ export default function Checkout() {
   return (
     <div className="mx-auto max-w-2xl p-6">
       <h1 className="text-2xl font-bold mb-6">Checkout</h1>
-      {items.map((item, i) => (
-        <div key={i} className="border-b py-4 flex justify-between items-center">
+      {items.map((item) => (
+        <div key={item.id} className="border-b py-4 flex justify-between items-center">
           <div>
-            <p className="font-semibold">{item.service?.title || 'Custom Design'}</p>
-            <p className="text-sm text-gray-600">{item.orderDraft?.occasion || 'Custom'}</p>
+            <p className="font-semibold">
+              {item.service?.title || item.orderDraft?.title || 'Custom Design'}
+            </p>
+            <p className="text-sm text-gray-600">
+              {item.orderDraft?.occasion || item.service?.category || 'Custom'}
+            </p>
           </div>
           
           <div className="flex items-center gap-4">
-            <p className="font-bold">₹{item.service?.price || 0}</p>
+            <p className="font-bold">
+              ₹{item.service?.price || item.orderDraft?.amount || 50}
+            </p>
             <button 
-              onClick={() => removeFromCart(item.service?._id || item._id)}
+              onClick={() => removeFromCart(item.id)}
               className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition"
             >
               <Trash2 size={20} />
@@ -143,7 +150,7 @@ export default function Checkout() {
         disabled={loading}
         className="mt-6 w-full bg-rose-500 hover:bg-rose-600 text-white py-3 rounded-xl font-semibold disabled:opacity-50 transition"
       >
-        {loading? 'Processing...' : `Pay ₹${total} with Razorpay`}
+        {loading ? 'Processing...' : `Pay ₹${total} with Razorpay`}
       </button>
     </div>
   );
