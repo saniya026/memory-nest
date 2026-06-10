@@ -1,17 +1,17 @@
+// backend/models/Service.js
 import mongoose from 'mongoose';
 
-const serviceSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    price: { type: Number, required: true },
-    image: { type: String, default: '' },
-    features: [String],
-    category: { type: String, default: 'memory-page' },
-    isActive: { type: Boolean, default: true },
-    sortOrder: { type: Number, default: 0 },
+const serviceSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  image: { type: String, required: true },
+  category: { 
+    type: String, 
+    enum: ['Birthday', 'Love', 'Anniversary', 'Wedding', 'Graduation', 'Custom'],
+    required: true 
   },
-  { timestamps: true }
-);
+  price: { type: Number, required: true },
+  description: String,
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
 
 export default mongoose.model('Service', serviceSchema);
