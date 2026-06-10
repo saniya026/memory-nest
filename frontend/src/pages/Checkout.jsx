@@ -4,9 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Trash2 } from 'lucide-react'; // ye add kar
 
 export default function Checkout() {
-  const { items, clearCart, total } = useCart();
+  const { items, clearCart, total, removeFromCart } = useCart(); // removeFromCart add kiya
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -116,12 +117,21 @@ export default function Checkout() {
     <div className="mx-auto max-w-2xl p-6">
       <h1 className="text-2xl font-bold mb-6">Checkout</h1>
       {items.map((item, i) => (
-        <div key={i} className="border-b py-4 flex justify-between">
+        <div key={i} className="border-b py-4 flex justify-between items-center">
           <div>
             <p className="font-semibold">{item.service?.title || 'Custom Design'}</p>
             <p className="text-sm text-gray-600">{item.orderDraft?.occasion || 'Custom'}</p>
           </div>
-          <p className="font-bold">₹{item.service?.price}</p>
+          
+          <div className="flex items-center gap-4">
+            <p className="font-bold">₹{item.service?.price || 0}</p>
+            <button 
+              onClick={() => removeFromCart(item.service?._id || item._id)}
+              className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition"
+            >
+              <Trash2 size={20} />
+            </button>
+          </div>
         </div>
       ))}
       <div className="mt-6 flex justify-between text-xl font-bold">
