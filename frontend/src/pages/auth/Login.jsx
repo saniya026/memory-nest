@@ -1,90 +1,54 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import Logo from '../../components/layout/Logo';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth(); // ✅ isAuthenticated, isAdmin hata diya
+  const { sendOTP } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const flashMsg = location.state?.message;
 
-  // ✅ Checkout ya jaha se aaya tha uska path
-  const from = location.state?.from?.pathname || '/';
-
-  const submit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!input) return;
     setLoading(true);
-    try {
-      const data = await login(email, password);
-      toast.success(`Welcome back, ${data.user.name}!`);
-
-      // ✅ Login ke baad wapas checkout ya home pe bhejo
-      console.log('Login success, redirecting to:', from);
-      navigate(from, { replace: true });
-
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed');
-    } finally {
-      setLoading(false);
-    }
+    const success = await sendOTP(input);
+    setLoading(false);
+    if (success) navigate('/verify-otp', { state: { type: 'login' } });
   };
 
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4">
-      <div className="mb-8 text-center">
-        <Logo className="justify-center text-2xl" />
-        <h1 className="mt-4 font-display text-2xl font-bold">Welcome back</h1>
-        <p className="mt-2 text-sm text-gray-500">Customers & admin — sign in to continue</p>
-      </div>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-rose/5 to-lavender/5 px-4">
+      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl dark:bg-gray-800">
+        <h2 className="text-center text-3xl font-bold">Welcome Back</h2>
+        <p className="mt-2 text-center text-gray-600 dark:text-gray-400">Login to continue</p>
+        
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <input
+            type="text"
+            placeholder="Email or Phone Number"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-rose focus:outline-none dark:border-gray-600 dark:bg-gray-700"
+          />
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="btn-primary w-full py-3 disabled:opacity-50"
+          >
+            {loading? 'Sending OTP...' : 'Send OTP'}
+          </button>
+        </form>
 
-      {flashMsg && (
-        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-800 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
-          {flashMsg}
+        <div className="mt-6 text-center text-sm">
+          <p className="text-gray-600 dark:text-gray-400">
+            New here? <Link to="/signup" className="font-semibold text-rose">Create account</Link>
+          </p>
+          <Link to="/forgot-password" className="mt-2 inline-block text-gray-500 hover:text-rose">
+            Forgot password?
+          </Link>
         </div>
-      )}
-
-      <form onSubmit={submit} className="space-y-4 rounded-2xl bg-white/90 p-8 shadow-card dark:bg-gray-800">
-        <input
-          type="email"
-          className="input-field"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-        />
-        <input
-          type="password"
-          className="input-field"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          autoComplete="current-password"
-        />
-        <Link to="/forgot-password" className="block text-sm text-rose hover:underline">
-          Forgot password?
-        </Link>
-        <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading? 'Signing in...' : 'Login'}
-        </button>
-        <p className="text-center text-sm text-gray-500">
-          New customer?{' '}
-          <Link to="/signup" className="font-semibold text-rose">
-            Create account
-          </Link>
-        </p>
-        <p className="text-center text-sm">
-          <Link to="/" className="text-gray-500 hover:text-rose">
-            ← Back to homepage
-          </Link>
-        </p>
-      </form>
+      </div>
     </div>
   );
 }

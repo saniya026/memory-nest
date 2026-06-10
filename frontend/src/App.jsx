@@ -1,19 +1,25 @@
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
+
+// Admin pages
 import AdminHome from './pages/admin/AdminHome';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminPricing from './pages/admin/AdminPricing';
 import AdminServices from './pages/admin/AdminServices';
 import AdminUsers from './pages/admin/AdminUsers';
-
-
-// ✅ Naya sahi - file ke naam se match karo
 import ReviewsAdmin from './pages/admin/ReviewsAdmin';
+
+// Auth pages
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Login from './pages/auth/Login';
 import ResetPassword from './pages/auth/ResetPassword';
 import Signup from './pages/auth/Signup';
+import VerifyOTP from './pages/auth/VerifyOTP'; // ✅ Ye add kiya
+
+// Public pages
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Wishlist from './pages/Wishlist';
@@ -30,28 +36,28 @@ import Privacy from './pages/Privacy';
 import Refund from './pages/Refund';
 import Return from './pages/Return';
 import Shipping from './pages/Shipping';
-import { useState, useEffect } from 'react';
-
-// ✅ Services + DesignGallery
 import Services from './pages/Services';
 import DesignGallery from './pages/DesignGallery';
-import Reviews from './pages/Reviews'; // ✅ Ye add kar
+import Reviews from './pages/Reviews';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, loading } = useAuth(); // ✅ Auth check
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-      if (location.pathname === '/') {
-        navigate('/');
+      
+      // ✅ Splash ke baad auth check
+      if (!loading && location.pathname === '/') {
+        navigate(isAuthenticated? '/home' : '/login', { replace: true });
       }
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [navigate, location.pathname]);
+  }, [navigate, location.pathname, isAuthenticated, loading]);
 
   if (showSplash) {
     return (
@@ -82,28 +88,25 @@ export default function App() {
 
   return (
     <Routes>
-      {/* Public — browse & auth */}
+      {/* Auth Routes - Bina layout ke */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/verify-otp" element={<VerifyOTP />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+      {/* Public Routes - Bina login dekh sakte */}
       <Route element={<MainLayout />}>
-        <Route index element={<Home />} />
-        <Route path="products" element={<Products />} />
-        <Route path="products/:id" element={<ProductDetail />} />
-        
-        <Route path="services" element={<Services />} />
-        <Route path="gallery" element={<DesignGallery />} />
-        <Route path="reviews" element={<Reviews />} /> {/* ✅ Ye add kiya */}
-        
-        <Route path="login" element={<Login />} />
-        <Route path="signup" element={<Signup />} />
-        <Route path="forgot-password" element={<ForgotPassword />} />
-        <Route path="reset-password/:token" element={<ResetPassword />} />
-        <Route path="terms" element={<Terms />} />
-        <Route path="privacy" element={<Privacy />} />
-        <Route path="refund" element={<Refund />} />
-        <Route path="return" element={<Return />} />
-        <Route path="shipping" element={<Shipping />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:id" element={<ProductDetail />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/refund" element={<Refund />} />
+        <Route path="/return" element={<Return />} />
+        <Route path="/shipping" element={<Shipping />} />
       </Route>
 
-      {/* Customer — cart & checkout */}
+      {/* Protected Routes - Login zaroori */}
       <Route
         element={
           <ProtectedRoute role="any">
@@ -111,13 +114,17 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route path="cart" element={<Cart />} />
-        <Route path="checkout" element={<Checkout />} />
-        <Route path="wishlist" element={<Wishlist />} />
-        <Route path="profile" element={<Profile />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/gallery" element={<DesignGallery />} />
+        <Route path="/reviews" element={<Reviews />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
 
-      {/* Customer — dashboard & order history */}
+      {/* Customer Dashboard */}
       <Route
         element={
           <ProtectedRoute role="any">
@@ -125,14 +132,14 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route path="dashboard" element={<UserDashboard />} />
-        <Route path="dashboard/orders" element={<Orders />} />
-        <Route path="dashboard/memories" element={<MyMemories />} />
+        <Route path="/dashboard" element={<UserDashboard />} />
+        <Route path="/dashboard/orders" element={<Orders />} />
+        <Route path="/dashboard/memories" element={<MyMemories />} />
       </Route>
 
-      {/* Admin — management only */}
+      {/* Admin Routes */}
       <Route
-        path="admin"
+        path="/admin"
         element={
           <ProtectedRoute role="admin">
             <DashboardLayout admin />

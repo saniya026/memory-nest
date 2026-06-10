@@ -1,78 +1,70 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import api from '../api/axios';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const loadUser = async () => {
-    const token = localStorage.getItem('mn_token');
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-    try {
-      const { data } = await api.get('/auth/me');
-      setUser(data.user);
-    } catch {
-      localStorage.removeItem('mn_token');
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const navigate = useNavigate();
 
   useEffect(() => {
-    loadUser();
+    const savedUser = localStorage.getItem('memoryNestUser');
+    if (savedUser) setUser(JSON.parse(savedUser));
+    setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
-    localStorage.setItem('mn_token', data.token);
-    setUser(data.user);
-    return data;
+  const sendOTP = async (emailOrPhone) => {
+    // TODO: Backend API - abhi fake
+    await new Promise(r => setTimeout(r, 1000));
+    toast.success(`OTP sent: Use 123456`);
+    localStorage.setItem('tempAuth', emailOrPhone);
+    return true;
   };
 
-  const register = async (name, email, password, phone) => {
-    const { data } = await api.post('/auth/register', { name, email, password, phone });
-    localStorage.setItem('mn_token', data.token);
-    setUser(data.user);
-    return data;
+  const verifyOTP = async (otp) => {
+    const emailOrPhone = localStorage.getItem('tempAuth');
+    if (otp === '123456') {
+      const userData = { 
+        id: Date.now(),
+        email: emailOrPhone, 
+        name: emailOrPhone.split('@')[0] || 'User' 
+      };
+      localStorage.setItem('memoryNestUser', JSON.stringify(userData));
+      localStorage.removeItem('tempAuth');
+      setUser(userData);
+      toast.success('Welcome!');
+      navigate('/');
+      return true;
+    }
+    toast.error('Wrong OTP. Use 123456');
+    return false;
+  };
+
+  const resetPassword = async (newPass) => {
+    toast.success('Password updated! Login again');
+    navigate('/login');
   };
 
   const logout = () => {
-    localStorage.removeItem('mn_token');
+    localStorage.removeItem('memoryNestUser');
     setUser(null);
-  };
-
-  const updateProfile = async (profile) => {
-    const { data } = await api.put('/auth/profile', profile);
-    setUser(data.user);
-    return data;
-  };
-
-  const setSession = (token, userData) => {
-    localStorage.setItem('mn_token', token);
-    setUser(userData);
+    toast.success('Logged out');
+    navigate('/login');
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        register,
-        logout,
-        updateProfile,
-        setSession,
-        isAdmin: user?.role === 'admin',
-        isCustomer: user?.role === 'user',
-        isAuthenticated: !!user,
-      }}
-    >
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated:!!user, 
+      isAdmin: user?.email === 'admin@memorynest.com',
+      loading,
+      sendOTP,
+      verifyOTP,
+      resetPassword,
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );
