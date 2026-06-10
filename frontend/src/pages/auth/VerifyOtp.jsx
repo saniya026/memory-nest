@@ -1,44 +1,76 @@
-import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function VerifyOTP() {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const { verifyOTP } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
+  
+  const emailOrPhone = location.state?.emailOrPhone || localStorage.getItem('tempAuth');
 
-  const handleVerify = async (e) => {
+  useEffect(() => {
+    if (!emailOrPhone) {
+      toast.error('Please login first');
+      navigate('/login');
+    }
+  }, [emailOrPhone, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (otp.length!== 6) return;
+    if (otp.length !== 6) {
+      toast.error('Enter 6 digit OTP');
+      return;
+    }
     setLoading(true);
-    await verifyOTP(otp);
+    const success = await verifyOTP(otp);
     setLoading(false);
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-rose/5 to-lavender/5 px-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl dark:bg-gray-800">
-        <h2 className="text-center text-3xl font-bold">Enter OTP</h2>
-        <p className="mt-2 text-center text-gray-600 dark:text-gray-400">
-          We sent a code. Use: 123456
-        </p>
-        
-        <form onSubmit={handleVerify} className="mt-8 space-y-5">
-          <input
-            type="text"
-            maxLength="6"
-            placeholder="123456"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-center text-2xl tracking-[1rem] focus:border-rose focus:outline-none dark:border-gray-600 dark:bg-gray-700"
-          />
-          <button 
-            type="submit" 
-            disabled={loading || otp.length!== 6}
-            className="btn-primary w-full py-3 disabled:opacity-50"
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+      <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Verify OTP</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Enter OTP sent to {emailOrPhone}
+          </p>
+          <p className="text-sm text-rose-500 mt-1">Use: 123456</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              6 Digit OTP
+            </label>
+            <input
+              type="text"
+              maxLength="6"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+              className="w-full px-4 py-3 text-center text-2xl tracking-widest border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose focus:border-transparent dark:bg-gray-700 dark:text-white"
+              placeholder="123456"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-rose hover:bg-rose-600 text-white font-semibold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading? 'Verifying...' : 'Verify & Continue'}
+            {loading ? 'Verifying...' : 'Verify OTP'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="w-full text-gray-600 dark:text-gray-400 hover:text-rose text-sm"
+          >
+            Back to Login
           </button>
         </form>
       </div>
