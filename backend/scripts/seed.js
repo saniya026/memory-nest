@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import 'dotenv/config';
-import Service from './models/Service.js';
+import Service from '../models/Service.js'; // <-- Bas ye line change ki
 
 const services = [
   {
@@ -39,13 +39,14 @@ const services = [
 
 const seedDB = async () => {
   try {
+    // .env root me hai to path dena padega
     await mongoose.connect(process.env.MONGODB_URI);
     await Service.deleteMany({}); 
     await Service.insertMany(services);
-    console.log('4 Services added: Birthday, Anniversary, Love, Custom');
+    console.log('4 Services added successfully 🔥');
     process.exit(0);
   } catch (err) {
-    console.error(err);
+    console.error('Seed Error:', err);
     process.exit(1);
   }
 };
