@@ -26,7 +26,7 @@ export default function VerifyOTP() {
       return;
     }
     setLoading(true);
-    const success = await verifyOTP(otp);
+    await verifyOTP(otp);
     setLoading(false);
   };
 
@@ -35,42 +35,13 @@ export default function VerifyOTP() {
       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Verify OTP</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Enter OTP sent to {emailOrPhone}
-          </p>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Enter OTP sent to {emailOrPhone}</p>
           <p className="text-sm text-rose-500 mt-1">Use: 123456</p>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              6 Digit OTP
-            </label>
-            <input
-              type="text"
-              maxLength="6"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-              className="w-full px-4 py-3 text-center text-2xl tracking-widest border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose focus:border-transparent dark:bg-gray-700 dark:text-white"
-              placeholder="123456"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-rose hover:bg-rose-600 text-white font-semibold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <input type="text" maxLength="6" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} className="w-full px-4 py-3 text-center text-2xl tracking-widest border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="123456" required />
+          <button type="submit" disabled={loading} className="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 px-4 rounded-lg transition disabled:opacity-50">
             {loading ? 'Verifying...' : 'Verify OTP'}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate('/login')}
-            className="w-full text-gray-600 dark:text-gray-400 hover:text-rose text-sm"
-          >
-            Back to Login
           </button>
         </form>
       </div>
