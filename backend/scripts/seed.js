@@ -7,8 +7,7 @@ import Service from '../models/Service.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// .env backend folder me hai, to 1 level upar jao
-dotenv.config({ path: path.resolve(__dirname, '../.env') }); // <-- Bas ye change kiya
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const services = [
   {
@@ -16,7 +15,7 @@ const services = [
     description: "Adorable birthday card for kids & adults. Add custom name & photo.",
     price: 50,
     category: "Birthday",
-    imageUrl: "https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077029/WhatsApp…",
+    imageUrl:"https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077029/WhatsApp_Image_2026-06-10_at_12.39.20_ep7bap.jpg",
     isActive: true
   },
   {
@@ -24,7 +23,7 @@ const services = [
     description: "Minimal anniversary card for your special one. Add couple names & date…",
     price: 50,
     category: "Anniversary",
-    imageUrl: "https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077030/WhatsApp…",
+    imageUrl: "https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077030/WhatsApp_Image_2026-06-10_at_12.41.55_gku7hs.jpg",
     isActive: true
   },
   {
@@ -32,7 +31,7 @@ const services = [
     description: "Simple hand-drawn heart to express your love. Add personal message.",
     price: 50,
     category: "Love",
-    imageUrl: "https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077029/WhatsApp…",
+    imageUrl: "https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077029/WhatsApp_Image_2026-06-10_at_12.42.37_hl2ik5.jpg",
     isActive: true
   },
   {
@@ -40,17 +39,17 @@ const services = [
     description: "Don't see what you want? Tell us your idea & we'll design it for you.",
     price: 50,
     category: "Custom", 
-    imageUrl: "https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077039/WhatsApp…",
+    imageUrl: "https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077039/WhatsApp_Image_2026-06-10_at_12.54.42_scdijv.jpg",
     isActive: true
   }
 ];
 
 const seedDB = async () => {
   try {
-    if (!process.env.MONGODB_URI) {
-      throw new Error('MONGODB_URI not found in .env');
+    if (!process.env.MONGO_URI) {
+      throw new Error('MONGO_URI not found in .env');
     }
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGO_URI);
     await Service.deleteMany({}); 
     await Service.insertMany(services);
     console.log('4 Services added successfully 🔥');
