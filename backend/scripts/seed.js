@@ -7,8 +7,8 @@ import Service from '../models/Service.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// .env root folder me hai to path do
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+// .env backend folder me hai, to 1 level upar jao
+dotenv.config({ path: path.resolve(__dirname, '../.env') }); // <-- Bas ye change kiya
 
 const services = [
   {
