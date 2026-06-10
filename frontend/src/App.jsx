@@ -29,9 +29,10 @@ import Return from './pages/Return';
 import Shipping from './pages/Shipping';
 import { useState, useEffect } from 'react';
 
-// ✅ Ye 2 import add kar
+// ✅ Services + DesignGallery
 import Services from './pages/Services';
 import DesignGallery from './pages/DesignGallery';
+import Reviews from './pages/Reviews'; // ✅ Ye add kar
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -84,9 +85,9 @@ export default function App() {
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<ProductDetail />} />
         
-        {/* ✅ Ye 2 route add kar de */}
-        <Route path="services" element={<Services />} /> {/* Payment wala */}
-        <Route path="gallery" element={<DesignGallery />} /> {/* Sirf showcase */}
+        <Route path="services" element={<Services />} />
+        <Route path="gallery" element={<DesignGallery />} />
+        <Route path="reviews" element={<Reviews />} /> {/* ✅ Ye add kiya */}
         
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />

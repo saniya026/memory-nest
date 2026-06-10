@@ -1,110 +1,104 @@
 import Review from '../models/Review.js';
 import Order from '../models/Order.js';
-import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 import { AppError } from '../middleware/errorHandler.js';
 
-export const getPublicReviews = async (req, res, next) => {
-  try {
-    const { serviceId, occasion, limit = 12 } = req.query;
-    const filter = { status: 'approved' };
-    if (serviceId) filter.service = serviceId;
-    if (occasion) filter.occasion = occasion;
-
-    const reviews = await Review.find(filter)
-      .sort('-createdAt')
-      .limit(Math.min(Number(limit) || 12, 50))
-      .select('-user -order');
-
-    res.json({ success: true, reviews });
-  } catch (e) {
-    next(e);
-  }
-};
-
-export const getEligibleOrders = async (req, res, next) => {
-  try {
-    const completed = await Order.find({ user: req.user._id, status: 'completed' })
-      .populate('service')
-      .sort('-createdAt');
-    const existing = await Review.find({ user: req.user._id }).select('order');
-    const reviewedIds = new Set(existing.map((r) => r.order.toString()));
-    const orders = completed.filter((o) => !reviewedIds.has(o._id.toString()));
-    res.json({ success: true, orders });
-  } catch (e) {
-    next(e);
-  }
-};
-
+// Customer: Review create karo
 export const createReview = async (req, res, next) => {
   try {
-    const { orderId, rating, content } = req.body;
-    if (!orderId || !rating || !content?.trim()) {
-      throw new AppError('Order, rating, and review text are required', 400);
-    }
-    const stars = Number(rating);
-    if (stars < 1 || stars > 5) throw new AppError('Rating must be between 1 and 5', 400);
+    const { orderId, rating, comment } = req.body;
 
-    const order = await Order.findById(orderId).populate('service');
+    const order = await Order.findById(orderId);
     if (!order) throw new AppError('Order not found', 404);
-    if (order.user.toString() !== req.user._id.toString()) {
-      throw new AppError('Not authorized', 403);
-    }
-    if (order.status !== 'completed') {
-      throw new AppError('You can only review completed orders', 400);
+
+    if (order.user.toString()!== req.user._id.toString()) {
+      throw new AppError('Not authorized for this order', 403);
     }
 
-    const exists = await Review.findOne({ order: order._id });
-    if (exists) throw new AppError('You already reviewed this order', 400);
-
-    let photo;
-    if (req.file) {
-      const result = await uploadToCloudinary(req.file.buffer, 'memorynest/reviews');
-      photo = { url: result.secure_url, publicId: result.public_id };
+    if (order.status!== 'completed') {
+      throw new AppError('You can review only after order is completed', 400);
     }
+
+    const existing = await Review.findOne({ order: orderId, user: req.user._id });
+    if (existing) throw new AppError('You have already reviewed this order', 400);
 
     const review = await Review.create({
       user: req.user._id,
-      order: order._id,
-      service: order.service?._id,
-      occasion: order.occasion,
-      customerName: req.user.name,
-      rating: stars,
-      content: content.trim(),
-      photo,
-      status: 'pending',
+      order: orderId,
+      service: order.items[0]?.service || null,
+      rating,
+      comment
     });
 
-    res.status(201).json({
-      success: true,
-      review,
-      message: 'Thank you! Your review will appear after approval.',
-    });
+    const populated = await Review.findById(review._id).populate('user', 'name');
+    res.json({ success: true, review: populated });
   } catch (e) {
     next(e);
   }
 };
 
-export const getAllReviewsAdmin = async (req, res, next) => {
+// Sab reviews lao - public page ke liye
+export const getAllReviews = async (req, res, next) => {
   try {
-    const reviews = await Review.find()
-      .populate('user', 'name email')
-      .populate('service', 'title')
-      .populate('order', 'occasion status')
-      .sort('-createdAt');
+    const reviews = await Review.find({ isApproved: true })
+     .populate('user', 'name')
+     .populate('service', 'title')
+     .populate('adminReply.repliedBy', 'name')
+     .sort('-createdAt')
+     .limit(20);
+
     res.json({ success: true, reviews });
   } catch (e) {
     next(e);
   }
 };
 
-export const updateReviewStatus = async (req, res, next) => {
+// Customer: Apne reviews
+export const getMyReviews = async (req, res, next) => {
   try {
-    const { status } = req.body;
-    if (!['approved', 'hidden', 'pending'].includes(status)) {
-      throw new AppError('Invalid status', 400);
-    }
-    const review = await Review.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    const reviews = await Review.find({ user: req.user._id })
+     .populate('order', '_id totalAmount')
+     .populate('service', 'title')
+     .sort('-createdAt');
+    res.json({ success: true, reviews });
+  } catch (e) {
+    next(e);
+  }
+};
+
+// Admin: Reply karo
+export const replyToReview = async (req, res, next) => {
+  try {
+    const { text } = req.body;
+    if (!text) throw new AppError('Reply text required', 400);
+
+    const review = await Review.findByIdAndUpdate(
+      req.params.id,
+      {
+        adminReply: {
+          text,
+          repliedAt: new Date(),
+          repliedBy: req.user._id
+        }
+      },
+      { new: true }
+    ).populate('user', 'name').populate('adminReply.repliedBy', 'name');
+
     if (!review) throw new AppError('Review not found', 404);
+    res.json({ success: true, review });
+  } catch (e) {
+    next(e);
+  }
+};
+
+// Admin: Hide/Show review
+export const toggleReviewApproval = async (req, res, next) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) throw new AppError('Review not found', 404);
+
+    review.isApproved =!review.isApproved;
+    await review.save();
+
     res.json({ success: true, review });
   } catch (e) {
     next(e);

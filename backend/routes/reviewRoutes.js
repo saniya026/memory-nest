@@ -1,21 +1,24 @@
 import express from 'express';
 import {
-  getPublicReviews,
-  getEligibleOrders,
   createReview,
-  getAllReviewsAdmin,
-  updateReviewStatus,
+  getAllReviews,
+  getMyReviews,
+  replyToReview,
+  toggleReviewApproval
 } from '../controllers/reviewController.js';
-import { protect, adminOnly } from '../middleware/auth.js';
-import { upload } from '../middleware/upload.js';
+import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.get('/', getPublicReviews);
-router.get('/eligible', protect, getEligibleOrders);
-router.post('/', protect, upload.single('photo'), createReview);
+// Public
+router.get('/', getAllReviews);
 
-router.get('/admin/all', ...adminOnly, getAllReviewsAdmin);
-router.patch('/admin/:id', ...adminOnly, updateReviewStatus);
+// Customer
+router.post('/', protect, createReview);
+router.get('/my', protect, getMyReviews);
+
+// Admin
+router.patch('/:id/reply', protect, admin, replyToReview);
+router.patch('/:id/toggle', protect, admin, toggleReviewApproval);
 
 export default router;

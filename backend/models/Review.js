@@ -1,25 +1,20 @@
 import mongoose from 'mongoose';
 
-const reviewSchema = new mongoose.Schema(
-  {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true, unique: true },
-    service: { type: mongoose.Schema.Types.ObjectId, ref: 'Service' },
-    occasion: { type: String, default: '' },
-    customerName: { type: String, required: true },
-    rating: { type: Number, required: true, min: 1, max: 5 },
-    content: { type: String, required: true, trim: true },
-    photo: {
-      url: String,
-      publicId: String,
-    },
-    status: {
-      type: String,
-      enum: ['pending', 'approved', 'hidden'],
-      default: 'pending',
-    },
+const reviewSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true },
+  service: { type: mongoose.Schema.Types.ObjectId, ref: 'Design' }, // optional
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  comment: { type: String, required: true, maxlength: 500 },
+  adminReply: {
+    text: { type: String, default: '' },
+    repliedAt: Date,
+    repliedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
   },
-  { timestamps: true }
-);
+  isApproved: { type: Boolean, default: true } // admin chahe to hide kar sake
+}, { timestamps: true });
+
+// Ek user ek order pe sirf 1 review
+reviewSchema.index({ user: 1, order: 1 }, { unique: true });
 
 export default mongoose.model('Review', reviewSchema);

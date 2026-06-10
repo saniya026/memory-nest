@@ -3,13 +3,11 @@ import { useAuth } from '../../context/AuthContext';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
 
-// ✅ Anchor links hata diye, naye route add kiye
+// ✅ Features + Pricing hata diya, Reviews ka route fix kiya
 const links = [
-  { to: '/#features', label: 'Features' },
-  { to: '/services', label: 'Services' }, // ✅ Changed: /#services → /services
-  { to: '/gallery', label: 'My Designs' }, // ✅ Changed: /#portfolio → /gallery
-  { to: '/#reviews', label: 'Reviews' },
-  { to: '/#pricing', label: 'Pricing' },
+  { to: '/services', label: 'Services' },
+  { to: '/gallery', label: 'My Designs' },
+  { to: '/reviews', label: 'Reviews' }, // ✅ Changed: /#reviews → /reviews
   { to: '/#contact', label: 'Contact' },
 ];
 
@@ -22,14 +20,13 @@ export default function DesktopNavbar() {
         <Logo />
         <div className="flex items-center gap-8">
           {links.map((l) => (
-            // ✅ NavLink use kar taaki active state dikhe
             <NavLink
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
                 `text-sm font-semibold transition hover:text-rose ${
                   isActive
-                   ? 'text-rose'
+                  ? 'text-rose'
                     : 'text-gray-600 dark:text-gray-300 dark:hover:text-rose'
                 }`
               }
@@ -37,10 +34,6 @@ export default function DesktopNavbar() {
               {l.label}
             </NavLink>
           ))}
-          {/* ✅ Purana /products wala "Designs" hata de agar nahi chahiye */}
-          {/* <NavLink to="/products" className="text-sm font-semibold text-gray-600 hover:text-rose dark:text-gray-300">
-            Designs
-          </NavLink> */}
         </div>
         <div className="flex items-center gap-3">
           <ThemeToggle />
