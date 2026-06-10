@@ -8,6 +8,7 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import contentRoutes from './routes/contentRoutes.js';
 import memoryRoutes from './routes/memoryRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
+import serviceRoutes from './routes/serviceRoutes.js'; // Ye line add ki
 
 const app = express();
 
@@ -73,6 +74,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api', contentRoutes);
 app.use('/api/memories', memoryRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/services', serviceRoutes); // Ye line add ki
 
 app.use(errorHandler);
 
