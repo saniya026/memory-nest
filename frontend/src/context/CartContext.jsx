@@ -19,16 +19,17 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (service, orderDraft = null) => {
     setItems((prev) => {
-      // Custom design ya service with draft - hamesha naya add karo
-      if (orderDraft ||!service?._id) {
-        return [...prev, { service, orderDraft, id: Date.now().toString() + Math.random() }];
+      // Custom design ke liye default price 50 set kar
+      const finalOrderDraft = orderDraft? {...orderDraft, amount: orderDraft.amount || 50 } : null;
+
+      if (finalOrderDraft ||!service?._id) {
+        return [...prev, { service, orderDraft: finalOrderDraft, id: Date.now().toString() + Math.random() }];
       }
 
-      // Normal service without draft - duplicate check karo
       const exists = prev.find((i) => i.service?._id === service._id &&!i.orderDraft);
       if (exists) return prev;
 
-      return [...prev, { service, orderDraft, id: Date.now().toString() + Math.random() }];
+      return [...prev, { service, orderDraft: finalOrderDraft, id: Date.now().toString() + Math.random() }];
     });
   };
 
@@ -43,7 +44,7 @@ export const CartProvider = ({ children }) => {
   const clearCart = () => setItems([]);
 
   const total = items.reduce((sum, i) => {
-    const price = i.service?.price || i.orderDraft?.amount || 0;
+    const price = i.service?.price || i.orderDraft?.amount || 50; // 50 default
     return sum + price;
   }, 0);
 
