@@ -13,7 +13,6 @@ export default function Services() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // ✅ Ab /services API call hoga, /designs nahi
     api.get('/services')
       .then(res => {
         setServices(res.data);
@@ -26,8 +25,15 @@ export default function Services() {
   }, []);
 
   const handleBuyNow = (service) => {
-    addToCart({ service, orderDraft: {} });
-    navigate('/checkout'); // ✅ Payment flow sirf yaha se
+    // ✅ Sahi tarika: service alag, orderDraft alag
+    addToCart(service, {
+      title: service.title,
+      occasion: service.category,
+      amount: service.price,
+      theme: 'Default'
+    });
+    toast.success('Added to cart');
+    navigate('/checkout');
   };
 
   if (loading) return <div className="text-center p-10">Loading services...</div>;
@@ -43,7 +49,6 @@ export default function Services() {
             <p className="text-gray-600 text-sm mb-2">{service.category}</p>
             <p className="text-2xl font-bold text-rose-500 mb-4">₹{service.price}</p>
             
-            {/* ✅ Payment button sirf Service page pe */}
             <button
               onClick={() => handleBuyNow(service)}
               className="w-full bg-rose-500 hover:bg-rose-600 text-white py-2 rounded-lg font-semibold"
