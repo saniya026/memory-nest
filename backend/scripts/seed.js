@@ -11,10 +11,10 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const services = [
   {
-    title: "Birthday",
+    title: "Birthday Memories",
     description: "Adorable birthday card for kids & adults. Add custom name & photo.",
     price: 50,
-    category: "Birthday",
+    category: "birthday",
     imageUrl:"https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077029/WhatsApp_Image_2026-06-10_at_12.39.20_ep7bap.jpg",
     isActive: true
   },
@@ -22,7 +22,7 @@ const services = [
     title: "Anniversary", 
     description: "Minimal anniversary card for your special one. Add couple names & date…",
     price: 50,
-    category: "Anniversary",
+    category: "anniversary",
     imageUrl: "https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077030/WhatsApp_Image_2026-06-10_at_12.41.55_gku7hs.jpg",
     isActive: true
   },
@@ -30,7 +30,7 @@ const services = [
     title: "Love",
     description: "Simple hand-drawn heart to express your love. Add personal message.",
     price: 50,
-    category: "Love",
+    category: "love",
     imageUrl: "https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077029/WhatsApp_Image_2026-06-10_at_12.42.37_hl2ik5.jpg",
     isActive: true
   },
@@ -38,7 +38,7 @@ const services = [
     title: "Custom",
     description: "Don't see what you want? Tell us your idea & we'll design it for you.",
     price: 50,
-    category: "Custom", 
+    category: "custom", 
     imageUrl: "https://res.cloudinary.com/dipj3tdyn/image/upload/v1781077039/WhatsApp_Image_2026-06-10_at_12.54.42_scdijv.jpg",
     isActive: true
   }
