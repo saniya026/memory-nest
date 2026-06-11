@@ -26,28 +26,28 @@ export default function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           className="relative hidden md:block"
         >
-          {/* Left top - Wedding chairs */}
+          {/* Left top */}
           <div className="card-polaroid absolute left-8 top-0 z-10 w-48 animate-float">
             <img 
-              src="https://pin.it/5WPtGQWFy" 
+              src="/hero1.jpg" 
               alt="memories" 
               className="aspect-square object-cover" 
             />
           </div>
           
-          
+          {/* Right */}
           <div className="card-polaroid absolute right-4 top-16 z-20 w-56 rotate-3">
             <img 
-              src="https://pin.it/6JFrvjiQw"
-              alt=" memory" 
+              src="/hero2.jpg"
+              alt="memory" 
               className="aspect-square object-cover" 
             />
           </div>
           
-          {/* Center bottom - ✅ Nayi photo add ki */}
+          {/* Center bottom */}
           <div className="card-polaroid relative mx-auto mt-24 w-64 -rotate-2">
             <img 
-              src="https://pin.it/4Oi1BCYXq" 
+              src="/hero3.jpg" 
               alt="Birthday celebration" 
               className="aspect-[4/5] object-cover" 
             />
