@@ -4,18 +4,26 @@ import { Link } from 'react-router-dom';
 import { useWishlist } from '../context/WishlistContext';
 
 export default function ProductCard({ service, listView = false }) {
-  const { isWishlisted, toggleWishlist } = useWishlist();
-  const saved = isWishlisted(service._id);
+  // ✅ Sahi naam use kar
+  const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const saved = isInWishlist(service._id); // ✅ isInWishlist
   const designUrl = `/products/${service._id}`;
+
+  const handleWishlistClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // ✅ toggle logic khud likh de
+    if (saved) {
+      removeFromWishlist(service._id);
+    } else {
+      addToWishlist(service._id);
+    }
+  };
 
   const heartBtn = (
     <button
       type="button"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleWishlist(service);
-      }}
+      onClick={handleWishlistClick}
       className={`rounded-full p-2 transition ${
         saved ? 'text-rose' : 'text-gray-400 hover:text-rose'
       }`}

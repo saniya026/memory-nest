@@ -5,46 +5,8 @@ import toast from 'react-hot-toast';
 import api from '../../api/axios';
 
 /** Static landing content — no API (site is admin-only) */
-export const LANDING_SERVICES = [
-  {
-    _id: '1',
-    title: 'Classic Scrapbook',
-    description: 'Soft pastel polaroid layout with handwritten captions.',
-    price: 100,
-    image: 'https://images.unsplash.com/photo-1518199266791-5375a57590ae?w=600',
-  },
-  {
-    _id: '2',
-    title: 'Dreamy Lavender',
-    description: 'Lavender tones with floating photo frames and sparkles.',
-    price: 100,
-    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600',
-  },
-];
 
-const LANDING_TESTIMONIALS = [
-  {
-    _id: '1',
-    name: 'Priya S.',
-    role: 'Birthday surprise',
-    content: 'MemoryNest turned our photos into the sweetest digital scrapbook. My mom cried happy tears!',
-    rating: 5,
-  },
-  {
-    _id: '2',
-    name: 'Rahul & Meera',
-    role: 'Anniversary',
-    content: 'The lavender theme was exactly what we wanted. Professional and so personal.',
-    rating: 5,
-  },
-  {
-    _id: '3',
-    name: 'Aisha K.',
-    role: 'Farewell gift',
-    content: 'Ordered for my best friend’s farewell. Delivery was fast and the design was stunning.',
-    rating: 5,
-  },
-];
+
 
 import ProductCard from '../ProductCard';
 
