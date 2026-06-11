@@ -1,81 +1,36 @@
-import { createContext, useContext, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import toast from 'react-hot-toast'
+import api from '../api/axios' // Import kar
 
-const AuthContext = createContext()
+const login = async (email, password) => {
+  try {
+    const { data } = await api.post('/users/login', { email, password });
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+    // Backend se token milega
+    localStorage.setItem('mn_token', data.token);
+    localStorage.setItem('memoryNestUser', JSON.stringify(data));
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem('memoryNestUser')
-    if (savedUser) setUser(JSON.parse(savedUser))
-    setLoading(false)
-  }, [])
-
-  // SIGNUP - Direct account banao
-  const register = async (name, email, password, phone) => {
-    const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]')
-    
-    if (allUsers.find(u => u.email === email)) {
-      toast.error('Email already registered')
-      throw new Error('Email exists')
-    }
-
-    const userData = {
-      id: Date.now(),
-      name,
-      email,
-      phone,
-      password
-    }
-
-    allUsers.push(userData)
-    localStorage.setItem('allUsers', JSON.stringify(allUsers))
-    localStorage.setItem('memoryNestUser', JSON.stringify(userData))
-    setUser(userData)
-    toast.success('Account created successfully!')
-    navigate('/dashboard')
-    return userData
+    setUser(data);
+    toast.success('Welcome back!');
+    navigate('/home');
+    return true;
+  } catch (error) {
+    toast.error('Invalid email or password');
+    throw new Error('Invalid credentials');
   }
-
-  // LOGIN - Email Password se
-  const login = async (email, password) => {
-    const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]')
-    const foundUser = allUsers.find(u => u.email === email && u.password === password)
-
-    if (foundUser) {
-      localStorage.setItem('memoryNestUser', JSON.stringify(foundUser))
-      setUser(foundUser)
-      toast.success('Welcome back!')
-      navigate('/dashboard')
-      return true
-    }
-    toast.error('Invalid email or password')
-    throw new Error('Invalid credentials')
-  }
-
-  const logout = () => {
-    localStorage.removeItem('memoryNestUser')
-    setUser(null)
-    toast.success('Logged out')
-    navigate('/login')
-  }
-
-  return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated:!!user,
-      loading,
-      register,
-      login,
-      logout
-    }}>
-      {children}
-    </AuthContext.Provider>
-  )
 }
 
-export const useAuth = () => useContext(AuthContext)
+const register = async (name, email, password, phone) => {
+  try {
+    const { data } = await api.post('/users/register', { name, email, password, phone });
+
+    localStorage.setItem('mn_token', data.token);
+    localStorage.setItem('memoryNestUser', JSON.stringify(data));
+
+    setUser(data);
+    toast.success('Account created successfully!');
+    navigate('/home');
+    return data;
+  } catch (error) {
+    toast.error(error.response?.data?.message || 'Registration failed');
+    throw error;
+  }
+}
