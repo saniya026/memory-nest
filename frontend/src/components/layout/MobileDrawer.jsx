@@ -7,14 +7,14 @@ export default function MobileDrawer({ open, onClose }) {
 
   if (!open) return null;
 
-  // ✅ Anchor links update kiye
+  // ✅ Contact hata diya
   const navLinks = [
     { to: '/#features', label: 'All Features', isAnchor: true },
-    { to: '/services', label: 'Services', isAnchor: false }, // ✅ Changed
-    { to: '/gallery', label: 'My Designs', isAnchor: false }, // ✅ Changed
+    { to: '/services', label: 'Services', isAnchor: false },
+    { to: '/gallery', label: 'My Designs', isAnchor: false },
     { to: '/#reviews', label: 'Reviews', isAnchor: true },
     { to: '/#pricing', label: 'Pricing', isAnchor: true },
-    { to: '/#contact', label: 'Contact', isAnchor: true },
+    // { to: '/#contact', label: 'Contact', isAnchor: true }, // Ye line delete kar di
   ];
 
   return (
@@ -27,11 +27,6 @@ export default function MobileDrawer({ open, onClose }) {
           </button>
         </div>
         <nav className="flex flex-col gap-3">
-          {/* ✅ Purana Design Studio link hata de agar nahi chahiye */}
-          {/* <Link to="/products" onClick={onClose} className="text-lg font-bold text-rose">
-            🎨 Design Studio (Occasions)
-          </Link> */}
-
           {navLinks.map((l) =>
             l.isAnchor? (
               <a

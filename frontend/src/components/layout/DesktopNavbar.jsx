@@ -3,12 +3,12 @@ import { useAuth } from '../../context/AuthContext';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
 
-// ✅ Features + Pricing hata diya, Reviews ka route fix kiya
+// ✅ Contact hata diya
 const links = [
   { to: '/services', label: 'Services' },
   { to: '/gallery', label: 'My Designs' },
-  { to: '/reviews', label: 'Reviews' }, // ✅ Changed: /#reviews → /reviews
-  { to: '/#contact', label: 'Contact' },
+  { to: '/reviews', label: 'Reviews' },
+  // { to: '/#contact', label: 'Contact' }, // Ye line delete kar di
 ];
 
 export default function DesktopNavbar() {
@@ -26,7 +26,7 @@ export default function DesktopNavbar() {
               className={({ isActive }) =>
                 `text-sm font-semibold transition hover:text-rose ${
                   isActive
-                  ? 'text-rose'
+                 ? 'text-rose'
                     : 'text-gray-600 dark:text-gray-300 dark:hover:text-rose'
                 }`
               }
