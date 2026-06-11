@@ -29,17 +29,17 @@ export default function Hero() {
           {/* Left top - Wedding chairs */}
           <div className="card-polaroid absolute left-8 top-0 z-10 w-48 animate-float">
             <img 
-              src="https://images.unsplash.com/photo-1519741497674-611481863552?w=300" 
-              alt="Wedding setup" 
+              src="https://pin.it/5WPtGQWFy" 
+              alt="memories" 
               className="aspect-square object-cover" 
             />
           </div>
           
-          {/* Right - Friends group */}
+          
           <div className="card-polaroid absolute right-4 top-16 z-20 w-56 rotate-3">
             <img 
-              src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300" 
-              alt="Friends memory" 
+              src="https://pin.it/6JFrvjiQw"
+              alt=" memory" 
               className="aspect-square object-cover" 
             />
           </div>
@@ -47,7 +47,7 @@ export default function Hero() {
           {/* Center bottom - ✅ Nayi photo add ki */}
           <div className="card-polaroid relative mx-auto mt-24 w-64 -rotate-2">
             <img 
-              src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=400" 
+              src="https://pin.it/4Oi1BCYXq" 
               alt="Birthday celebration" 
               className="aspect-[4/5] object-cover" 
             />
