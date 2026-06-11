@@ -7,7 +7,8 @@ import authRoutes from './routes/authRoutes.js';
 import designRoutes from './routes/designRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import serviceRoutes from './routes/serviceRoutes.js';
-import reviewRoutes from './routes/reviewRoutes.js'; // ← Ye add kar
+import reviewRoutes from './routes/reviewRoutes.js';
+import wishlistRoutes from './routes/wishlistRoutes.js'; // ✅ Ye line add kar
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -22,7 +23,8 @@ app.use('/api/memories', memoryRoutes);
 app.use('/api/designs', designRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/services', serviceRoutes);
-app.use('/api/reviews', reviewRoutes); // ← Ye add kar
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/wishlist', wishlistRoutes); // ✅ Ye line add kar
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'MemoryNest API Running' });
@@ -49,7 +51,8 @@ const startServer = async () => {
     console.log(`[Server] Auth API: http://localhost:${PORT}/api/auth/register`);
     console.log(`[Server] Orders API: http://localhost:${PORT}/api/orders`);
     console.log(`[Server] Services API: http://localhost:${PORT}/api/services`);
-    console.log(`[Server] Reviews API: http://localhost:${PORT}/api/reviews`); // ← Ye add kar
+    console.log(`[Server] Reviews API: http://localhost:${PORT}/api/reviews`);
+    console.log(`[Server] Wishlist API: http://localhost:${PORT}/api/wishlist`); // ✅ Ye bhi add kar
   });
 };
 
