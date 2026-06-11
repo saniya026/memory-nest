@@ -7,7 +7,7 @@ const customerLinks = [
   { to: '/dashboard/orders', icon: ShoppingBag, label: 'My Orders' },
   { to: '/dashboard/memories', icon: BookHeart, label: 'Memory Journal' },
   { to: '/wishlist', icon: Heart, label: 'Saved Designs' },
-  { to: '/products', icon: Package, label: 'Browse Designs' },
+  // { to: '/products', icon: Package, label: 'Browse Designs' }, // Ye line delete kar di
   { to: '/profile', icon: User, label: 'Edit Profile' },
 ];
 
