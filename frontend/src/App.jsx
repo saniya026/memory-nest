@@ -37,6 +37,7 @@ import Refund from './pages/Refund';
 import Return from './pages/Return';
 import Shipping from './pages/Shipping';
 import Services from './pages/Services';
+import ServiceDetail from './pages/ServiceDetail'; // ✅ Added
 import DesignGallery from './pages/DesignGallery';
 import Reviews from './pages/Reviews';
 
@@ -47,26 +48,22 @@ export default function App() {
   const { isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
-    // Auth loading complete hone ka wait karo
     if (loading) return;
 
     const timer = setTimeout(() => {
       setShowSplash(false);
-      
-      // Splash ke baad login check karke redirect
       if (location.pathname === '/') {
-        navigate(isAuthenticated ? '/home' : '/login', { replace: true });
+        navigate(isAuthenticated? '/home' : '/login', { replace: true });
       }
     }, 5000);
 
     return () => clearTimeout(timer);
   }, [navigate, location.pathname, isAuthenticated, loading]);
 
-  // Video end hone pe bhi same logic
   const handleVideoEnd = () => {
     setShowSplash(false);
     if (location.pathname === '/') {
-      navigate(isAuthenticated ? '/home' : '/login', { replace: true });
+      navigate(isAuthenticated? '/home' : '/login', { replace: true });
     }
   };
 
@@ -99,14 +96,14 @@ export default function App() {
 
   return (
     <Routes>
-      {/* Auth Routes - Bina layout ke */}
+      {/* Auth Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-      {/* Public Routes - Bina login dekh sakte */}
+      {/* Public Routes */}
       <Route element={<MainLayout />}>
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetail />} />
@@ -117,7 +114,7 @@ export default function App() {
         <Route path="/shipping" element={<Shipping />} />
       </Route>
 
-      {/* Protected Routes - Login zaroori */}
+      {/* Protected Routes */}
       <Route
         element={
           <ProtectedRoute role="any">
@@ -127,6 +124,7 @@ export default function App() {
       >
         <Route path="/home" element={<Home />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/service/:id" element={<ServiceDetail />} /> {/* ✅ Added */}
         <Route path="/gallery" element={<DesignGallery />} />
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/cart" element={<Cart />} />
@@ -165,7 +163,6 @@ export default function App() {
         <Route path="reviews" element={<ReviewsAdmin />} />
       </Route>
 
-      {/* Default redirect - Agar login nahi to login, warna home */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

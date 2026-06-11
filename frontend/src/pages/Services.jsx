@@ -1,39 +1,29 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
-import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-const SERVICE_CATEGORIES = ['Birthday', 'Wedding', 'Anniversary', 'Graduation', 'Love', 'Custom'];
+const SERVICE_CATEGORIES = ['Birthday', 'Wedding', 'Love', 'Custom'];
 
 export default function Services() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
     api.get('/services')
-      .then(res => {
+     .then(res => {
         setServices(res.data);
         setLoading(false);
       })
-      .catch(() => {
+     .catch(() => {
         toast.error('Failed to load services');
         setLoading(false);
       });
   }, []);
 
-  const handleBuyNow = (service) => {
-    // ✅ Sahi tarika: service alag, orderDraft alag
-    addToCart(service, {
-      title: service.title,
-      occasion: service.category,
-      amount: service.price,
-      theme: 'Default'
-    });
-    toast.success('Added to cart');
-    navigate('/checkout');
+  const handleBookNow = (service) => {
+    navigate(`/service/${service._id}`);
   };
 
   if (loading) return <div className="text-center p-10">Loading services...</div>;
@@ -48,9 +38,9 @@ export default function Services() {
             <h3 className="font-bold text-lg">{service.title}</h3>
             <p className="text-gray-600 text-sm mb-2">{service.category}</p>
             <p className="text-2xl font-bold text-rose-500 mb-4">₹{service.price}</p>
-            
+
             <button
-              onClick={() => handleBuyNow(service)}
+              onClick={() => handleBookNow(service)}
               className="w-full bg-rose-500 hover:bg-rose-600 text-white py-2 rounded-lg font-semibold"
             >
               Book Now - ₹{service.price}
@@ -58,8 +48,8 @@ export default function Services() {
           </div>
         ))}
       </div>
-      
-      {services.length === 0 && (
+
+      {services.filter(s => SERVICE_CATEGORIES.includes(s.category)).length === 0 && (
         <p className="text-center text-gray-500 mt-10">No services available yet</p>
       )}
     </div>
