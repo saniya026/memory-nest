@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Sparkles } from 'lucide-react';
+// ❌ ArrowRight, Link hata diya kyunki buttons nahi chahiye
 
 export default function Hero() {
   return (
@@ -20,20 +20,10 @@ export default function Hero() {
             Upload your photos, pick a dreamy theme, and we&apos;ll craft a scrapbook-style memory page
             you&apos;ll treasure forever.
           </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link to="/products" className="btn-primary">
-              Start Designing <ArrowRight className="h-5 w-5" />
-            </Link>
-            <Link to="/signup" className="btn-secondary">
-              Create Account
-            </Link>
-            <a href="#features" className="text-sm font-semibold text-rose self-center hover:underline">
-              See all features →
-            </a>
-          </div>
-          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-            🎂 Pick an occasion theme or create your own — colors update live on the design page
-          </p>
+          
+          {/* ❌ Buttons wala div hata diya */}
+          {/* ❌ Pick an occasion theme wala p tag hata diya */}
+
         </motion.div>
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
