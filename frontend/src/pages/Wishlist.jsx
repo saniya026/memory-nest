@@ -1,45 +1,42 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import api from '../api/axios'
+import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext' // ✅ Add kar
 import toast from 'react-hot-toast'
-import { Trash2 } from 'lucide-react'
+import { Trash2, ShoppingBag } from 'lucide-react'
 
 export default function Wishlist() {
   const { isAuthenticated } = useAuth()
+  const { addToCart } = useCart()
+  const { wishlist, loading, removeFromWishlist } = useWishlist() // ✅ Context se le
   const navigate = useNavigate()
-  const [wishlist, setWishlist] = useState([])
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login')
       return
     }
-
-    const fetchWishlist = async () => {
-      try {
-        const { data } = await api.get('/wishlist')
-        setWishlist(data)
-      } catch (err) {
-        console.log('Wishlist error:', err)
-        toast.error('Failed to load wishlist')
-        setWishlist([])
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchWishlist()
   }, [isAuthenticated, navigate])
 
+  // ❌ fetchWishlist wala useEffect hata de - Context auto fetch kar raha
+
   const handleRemove = async (designId) => {
-    try {
-      await api.delete(`/wishlist/${designId}`)
-      setWishlist(wishlist.filter(item => item._id!== designId))
-      toast.success('Removed from wishlist')
-    } catch (err) {
-      toast.error('Failed to remove')
+    await removeFromWishlist(designId) // ✅ Context ka function use kar
+  }
+
+  const handleBookNow = (design) => {
+    const serviceData = {
+      _id: design._id,
+      title: design.title,
+      price: design.price || 50,
+      image: design.image,
+      description: design.description
     }
+    
+    addToCart(serviceData)
+    toast.success('Added to cart!')
+    navigate('/cart')
   }
 
   if (loading) return <div className="text-center p-8">Loading wishlist...</div>
@@ -61,25 +58,38 @@ export default function Wishlist() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {wishlist.map(item => (
-            <div key={item._id} className="border rounded-lg overflow-hidden shadow-card hover:shadow-lg transition">
-              <img 
-                src={item.image} 
-                alt={item.title} 
-                className="w-full h-48 object-cover"
-              />
+            <div key={item._id} className="border rounded-lg overflow-hidden shadow-card hover:shadow-lg transition bg-white">
+              <div className="bg-gray-50 h-64 flex items-center justify-center">
+                <img 
+                  src={item.image} 
+                  alt={item.title} 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              
               <div className="p-4">
-                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                <p className="text-gray-600 text-sm mb-3">{item.description}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-rose font-bold">₹{item.price}</span>
+                <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                <p className="text-gray-500 text-sm mb-2">{item.category || 'Survivor'}</p>
+                <p className="text-gray-600 text-sm mb-3 line-clamp-3">{item.description}</p>
+                
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-rose font-bold text-xl">₹{item.price || 50}</span>
                   <button
                     onClick={() => handleRemove(item._id)}
-                    className="text-red-500 hover:text-red-700 flex items-center gap-1"
+                    className="text-red-500 hover:text-red-700 flex items-center gap-1 text-sm"
                   >
                     <Trash2 className="h-4 w-4" />
                     Remove
                   </button>
                 </div>
+
+                <button
+                  onClick={() => handleBookNow(item)}
+                  className="w-full bg-rose text-white py-2 rounded-lg hover:bg-rose-dark transition flex items-center justify-center gap-2 font-semibold"
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  Book Now
+                </button>
               </div>
             </div>
           ))}
