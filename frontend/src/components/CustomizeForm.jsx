@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useCart } from '../../context/CartContext';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function CustomizeForm({ service }) {
   const [photos, setPhotos] = useState([]);
@@ -11,7 +12,7 @@ export default function CustomizeForm({ service }) {
   const [message, setMessage] = useState('');
   const [instructions, setInstructions] = useState('');
   const [loading, setLoading] = useState(false);
-  const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   const colorOptions = [
     'Rose Pink',
@@ -21,7 +22,7 @@ export default function CustomizeForm({ service }) {
     'Royal Gold',
     'Classic Black',
     'Pure White',
-    'Custom' // Ye select karne pe input khulega
+    'Custom'
   ];
 
   const finalColor = useCustomColor ? customColor : color;
@@ -36,19 +37,34 @@ export default function CustomizeForm({ service }) {
       const formData = new FormData();
       photos.forEach(file => formData.append('photos', file));
       formData.append('serviceId', service._id);
+      formData.append('name', service.name); // ✅ Backend ke liye
+      formData.append('price', service.price); // ✅ Backend ke liye
       formData.append('style', style);
-      formData.append('color', finalColor); // Final color bhej rahe
+      formData.append('color', finalColor);
       formData.append('message', message);
       formData.append('instructions', instructions);
       
-      // API call yaha
-      addToCart({ 
-        ...service, 
-        customData: { style, color: finalColor, message, instructions } 
-      });
-      toast.success('Added to cart!');
+      // ✅ Actual API call - context wala hata de
+      const token = localStorage.getItem('token');
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/cart/add-custom`, 
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+            // Content-Type mat likhna, axios khud set karega
+          }
+        }
+      );
+
+      if (res.data.success) {
+        toast.success('Added to cart!');
+        navigate('/cart'); // Cart page pe bhej de
+      }
+
     } catch (err) {
-      toast.error('Upload failed');
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Upload failed');
     } finally {
       setLoading(false);
     }
@@ -71,16 +87,23 @@ export default function CustomizeForm({ service }) {
       <h3 className="mb-4 text-xl font-bold">Customize Your Memory</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-2 block text-sm font-semibold">Upload Photos</label>
+          <label className="mb-2 block text-sm font-semibold">Upload Photos *</label>
           <input
             type="file"
             multiple
             accept="image/*"
-            onChange={(e) => setPhotos([...e.target.files])}
+            onChange={(e) => setPhotos(Array.from(e.target.files))}
             className="input w-full"
+            required
           />
           {photos.length > 0 && (
-            <p className="mt-1 text-xs text-gray-500">{photos.length} files selected</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {Array.from(photos).map((file, i) => (
+                <span key={i} className="rounded bg-blush/40 px-2 py-1 text-xs">
+                  {file.name}
+                </span>
+              ))}
+            </div>
           )}
         </div>
 
@@ -99,7 +122,6 @@ export default function CustomizeForm({ service }) {
           </select>
         </div>
 
-        {/* ✅ Color Options - Dropdown + Custom Input */}
         <div>
           <label className="mb-2 block text-sm font-semibold">Frame/Theme Color</label>
           <select
@@ -158,7 +180,7 @@ export default function CustomizeForm({ service }) {
           disabled={loading}
           className="btn-primary w-full py-3 disabled:opacity-50"
         >
-          {loading ? 'Adding...' : 'Add to Cart & Continue'}
+          {loading ? 'Adding to Cart...' : 'Add to Cart & Continue'}
         </button>
       </form>
     </div>
