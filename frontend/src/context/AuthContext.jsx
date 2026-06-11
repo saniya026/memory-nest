@@ -11,13 +11,14 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate()
 
   useEffect(() => {
+    const token = localStorage.getItem('mn_token')
     const savedUser = localStorage.getItem('memoryNestUser')
-    if (savedUser) setUser(JSON.parse(savedUser))
+    if (token && savedUser) setUser(JSON.parse(savedUser))
     setLoading(false)
   }, [])
 
   const register = async (name, email, password, phone) => {
-    const { data } = await api.post('/users/register', { name, email, password, phone });
+    const { data } = await api.post('/auth/register', { name, email, password, phone });
     localStorage.setItem('mn_token', data.token);
     localStorage.setItem('memoryNestUser', JSON.stringify(data));
     setUser(data);
@@ -26,7 +27,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const login = async (email, password) => {
-    const { data } = await api.post('/users/login', { email, password });
+    const { data } = await api.post('/auth/login', { email, password });
     localStorage.setItem('mn_token', data.token);
     localStorage.setItem('memoryNestUser', JSON.stringify(data));
     setUser(data);
@@ -42,14 +43,13 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   }
 
-  // ✅ isAdmin yaha add kiya
   const isAdmin = user?.role === 'admin' || user?.isAdmin === true;
 
   return (
     <AuthContext.Provider value={{
       user,
       isAuthenticated: !!user,
-      isAdmin, // ✅ Ye return karna zaroori hai
+      isAdmin,
       loading,
       register,
       login,
