@@ -21,7 +21,7 @@ export default function Login() {
   }
 
   return (
-    <div className="mx-auto flex min-h- max-w-md flex-col justify-center px-4">
+    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
       <div className="mb-8 text-center">
         <Logo className="justify-center text-2xl" />
         <h1 className="mt-4 font-display text-2xl font-bold">Welcome Back</h1>
@@ -45,9 +45,20 @@ export default function Login() {
           onChange={(e) => setForm({...form, password: e.target.value })}
           required
         />
+        
+        <div className="text-right">
+          <Link 
+            to="/forgot-password" 
+            className="text-sm text-rose hover:underline"
+          >
+            Forgot Password?
+          </Link>
+        </div>
+
         <button type="submit" disabled={loading} className="btn-primary w-full">
           {loading? 'Logging in...' : 'Login'}
         </button>
+        
         <p className="text-center text-sm text-gray-500">
           Don't have account? <Link to="/signup" className="font-semibold text-rose">Sign up</Link>
         </p>

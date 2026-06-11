@@ -1,75 +1,53 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useState } from 'react'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 
-export default function ForgotPassword() {
-  const [step, setStep] = useState(1);
-  const [input, setInput] = useState('');
-  const [otp, setOtp] = useState('');
-  const [newPass, setNewPass] = useState('');
-  const { sendOTP, verifyOTP, resetPassword } = useAuth();
+const ForgotPassword = () => {
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSendOTP = async (e) => {
-    e.preventDefault();
-    await sendOTP(input);
-    setStep(2);
-  };
-
-  const handleVerifyOTP = async (e) => {
-    e.preventDefault();
-    if (otp === '123456') setStep(3);
-  };
-
-  const handleReset = async (e) => {
-    e.preventDefault();
-    await resetPassword(newPass);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const { data } = await axios.post('http://localhost:5000/api/auth/forgot-password', { email })
+      toast.success(data.message)
+      setEmail('')
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-rose/5 to-lavender/5 px-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl dark:bg-gray-800">
-        <h2 className="text-center text-3xl font-bold">Reset Password</h2>
-        
-        {step === 1 && (
-          <form onSubmit={handleSendOTP} className="mt-8 space-y-5">
-            <input
-              type="text"
-              placeholder="Email or Phone"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="w-full rounded-xl border px-4 py-3 dark:bg-gray-700"
-            />
-            <button className="btn-primary w-full py-3">Send OTP</button>
-          </form>
-        )}
-
-        {step === 2 && (
-          <form onSubmit={handleVerifyOTP} className="mt-8 space-y-5">
-            <input
-              type="text"
-              maxLength="6"
-              placeholder="Enter OTP: 123456"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              className="w-full rounded-xl border px-4 py-3 text-center text-2xl dark:bg-gray-700"
-            />
-            <button className="btn-primary w-full py-3">Verify OTP</button>
-          </form>
-        )}
-
-        {step === 3 && (
-          <form onSubmit={handleReset} className="mt-8 space-y-5">
-            <input
-              type="password"
-              placeholder="New Password"
-              value={newPass}
-              onChange={(e) => setNewPass(e.target.value)}
-              className="w-full rounded-xl border px-4 py-3 dark:bg-gray-700"
-            />
-            <button className="btn-primary w-full py-3">Update Password</button>
-          </form>
-        )}
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-4 text-center">Forgot Password</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 border rounded mb-4"
+            required
+          />
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full bg-pink-500 text-white p-2 rounded disabled:opacity-50"
+          >
+            {loading ? 'Sending...' : 'Send Reset Link'}
+          </button>
+        </form>
+        <div className="text-center mt-4">
+          <Link to="/login" className="text-sm text-pink-500">Back to Login</Link>
+        </div>
       </div>
     </div>
-  );
+  )
 }
+
+export default ForgotPassword
