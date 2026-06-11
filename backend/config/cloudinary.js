@@ -11,14 +11,25 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// Debug log - Render logs me check karna
+console.log('[Cloudinary Check]', {
+  name: process.env.CLOUDINARY_CLOUD_NAME || 'MISSING',
+  key: process.env.CLOUDINARY_API_KEY? 'SET' : 'MISSING',
+  secret: process.env.CLOUDINARY_API_SECRET? 'SET' : 'MISSING'
+});
+
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'memorynest',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'heic'],
+    transformation: [{ width: 1200, height: 1200, crop: 'limit' }] // Large image compress ho jayegi
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 } // 10MB limit
+});
 
 export { cloudinary, upload };

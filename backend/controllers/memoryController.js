@@ -1,6 +1,7 @@
 import Memory from '../models/memory.js';
 import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 import { AppError } from '../middleware/errorHandler.js';
+import { v2 as cloudinary } from 'cloudinary';
 
 export const createMemory = async (req, res, next) => {
   try {
@@ -9,10 +10,12 @@ export const createMemory = async (req, res, next) => {
     if (!req.file) throw new AppError('Please upload an image', 400);
 
     const result = await uploadToCloudinary(req.file.buffer, 'memorynest/memories');
+    
     const memory = await Memory.create({
       title: title.trim(),
       description: description?.trim() || '',
       imageUrl: result.secure_url,
+      cloudinary_id: result.public_id, // Ye line add hui
       date: date ? new Date(date) : new Date(),
       userId: req.user._id,
     });
@@ -36,6 +39,13 @@ export const deleteMemory = async (req, res, next) => {
   try {
     const memory = await Memory.findOne({ _id: req.params.id, userId: req.user._id });
     if (!memory) throw new AppError('Memory not found', 404);
+
+    // Cloudinary se bhi delete karo
+    if (memory.cloudinary_id) {
+      await cloudinary.uploader.destroy(memory.cloudinary_id);
+      console.log('Deleted from Cloudinary:', memory.cloudinary_id);
+    }
+
     await memory.deleteOne();
     res.json({ success: true, message: 'Memory deleted' });
   } catch (e) {
