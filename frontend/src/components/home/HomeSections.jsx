@@ -3,16 +3,11 @@ import { Mail, MapPin, Phone, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import api from '../../api/axios';
-
-/** Static landing content — no API (site is admin-only) */
-
-
-
 import ProductCard from '../ProductCard';
 
 export function ServicesSection({ services }) {
-  const list =
-    Array.isArray(services) && services.length > 0 ? services : LANDING_SERVICES;
+  // ✅ LANDING_SERVICES fallback hataya
+  const list = Array.isArray(services) ? services : [];
 
   return (
     <section id="services" className="py-16">
@@ -77,7 +72,8 @@ export function PortfolioSection() {
 }
 
 export function TestimonialsSection() {
-  const [testimonials, setTestimonials] = useState(LANDING_TESTIMONIALS);
+  // ✅ LANDING_TESTIMONIALS hataya, empty array se start
+  const [testimonials, setTestimonials] = useState([]);
 
   useEffect(() => {
     api
@@ -87,6 +83,9 @@ export function TestimonialsSection() {
       })
       .catch(() => {});
   }, []);
+
+  // ✅ Agar testimonials nahi hai to section hide kar de
+  if (testimonials.length === 0) return null;
 
   return (
     <section id="testimonials" className="py-16">
