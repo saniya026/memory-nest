@@ -1,21 +1,23 @@
 import nodemailer from 'nodemailer';
 
 export const sendEmail = async ({ to, subject, html }) => {
-  if (!process.env.EMAIL_USER) {
-    console.log('[Email skipped - EMAIL_USER not configured]', { to, subject });
+  if (!process.env.SMTP_USER) {
+    console.log('[Email skipped - SMTP not configured]', { to, subject });
     return;
   }
 
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: false,
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
   });
 
   await transporter.sendMail({
-    from: `Memory Nest <${process.env.EMAIL_USER}>`,
+    from: process.env.EMAIL_FROM || `MemoryNest <${process.env.SMTP_USER}>`,
     to,
     subject,
     html,
