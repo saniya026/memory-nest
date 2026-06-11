@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Heart, Plus, Trash2 } from 'lucide-react';
+import { Heart, Plus, Trash2, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../api/axios';
 
@@ -13,10 +13,10 @@ export default function MyMemories() {
 
   const load = () => {
     api
-      .get('/memories/my')
-      .then((r) => setMemories(r.data.memories || []))
-      .catch(() => toast.error('Could not load memories'))
-      .finally(() => setLoading(false));
+     .get('/memories/my')
+     .then((r) => setMemories(r.data.memories || []))
+     .catch(() => toast.error('Could not load memories'))
+     .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function MyMemories() {
     if (!window.confirm('Delete this memory?')) return;
     try {
       await api.delete(`/memories/${id}`);
-      setMemories((prev) => prev.filter((m) => m._id !== id));
+      setMemories((prev) => prev.filter((m) => m._id!== id));
       toast.success('Memory removed');
     } catch {
       toast.error('Could not delete');
@@ -64,11 +64,16 @@ export default function MyMemories() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-bold dark:text-white">My Memory Journal</h1>
-          <p className="mt-1 text-sm text-gray-500">Save photos and moments in your private nest</p>
+          <h1 className="font-display text-2xl font-bold dark:text-white">
+            My Memory Journal
+          </h1>
+          <p className="mt-2 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <Lock className="h-4 w-4" />
+            Only you can see your memories. 100% private.
+          </p>
         </div>
-        <button type="button" onClick={() => setShowForm((v) => !v)} className="btn-primary !py-2 !px-4 text-sm">
-          <Plus className="h-4 w-4" /> {showForm ? 'Cancel' : 'Add Memory'}
+        <button type="button" onClick={() => setShowForm((v) =>!v)} className="btn-primary!py-2!px-4 text-sm">
+          <Plus className="h-4 w-4" /> {showForm? 'Cancel' : 'Add Memory'}
         </button>
       </div>
 
@@ -78,7 +83,7 @@ export default function MyMemories() {
             className="input-field"
             placeholder="Title *"
             value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            onChange={(e) => setForm({...form, title: e.target.value })}
             required
           />
           <textarea
@@ -86,13 +91,13 @@ export default function MyMemories() {
             placeholder="Description (optional)"
             rows={3}
             value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            onChange={(e) => setForm({...form, description: e.target.value })}
           />
           <input
             type="date"
             className="input-field mt-3"
             value={form.date}
-            onChange={(e) => setForm({ ...form, date: e.target.value })}
+            onChange={(e) => setForm({...form, date: e.target.value })}
           />
           <input
             type="file"
@@ -102,22 +107,25 @@ export default function MyMemories() {
             required
           />
           <button type="submit" disabled={submitting} className="btn-primary mt-4 w-full">
-            {submitting ? 'Saving...' : 'Save to Journal'}
+            {submitting? 'Saving...' : 'Save to Journal'}
           </button>
         </form>
       )}
 
       {loading && <p className="mt-8 text-gray-500">Loading...</p>}
+
       {!loading && memories.length === 0 && (
-        <div className="mt-12 text-center text-gray-500">
-          <Heart className="mx-auto h-12 w-12 text-rose/40" />
-          <p className="mt-3">No memories yet. Add your first photo above!</p>
+        <div className="mt-12 rounded-2xl bg-white p-12 text-center shadow-card dark:bg-gray-800">
+          <Lock className="mx-auto h-12 w-12 text-gray-400" />
+          <p className="mt-4 font-bold text-gray-700 dark:text-gray-300">Your private nest is empty</p>
+          <p className="mt-1 text-sm text-gray-500">Add your first memory above to get started ✨</p>
         </div>
       )}
+
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {memories.map((m) => (
           <article key={m._id} className="group overflow-hidden rounded-2xl bg-white shadow-card dark:bg-gray-800">
-            <div className="card-polaroid mx-3 mt-3 !rotate-0 !p-0 overflow-hidden">
+            <div className="card-polaroid mx-3 mt-3!rotate-0!p-0 overflow-hidden">
               <img src={m.imageUrl} alt={m.title} className="aspect-[4/3] w-full object-cover" />
             </div>
             <div className="p-4">
