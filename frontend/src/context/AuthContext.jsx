@@ -15,49 +15,67 @@ export const AuthProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
-  const sendOTP = async (emailOrPhone) => {
-    await new Promise(r => setTimeout(r, 1000))
-    toast.success(`OTP sent: Use 123456`)
-    localStorage.setItem('tempAuth', emailOrPhone)
+  // 1. OTP Bhejo - Signup ke time
+  const sendOTP = async (phone) => {
+    const randomOTP = Math.floor(100000 + Math.random() * 900000)
+    localStorage.setItem('currentOTP', randomOTP.toString())
+    localStorage.setItem('tempPhone', phone)
+    console.log(`OTP for ${phone}: ${randomOTP}`)
+    toast.success(`OTP sent to ${phone}`)
     return true
   }
 
+  // 2. OTP Verify Karo
   const verifyOTP = async (otp) => {
-    const emailOrPhone = localStorage.getItem('tempAuth')
-    if (otp === '123456') {
-      const userData = {
-        id: Date.now(),
-        email: emailOrPhone,
-        name: emailOrPhone.split('@')[0] || 'User'
-      }
-      localStorage.setItem('memoryNestUser', JSON.stringify(userData))
-      localStorage.removeItem('tempAuth')
-      setUser(userData)
-      toast.success('Welcome!')
-      navigate('/home')
+    const correctOTP = localStorage.getItem('currentOTP')
+    if (otp === correctOTP) {
+      localStorage.removeItem('currentOTP')
       return true
     }
-    toast.error('Wrong OTP. Use 123456')
+    toast.error('Wrong OTP')
     return false
   }
 
+  // 3. SIGNUP - Account Banao
   const register = async (name, email, password, phone) => {
-    await new Promise(r => setTimeout(r, 1000))
+    const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]')
+    if (allUsers.find(u => u.email === email)) {
+      toast.error('Email already registered')
+      throw new Error('Email exists')
+    }
+
     const userData = {
       id: Date.now(),
-      name: name,
-      email: email,
-      phone: phone
+      name,
+      email,
+      phone,
+      password
     }
+
+    allUsers.push(userData)
+    localStorage.setItem('allUsers', JSON.stringify(allUsers))
     localStorage.setItem('memoryNestUser', JSON.stringify(userData))
     setUser(userData)
-    toast.success('Welcome to your memory nest!')
+    localStorage.removeItem('tempPhone')
+    toast.success('Account created successfully!')
+    navigate('/dashboard')
     return userData
   }
 
-  const resetPassword = async (newPass) => {
-    toast.success('Password updated! Login again')
-    navigate('/login')
+  // 4. LOGIN - Email Password Se
+  const login = async (email, password) => {
+    const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]')
+    const foundUser = allUsers.find(u => u.email === email && u.password === password)
+
+    if (foundUser) {
+      localStorage.setItem('memoryNestUser', JSON.stringify(foundUser))
+      setUser(foundUser)
+      toast.success('Welcome back!')
+      navigate('/dashboard')
+      return true
+    }
+    toast.error('Invalid email or password')
+    throw new Error('Invalid credentials')
   }
 
   const logout = () => {
@@ -71,12 +89,11 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={{
       user,
       isAuthenticated:!!user,
-      isAdmin: user?.email === 'admin@memorynest.com',
       loading,
       sendOTP,
       verifyOTP,
-      resetPassword,
       register,
+      login,
       logout
     }}>
       {children}
