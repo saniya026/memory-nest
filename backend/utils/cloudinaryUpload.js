@@ -1,3 +1,5 @@
+console.log('=== CLOUDINARY FILE IMPORTED ==='); // Ye sabse upar
+
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
 
@@ -15,8 +17,9 @@ console.log('[Cloudinary Init]', {
   secret: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'MISSING'
 });
 
-export const uploadToCloudinary = (buffer, folder = 'memorynest') =>
+export const uploadToCloudinary = (buffer, folder = 'memorynest') => 
   new Promise((resolve, reject) => {
+    console.log('Upload function called'); // Ye bhi add kar
     const stream = cloudinary.uploader.upload_stream(
       {
         folder,
