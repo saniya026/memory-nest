@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
-// ❌ ArrowRight, Link hata diya kyunki buttons nahi chahiye
 
 export default function Hero() {
   return (
@@ -20,24 +19,38 @@ export default function Hero() {
             Upload your photos, pick a dreamy theme, and we&apos;ll craft a scrapbook-style memory page
             you&apos;ll treasure forever.
           </p>
-          
-          {/* ❌ Buttons wala div hata diya */}
-          {/* ❌ Pick an occasion theme wala p tag hata diya */}
-
         </motion.div>
+        
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="relative hidden md:block"
         >
+          {/* Left top - Wedding chairs */}
           <div className="card-polaroid absolute left-8 top-0 z-10 w-48 animate-float">
-            <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=300" alt="" className="aspect-square object-cover" />
+            <img 
+              src="https://images.unsplash.com/photo-1519741497674-611481863552?w=300" 
+              alt="Wedding setup" 
+              className="aspect-square object-cover" 
+            />
           </div>
+          
+          {/* Right - Friends group */}
           <div className="card-polaroid absolute right-4 top-16 z-20 w-56 rotate-3">
-            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300" alt="" className="aspect-square object-cover" />
+            <img 
+              src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300" 
+              alt="Friends memory" 
+              className="aspect-square object-cover" 
+            />
           </div>
+          
+          {/* Center bottom - ✅ Nayi photo add ki */}
           <div className="card-polaroid relative mx-auto mt-24 w-64 -rotate-2">
-            <img src="https://images.unsplash.com/photo-1518199266791-5375a57590ae?w=400" alt="" className="aspect-[4/5] object-cover" />
+            <img 
+              src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=400" 
+              alt="Birthday celebration" 
+              className="aspect-[4/5] object-cover" 
+            />
           </div>
         </motion.div>
       </div>
