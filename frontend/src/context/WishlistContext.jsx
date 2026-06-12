@@ -18,11 +18,7 @@ export const WishlistProvider = ({ children }) => {
   const [fetched, setFetched] = useState(false)
 
   const fetchWishlist = async () => {
-    if (!user?.token || fetched) {
-      setWishlist([])
-      return
-    }
-
+    if (!user?.token || fetched) return
     setLoading(true)
     try {
       const { data } = await api.get('/api/wishlist')
@@ -34,8 +30,6 @@ export const WishlistProvider = ({ children }) => {
       setLoading(false)
     }
   }
-
-  // ✅ useEffect POORA HATA DIYA - YAHI MAIN FIX HAI
 
   const addToWishlist = async (designId) => {
     if (!user?.token) {
