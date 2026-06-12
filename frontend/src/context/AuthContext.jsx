@@ -2,11 +2,12 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 const API_URL = 'https://memory-nest-backend.onrender.com';
-
 const AuthContext = createContext();
 
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  return context;
 };
 
 export const AuthProvider = ({ children }) => {
@@ -28,9 +29,11 @@ export const AuthProvider = ({ children }) => {
         password 
       });
       
-      // ✅ CHANGE 1: token aur user merge karo
+      // Backend se {token, user} aa raha hai, isko merge karo
       const userData = {
-        ...data.user,
+        _id: data.user._id,
+        name: data.user.name,
+        email: data.user.email,
         token: data.token
       };
       
@@ -38,7 +41,6 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       return userData;
     } catch (error) {
-      console.log('Login Error:', error.response?.data);
       throw new Error(error.response?.data?.message || 'Login failed');
     }
   };
@@ -49,9 +51,10 @@ export const AuthProvider = ({ children }) => {
         name, email, password, phone,
       });
       
-      // ✅ CHANGE 2: Yahan bhi merge karo
       const userData = {
-        ...data.user,
+        _id: data.user._id,
+        name: data.user.name,
+        email: data.user.email,
         token: data.token
       };
       
@@ -85,7 +88,9 @@ export const AuthProvider = ({ children }) => {
       );
 
       const updatedUserData = {
-        ...data.user,
+        _id: data.user._id,
+        name: data.user.name,
+        email: data.user.email,
         token: data.token || userInfo.token
       };
 
@@ -93,7 +98,6 @@ export const AuthProvider = ({ children }) => {
       setUser(updatedUserData);
       return updatedUserData;
     } catch (error) {
-      console.log('Update Profile Error:', error.response?.data);
       throw new Error(error.response?.data?.message || 'Update failed');
     }
   };
@@ -105,7 +109,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
-    isAuthenticated: !!user?.token, // ✅ CHANGE 3: token check karo
+    isAuthenticated: !!user?.token,
     loading,
     login,
     register,

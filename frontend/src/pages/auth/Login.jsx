@@ -1,25 +1,24 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom' // ✅ useNavigate add kiya
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Logo from '../../components/layout/Logo'
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('') // ✅ Error show karne ke liye
+  const [error, setError] = useState('')
   const { login } = useAuth()
-  const navigate = useNavigate() // ✅ Ye line add ki
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setError('') // Error reset kar do
+    setError('')
     try {
       await login(form.email, form.password)
-      navigate('/') // ✅ Login success ke baad home page pe redirect
-      // navigate('/dashboard') bhi kar sakta hai agar dashboard hai
+      navigate('/') // Login success ke baad home pe redirect
     } catch (err) {
-      setError(err.message) // ✅ Error set kar diya
+      setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -34,7 +33,6 @@ export default function Login() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl bg-white/90 p-8 shadow-card">
-        {/* ✅ Error message show karne ke liye */}
         {error && (
           <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
             {error}
@@ -68,7 +66,7 @@ export default function Login() {
         </div>
 
         <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading? 'Logging in...' : 'Login'}
+          {loading ? 'Logging in...' : 'Login'}
         </button>
         
         <p className="text-center text-sm text-gray-500">
