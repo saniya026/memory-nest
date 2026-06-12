@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
-import { useLocation } from 'react-router-dom' // ✅ Ye add kar
+// ❌ useLocation hata diya
 import api from '../api/axios'
 import toast from 'react-hot-toast'
 
@@ -13,21 +13,13 @@ export const useWishlist = () => {
 }
 
 export const WishlistProvider = ({ children }) => {
-  const { isAuthenticated } = useAuth()
-  const location = useLocation() // ✅ Ye add kar
+  const { user } = useAuth() // ✅ user le lo
   const [wishlist, setWishlist] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   const fetchWishlist = async () => {
-    // ✅ Login/Signup page pe API call mat karo
-    const publicRoutes = ['/login', '/signup', '/forgot-password']
-    if (publicRoutes.includes(location.pathname)) {
-      setWishlist([])
-      setLoading(false)
-      return
-    }
-
-    if (!isAuthenticated) {
+    // ✅ Token nahi hai to kuch mat karo
+    if (!user?.token) {
       setWishlist([])
       setLoading(false)
       return
@@ -46,11 +38,17 @@ export const WishlistProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    fetchWishlist()
-  }, [isAuthenticated, location.pathname]) // ✅ pathname dependency add ki
+    // ✅ Sirf jab token mile tabhi call kar
+    if (user?.token) {
+      fetchWishlist()
+    } else {
+      setWishlist([])
+      setLoading(false)
+    }
+  }, [user?.token]) // ✅ Bas token pe depend karo
 
   const addToWishlist = async (designId) => {
-    if (!isAuthenticated) {
+    if (!user?.token) {
       toast.error('Please login first')
       return false
     }
