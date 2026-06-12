@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Logo from '../../components/layout/Logo'
@@ -7,8 +7,16 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const { login } = useAuth()
+  const { login, user } = useAuth() // user add kiya
   const navigate = useNavigate()
+
+  // Ye useEffect add kar - user set hote hi home bhej dega
+  useEffect(() => {
+    if (user) {
+      console.log('6. User state detected, redirecting to home...');
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -23,18 +31,18 @@ export default function Login() {
       const userData = await login(form.email, form.password);
       
       console.log('4. Login Success! UserData:', userData);
-      console.log('5. Redirecting to home...');
+      console.log('5. Waiting for user state update...');
       
-      navigate('/'); 
+      // navigate('/') hata diya - ab useEffect handle karega
+      
     } catch (err) {
       console.log('6. LOGIN ERROR CAUGHT:', err);
       console.log('7. Error message:', err.message);
       console.log('8. Error response:', err.response?.data);
       setError(err.message)
-    } finally {
       setLoading(false)
-      console.log('9. Loading finished');
-    }
+    } 
+    // finally hata diya kyunki success me redirect ho jayega
   }
 
   return (
