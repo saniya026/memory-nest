@@ -22,7 +22,7 @@ export const WishlistProvider = ({ children }) => {
     setLoading(true)
     try {
       const { data } = await api.get('/api/wishlist')
-      setWishlist(Array.isArray(data) ? data : data?.wishlist || [])
+      setWishlist(Array.isArray(data)? data : data?.wishlist || [])
       setFetched(true)
     } catch (err) {
       setWishlist([])
@@ -51,7 +51,7 @@ export const WishlistProvider = ({ children }) => {
   const removeFromWishlist = async (designId) => {
     try {
       await api.delete(`/api/wishlist/${designId}`)
-      setWishlist(prev => prev.filter(item => item._id !== designId))
+      setWishlist(prev => prev.filter(item => item._id!== designId))
       toast.success('Removed from wishlist')
       return true
     } catch (err) {

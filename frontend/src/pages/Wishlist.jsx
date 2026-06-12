@@ -9,7 +9,7 @@ import { Trash2, ShoppingBag } from 'lucide-react'
 export default function Wishlist() {
   const { isAuthenticated } = useAuth()
   const { addToCart } = useCart()
-  const { wishlist, loading, removeFromWishlist, fetchWishlist } = useWishlist() // ✅ fetchWishlist add kiya
+  const { wishlist, loading, removeFromWishlist, fetchWishlist } = useWishlist()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -17,8 +17,8 @@ export default function Wishlist() {
       navigate('/login')
       return
     }
-    fetchWishlist() // ✅ Ye line add kar - yaha manual call hogi
-  }, [isAuthenticated, navigate, fetchWishlist])
+    fetchWishlist()
+  }, [isAuthenticated]) // ✅ fetchWishlist hata diya dependency se
 
   const handleRemove = async (designId) => {
     await removeFromWishlist(designId)
