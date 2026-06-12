@@ -3,7 +3,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import { connectDB, getMongoHelpMessage } from './config/db.js';
 import memoryRoutes from './routes/memoryRoutes.js';
-import authRoutes from './routes/auth.js'; // ✅ Ye change kiya - authRoutes.js → auth.js
+import authRoutes from './routes/authRoutes.js'; // ✅ FIXED: authRoutes.js likho
 import designRoutes from './routes/designRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import serviceRoutes from './routes/serviceRoutes.js';
