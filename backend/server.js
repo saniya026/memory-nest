@@ -3,13 +3,13 @@ import 'dotenv/config';
 import cors from 'cors';
 import { connectDB, getMongoHelpMessage } from './config/db.js';
 import memoryRoutes from './routes/memoryRoutes.js';
-import authRoutes from './routes/authRoutes.js';
+import authRoutes from './routes/auth.js'; // ✅ Ye change kiya - authRoutes.js → auth.js
 import designRoutes from './routes/designRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import serviceRoutes from './routes/serviceRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
-import cartRoutes from './routes/cart.js'; // ✅ Ye line add kar
+import cartRoutes from './routes/cart.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Routes - app banane ke BAAD
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/memories', memoryRoutes);
 app.use('/api/designs', designRoutes);
@@ -26,7 +26,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/cart', cartRoutes); // ✅ Ye line add kar
+app.use('/api/cart', cartRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'MemoryNest API Running' });
@@ -55,7 +55,7 @@ const startServer = async () => {
     console.log(`[Server] Services API: http://localhost:${PORT}/api/services`);
     console.log(`[Server] Reviews API: http://localhost:${PORT}/api/reviews`);
     console.log(`[Server] Wishlist API: http://localhost:${PORT}/api/wishlist`);
-    console.log(`[Server] Cart API: http://localhost:${PORT}/api/cart/add-custom`); // ✅ Ye bhi add kar
+    console.log(`[Server] Cart API: http://localhost:${PORT}/api/cart/add-custom`);
   });
 };
 
