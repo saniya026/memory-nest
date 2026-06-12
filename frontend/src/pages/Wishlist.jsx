@@ -61,7 +61,7 @@ export default function Wishlist() {
           <p className="text-gray-500 mb-4 text-lg">No saved designs yet</p>
           <p className="text-gray-400 text-sm mb-6">Start exploring and save your favorite designs</p>
           <button
-            onClick={() => navigate('/products')}
+            onClick={() => navigate('/gallery')} // ✅ /products se /gallery kar diya
             className="bg-rose text-white px-6 py-3 rounded-lg hover:bg-rose-dark transition font-semibold"
           >
             Browse Designs
