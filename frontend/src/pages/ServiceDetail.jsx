@@ -11,11 +11,12 @@ export default function ServiceDetail() {
 
   useEffect(() => {
     api.get(`/services/${id}`)
-    .then(res => {
+   .then(res => {
         setService(res.data);
         setLoading(false);
       })
-    .catch(() => {
+   .catch((err) => {
+        console.log('Service fetch error:', err);
         toast.error('Service not found');
         setLoading(false);
       });
