@@ -8,29 +8,26 @@ import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Cloudinary Config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Multer + Cloudinary Storage
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'memory-nest/custom',
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-    transformation: [{ width: 1000, height: 1000, crop: 'limit' }] // Auto resize
+    transformation: [{ width: 1000, height: 1000, crop: 'limit' }]
   },
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 }, // ✅ 10MB limit fix
+  limits: { fileSize: 10 * 1024 * 1024 } // ✅ Sahi - 10MB
 });
 
-// POST /api/cart/add-custom
 router.post('/add-custom', protect, upload.array('photos', 10), async (req, res) => {
   try {
     const { serviceId, style, color, colorName, message, instructions } = req.body;
