@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const Cart = require('../models/Cart');
-const Service = require('../models/Service'); // Service model import kar
+const Service = require('../models/Service');
 const auth = require('../middleware/auth');
 
 cloudinary.config({
@@ -15,15 +15,15 @@ cloudinary.config({
 const storage = multer.memoryStorage();
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB per file, count ka limit nahi
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true);
     else cb(new Error('Only images allowed'), false);
   }
 });
 
-// POST /api/cart/add-custom
-router.post('/add-custom', auth, upload.array('photos', 5), async (req, res) => {
+// ✅ Bas yahan '5' hata diya - ab unlimited photos
+router.post('/add-custom', auth, upload.array('photos'), async (req, res) => {
   try {
     const { serviceId, style, color, message, instructions } = req.body;
     const userId = req.user.id;
@@ -32,13 +32,12 @@ router.post('/add-custom', auth, upload.array('photos', 5), async (req, res) => 
       return res.status(400).json({ success: false, message: 'Upload at least 1 photo' });
     }
 
-    // Service ki details nikal le price/name ke liye
     const service = await Service.findById(serviceId);
     if (!service) {
       return res.status(404).json({ success: false, message: 'Service not found' });
     }
 
-    // 1. Photos Cloudinary pe upload
+    // Photos Cloudinary pe upload - jitni marzi
     const uploadPromises = req.files.map(file => {
       const b64 = Buffer.from(file.buffer).toString('base64');
       const dataURI = `data:${file.mimetype};base64,${b64}`;
@@ -51,11 +50,10 @@ router.post('/add-custom', auth, upload.array('photos', 5), async (req, res) => 
     const results = await Promise.all(uploadPromises);
     const photoUrls = results.map(r => r.secure_url);
 
-    // 2. Cart item ka sahi structure - model ke hisaab se
     const customCartItem = {
       service: serviceId,
       name: service.name,
-      image: photoUrls[0], // First photo thumbnail ke liye
+      image: photoUrls[0],
       price: service.price,
       qty: 1,
       customization: {
@@ -67,12 +65,11 @@ router.post('/add-custom', auth, upload.array('photos', 5), async (req, res) => 
       }
     };
 
-    // 3. Cart me save karo - cartItems use kar, items nahi
     let cart = await Cart.findOne({ user: userId });
     if (!cart) {
       cart = await Cart.create({ user: userId, cartItems: [customCartItem] });
     } else {
-      cart.cartItems.push(customCartItem); // ✅ cartItems hai, items nahi
+      cart.cartItems.push(customCartItem);
       await cart.save();
     }
 
@@ -80,7 +77,7 @@ router.post('/add-custom', auth, upload.array('photos', 5), async (req, res) => 
 
     res.json({
       success: true,
-      message: 'Added to cart',
+      message: `${photoUrls.length} photos added to cart`,
       cartId: cart._id
     });
 
