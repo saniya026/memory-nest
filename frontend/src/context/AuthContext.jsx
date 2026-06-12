@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL; // ✅ Ye line add kar
+
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -11,7 +13,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // App load hote hi localStorage se user check karo
   useEffect(() => {
     const userInfo = localStorage.getItem('userInfo');
     if (userInfo) {
@@ -20,10 +21,10 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // ✅ Login Function
+  // ✅ Login Function - API_URL add kiya
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post('/api/auth/login', { email, password });
+      const { data } = await axios.post(`${API_URL}/api/auth/login`, { email, password });
       localStorage.setItem('userInfo', JSON.stringify(data));
       setUser(data);
       return data;
@@ -32,14 +33,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ Register Function
+  // ✅ Register Function - API_URL add kiya
   const register = async (name, email, password, phone) => {
     try {
-      const { data } = await axios.post('/api/auth/register', {
-        name,
-        email,
-        password,
-        phone,
+      const { data } = await axios.post(`${API_URL}/api/auth/register`, {
+        name, email, password, phone,
       });
       localStorage.setItem('userInfo', JSON.stringify(data));
       setUser(data);
@@ -49,7 +47,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ Update Profile Function - Yahi fix hai
+  // ✅ Update Profile Function - API_URL add kiya
   const updateProfile = async (userData) => {
     try {
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -61,18 +59,18 @@ export const AuthProvider = ({ children }) => {
       const config = {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo.token}`, // ✅ Token bhej raha hai
+          Authorization: `Bearer ${userInfo.token}`,
         },
       };
 
       const { data } = await axios.put(
-        '/api/auth/profile', // ✅ Sahi URL
+        `${API_URL}/api/auth/profile`, // ✅ API_URL add kiya
         userData,
         config
       );
 
       localStorage.setItem('userInfo', JSON.stringify(data));
-      setUser(data); // Context update
+      setUser(data);
       return data;
     } catch (error) {
       console.log('Update Profile Error:', error.response?.data);
@@ -80,7 +78,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ Logout Function
   const logout = () => {
     localStorage.removeItem('userInfo');
     setUser(null);
