@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
-// ❌ useLocation hata diya
 import api from '../api/axios'
 import toast from 'react-hot-toast'
 
@@ -13,12 +12,12 @@ export const useWishlist = () => {
 }
 
 export const WishlistProvider = ({ children }) => {
-  const { user } = useAuth() // ✅ user le lo
+  const { user } = useAuth()
   const [wishlist, setWishlist] = useState([])
   const [loading, setLoading] = useState(false)
 
   const fetchWishlist = async () => {
-    // ✅ Token nahi hai to kuch mat karo
+    // Token nahi hai to API call mat karo - ye hi main fix hai
     if (!user?.token) {
       setWishlist([])
       setLoading(false)
@@ -27,25 +26,28 @@ export const WishlistProvider = ({ children }) => {
 
     setLoading(true)
     try {
-      const { data } = await api.get('/wishlist')
-      setWishlist(Array.isArray(data) ? data : [])
+      const { data } = await api.get('/api/wishlist')
+      setWishlist(Array.isArray(data) ? data : data?.wishlist || [])
     } catch (err) {
-      console.log('Wishlist fetch error:', err)
+      // 401/404 error ko silently handle kar
+      if (err.response?.status !== 401 && err.response?.status !== 404) {
+        console.log('Wishlist fetch error:', err)
+      }
       setWishlist([])
     } finally {
       setLoading(false)
     }
   }
 
+  // Sirf jab token mile tabhi call karo
   useEffect(() => {
-    // ✅ Sirf jab token mile tabhi call kar
     if (user?.token) {
       fetchWishlist()
     } else {
       setWishlist([])
       setLoading(false)
     }
-  }, [user?.token]) // ✅ Bas token pe depend karo
+  }, [user?.token])
 
   const addToWishlist = async (designId) => {
     if (!user?.token) {
@@ -53,7 +55,7 @@ export const WishlistProvider = ({ children }) => {
       return false
     }
     try {
-      await api.post('/wishlist/save', { designId })
+      await api.post('/api/wishlist/save', { designId })
       await fetchWishlist()
       toast.success('Saved to wishlist!')
       return true
@@ -65,7 +67,7 @@ export const WishlistProvider = ({ children }) => {
 
   const removeFromWishlist = async (designId) => {
     try {
-      await api.delete(`/wishlist/${designId}`)
+      await api.delete(`/api/wishlist/${designId}`)
       setWishlist(prev => prev.filter(item => item._id !== designId))
       toast.success('Removed from wishlist')
       return true
