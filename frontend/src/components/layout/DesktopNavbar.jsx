@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useCart } from '../../context/CartContext'; // ✅ Ye sahi hai
+import { useCart } from '../../context/CartContext';
 import { ShoppingCart } from 'lucide-react';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
@@ -13,8 +13,8 @@ const links = [
 
 export default function DesktopNavbar() {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
-  const { items } = useCart(); // ✅ cartItems nahi, items use karo
-  const cartCount = items?.length || 0; // ✅ yahan bhi items
+  const { items } = useCart();
+  const cartCount = items?.length || 0;
 
   return (
     <header className="sticky top-0 z-50 hidden glass border-b border-lavender/30 md:block dark:border-gray-700">
@@ -28,7 +28,7 @@ export default function DesktopNavbar() {
               className={({ isActive }) =>
                 `text-sm font-semibold transition hover:text-rose ${
                   isActive
-             ? 'text-rose'
+            ? 'text-rose'
                     : 'text-gray-600 dark:text-gray-300 dark:hover:text-rose'
                 }`
               }
@@ -39,7 +39,7 @@ export default function DesktopNavbar() {
         </div>
         <div className="flex items-center gap-3">
 
-          {/* ✅ CART ICON + COUNT */}
+          {/* CART ICON + COUNT */}
           <Link to="/cart" className="relative">
             <ShoppingCart className="w-5 h-5 text-gray-600 dark:text-gray-300 hover:text-rose" />
             {cartCount > 0 && (
@@ -61,9 +61,10 @@ export default function DesktopNavbar() {
                   Dashboard
                 </Link>
               )}
-              <Link to="/wishlist" className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+              {/* ❌ DELETE KAR DIYA: Saved duplicate tha */}
+              {/* <Link to="/wishlist" className="text-sm font-semibold text-gray-600 dark:text-gray-300">
                 Saved
-              </Link>
+              </Link> */}
               <Link to="/profile" className="btn-secondary!py-2!px-4 text-sm">
                 {user?.name?.split(' ')[0]}
               </Link>
