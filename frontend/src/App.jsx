@@ -2,7 +2,6 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { WishlistProvider } from './context/WishlistContext';
 import MainLayout from './components/layout/MainLayout';
 
 // Admin pages
@@ -127,12 +126,8 @@ export default function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         
-        {/* ✅ WishlistProvider sirf yahan */}
-        <Route path="/wishlist" element={
-          <WishlistProvider>
-            <Wishlist />
-          </WishlistProvider>
-        } />
+        {/* ✅ DOUBLE WRAP HATA DIYA - AB SAHI HAI */}
+        <Route path="/wishlist" element={<Wishlist />} />
         
         <Route path="/profile" element={<Profile />} />
       </Route>
