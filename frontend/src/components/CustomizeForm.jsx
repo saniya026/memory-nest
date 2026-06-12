@@ -20,18 +20,18 @@ const COLOR_OPTIONS = [
   { name: 'Custom', value: 'custom' }
 ];
 
-// ✅ Function: Check karega ki color naam valid hai ya nahi
+// Check karta hai ki color naam valid CSS color hai ya nahi
 const isValidColor = (colorName) => {
   const s = new Option().style;
   s.color = colorName;
-  return s.color !== '';
+  return s.color!== '';
 };
 
-// ✅ Function: Color naam se hex nikale
+// Color naam se hex nikalta hai
 const getColorFromName = (colorName) => {
   const s = new Option().style;
   s.color = colorName;
-  return s.color; // Browser hex return karega
+  return s.color;
 };
 
 export default function CustomizeForm({ service }) {
@@ -50,6 +50,7 @@ export default function CustomizeForm({ service }) {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // Custom fields change hote hi form update karo
   useEffect(() => {
     if (isCustomSelected) {
       setForm(prev => ({
@@ -87,21 +88,20 @@ export default function CustomizeForm({ service }) {
     setCustomColorHex(e.target.value);
   };
 
-  // ✅ Ye main logic - koi bhi color naam type kar
+  // Koi bhi color naam type karo - aqua, lime, salmon, hotpink...
   const handleCustomColorName = (e) => {
     const name = e.target.value;
     setCustomColorName(name);
-    
-    // Agar naam valid CSS color hai to hex auto set kar de
+
     if (name.trim() && isValidColor(name.trim())) {
       const hex = getColorFromName(name.trim());
-      setCustomColorHex(hex); // Box ka color turant change
+      setCustomColorHex(hex);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!user) {
       toast.error('Please login first');
       navigate('/login');
@@ -113,13 +113,13 @@ export default function CustomizeForm({ service }) {
       return;
     }
 
-    if (isCustomSelected && !customColorName.trim()) {
+    if (isCustomSelected &&!customColorName.trim()) {
       toast.error('Please enter custom color name');
       return;
     }
 
     setLoading(true);
-    
+
     try {
       const formData = new FormData();
       formData.append('serviceId', service._id);
@@ -128,7 +128,7 @@ export default function CustomizeForm({ service }) {
       formData.append('colorName', isCustomSelected? customColorName : form.colorName);
       formData.append('message', form.message);
       formData.append('instructions', form.instructions);
-      
+
       files.forEach((file) => {
         formData.append('photos', file);
       });
@@ -154,7 +154,7 @@ export default function CustomizeForm({ service }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-xl shadow">
       <h2 className="text-2xl font-bold mb-4">Customize Your Memory</h2>
-      
+
       <div>
         <label className="block text-sm font-medium mb-2">
           Upload Photos * <span className="text-xs text-gray-500">(Select all at once)</span>
@@ -200,7 +200,7 @@ export default function CustomizeForm({ service }) {
             </option>
           ))}
         </select>
-        
+
         {isCustomSelected && (
           <div className="space-y-2">
             <div className="flex items-center gap-3">
@@ -223,9 +223,10 @@ export default function CustomizeForm({ service }) {
             </p>
           </div>
         )}
-        
+
+        {/* ✅ Single preview - double nahi */}
         <div className="mt-2 flex items-center gap-2">
-          <div 
+          <div
             className="w-8 h-8 rounded border shadow-sm"
             style={{ backgroundColor: form.color }}
           ></div>
