@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
+import { useLocation } from 'react-router-dom' // ✅ Ye add kar
 import api from '../api/axios'
 import toast from 'react-hot-toast'
 
@@ -13,10 +14,19 @@ export const useWishlist = () => {
 
 export const WishlistProvider = ({ children }) => {
   const { isAuthenticated } = useAuth()
+  const location = useLocation() // ✅ Ye add kar
   const [wishlist, setWishlist] = useState([])
   const [loading, setLoading] = useState(true)
 
   const fetchWishlist = async () => {
+    // ✅ Login/Signup page pe API call mat karo
+    const publicRoutes = ['/login', '/signup', '/forgot-password']
+    if (publicRoutes.includes(location.pathname)) {
+      setWishlist([])
+      setLoading(false)
+      return
+    }
+
     if (!isAuthenticated) {
       setWishlist([])
       setLoading(false)
@@ -26,7 +36,7 @@ export const WishlistProvider = ({ children }) => {
     setLoading(true)
     try {
       const { data } = await api.get('/wishlist')
-      setWishlist(Array.isArray(data)? data : [])
+      setWishlist(Array.isArray(data) ? data : [])
     } catch (err) {
       console.log('Wishlist fetch error:', err)
       setWishlist([])
@@ -37,14 +47,13 @@ export const WishlistProvider = ({ children }) => {
 
   useEffect(() => {
     fetchWishlist()
-  }, [isAuthenticated])
+  }, [isAuthenticated, location.pathname]) // ✅ pathname dependency add ki
 
   const addToWishlist = async (designId) => {
     if (!isAuthenticated) {
       toast.error('Please login first')
       return false
     }
-
     try {
       await api.post('/wishlist/save', { designId })
       await fetchWishlist()
@@ -59,7 +68,7 @@ export const WishlistProvider = ({ children }) => {
   const removeFromWishlist = async (designId) => {
     try {
       await api.delete(`/wishlist/${designId}`)
-      setWishlist(prev => prev.filter(item => item._id!== designId))
+      setWishlist(prev => prev.filter(item => item._id !== designId))
       toast.success('Removed from wishlist')
       return true
     } catch (err) {
