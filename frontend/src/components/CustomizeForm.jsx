@@ -15,27 +15,23 @@ const COLOR_OPTIONS = [
   { name: 'Orange', value: '#FFA500' },
   { name: 'Brown', value: '#A52A2A' },
   { name: 'Teal', value: '#008080' },
-  { name: 'Navy', value: '#000080' },
-  { name: 'Maroon', value: '#800000' },
   { name: 'Black', value: '#000000' },
   { name: 'White', value: '#FFFFFF' },
   { name: 'Custom', value: 'custom' }
 ];
 
-// ✅ 50+ colors ka map
-const COLOR_NAME_MAP = {
-  'purple': '#800080', 'violet': '#EE82EE', 'lavender': '#E6E6FA',
-  'pink': '#FFC0CB', 'rose': '#FF007F', 'hot pink': '#FF69B4',
-  'blue': '#0000FF', 'royal blue': '#4169E1', 'sky blue': '#87CEEB', 'navy': '#000080',
-  'green': '#008000', 'lime': '#00FF00', 'mint': '#98FB98', 'olive': '#808000',
-  'yellow': '#FFFF00', 'gold': '#FFD700', 'golden': '#FFD700',
-  'orange': '#FFA500', 'coral': '#FF7F50', 'peach': '#FFDAB9',
-  'red': '#FF0000', 'crimson': '#DC143C', 'maroon': '#800000',
-  'brown': '#A52A2A', 'chocolate': '#D2691E', 'tan': '#D2B48C',
-  'grey': '#808080', 'gray': '#808080', 'silver': '#C0C0C0',
-  'black': '#000000', 'white': '#FFFFFF',
-  'teal': '#008080', 'cyan': '#00FFFF', 'turquoise': '#40E0D0',
-  'indigo': '#4B0082', 'magenta': '#FF00FF'
+// ✅ Function: Check karega ki color naam valid hai ya nahi
+const isValidColor = (colorName) => {
+  const s = new Option().style;
+  s.color = colorName;
+  return s.color !== '';
+};
+
+// ✅ Function: Color naam se hex nikale
+const getColorFromName = (colorName) => {
+  const s = new Option().style;
+  s.color = colorName;
+  return s.color; // Browser hex return karega
 };
 
 export default function CustomizeForm({ service }) {
@@ -54,7 +50,6 @@ export default function CustomizeForm({ service }) {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // ✅ useEffect se color auto update karo
   useEffect(() => {
     if (isCustomSelected) {
       setForm(prev => ({
@@ -92,16 +87,15 @@ export default function CustomizeForm({ service }) {
     setCustomColorHex(e.target.value);
   };
 
-  // ✅ Ye main fix hai - naam type karte hi color change
+  // ✅ Ye main logic - koi bhi color naam type kar
   const handleCustomColorName = (e) => {
     const name = e.target.value;
     setCustomColorName(name);
     
-    const lowerName = name.toLowerCase().trim();
-    const detectedHex = COLOR_NAME_MAP[lowerName];
-    
-    if (detectedHex) {
-      setCustomColorHex(detectedHex); // Box ka color turant change
+    // Agar naam valid CSS color hai to hex auto set kar de
+    if (name.trim() && isValidColor(name.trim())) {
+      const hex = getColorFromName(name.trim());
+      setCustomColorHex(hex); // Box ka color turant change
     }
   };
 
@@ -119,7 +113,7 @@ export default function CustomizeForm({ service }) {
       return;
     }
 
-    if (isCustomSelected &&!customColorName.trim()) {
+    if (isCustomSelected && !customColorName.trim()) {
       toast.error('Please enter custom color name');
       return;
     }
@@ -220,17 +214,19 @@ export default function CustomizeForm({ service }) {
                 type="text"
                 value={customColorName}
                 onChange={handleCustomColorName}
-                placeholder="Type: purple, peach, sky blue..."
+                placeholder="Type: aqua, lime, salmon, hotpink..."
                 className="flex-1 border rounded-lg p-2 text-sm"
               />
             </div>
-            <p className="text-xs text-gray-500">Type color name or pick from color box</p>
+            <p className="text-xs text-gray-500">
+              Type any CSS color name or use color picker
+            </p>
           </div>
         )}
         
         <div className="mt-2 flex items-center gap-2">
           <div 
-            className="w-8 h-8 rounded border"
+            className="w-8 h-8 rounded border shadow-sm"
             style={{ backgroundColor: form.color }}
           ></div>
           <span className="text-sm text-gray-600">
