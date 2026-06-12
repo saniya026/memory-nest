@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext'; // ✅ Added
 
 const COLOR_OPTIONS = [
   { name: 'Rose Pink', value: '#FF69B4' },
@@ -33,6 +34,7 @@ const getColorFromName = (colorName) => {
 };
 
 export default function CustomizeForm({ service }) {
+  const { addToCart } = useCart(); // ✅ Added
   const [form, setForm] = useState({
     style: '',
     message: '',
@@ -117,7 +119,6 @@ export default function CustomizeForm({ service }) {
 
     try {
       const formData = new FormData();
-      // ✅ Fix: _id ya id jo bhi mile
       formData.append('serviceId', service._id || service.id);
       formData.append('style', form.style || 'Default');
       formData.append('color', form.color);
@@ -134,6 +135,19 @@ export default function CustomizeForm({ service }) {
       });
 
       if (res.data.success) {
+        // ✅ FIX: Backend success ke baad Context me bhi add kar
+        const orderDraft = {
+          style: form.style || 'Default',
+          color: form.color,
+          colorName: isCustomSelected ? customColorName : form.colorName,
+          message: form.message,
+          instructions: form.instructions,
+          images: files.map(f => f.name),
+          amount: service?.price || 50
+        };
+        
+        addToCart(service, orderDraft); // ✅ Ab localStorage me bhi save hoga
+        
         toast.success(`${files.length} photos added to cart!`);
         navigate('/cart');
       } else {

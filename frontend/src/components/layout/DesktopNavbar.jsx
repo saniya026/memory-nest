@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useCart } from '../../context/CartContext'; // ✅ 1. Sahi path ye hai
+import { useCart } from '../../context/CartContext'; // ✅ Ye sahi hai
 import { ShoppingCart } from 'lucide-react';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
@@ -13,10 +13,8 @@ const links = [
 
 export default function DesktopNavbar() {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
-  const { cartItems } = useCart(); // ✅ 2. useCart hook use karo
-
-  // Count nikal lo. Agar cartItems array hai to length, agar object hai to totalItems
-  const cartCount = cartItems?.length || 0;
+  const { items } = useCart(); // ✅ cartItems nahi, items use karo
+  const cartCount = items?.length || 0; // ✅ yahan bhi items
 
   return (
     <header className="sticky top-0 z-50 hidden glass border-b border-lavender/30 md:block dark:border-gray-700">
@@ -30,7 +28,7 @@ export default function DesktopNavbar() {
               className={({ isActive }) =>
                 `text-sm font-semibold transition hover:text-rose ${
                   isActive
-              ? 'text-rose'
+             ? 'text-rose'
                     : 'text-gray-600 dark:text-gray-300 dark:hover:text-rose'
                 }`
               }
