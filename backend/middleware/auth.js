@@ -11,22 +11,21 @@ export const protect = async (req, res, next) => {
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
+    req.user = await User.findById(decoded.id).select('-password');
     if (!req.user) {
-      return res.status(401).json({ success: false, message: 'Unauthorized Access' });
+      return res.status(401).json({ success: false, message: 'User not found' });
     }
     next();
   } catch {
-    return res.status(401).json({ success: false, message: 'Unauthorized Access' });
+    return res.status(401).json({ success: false, message: 'Token expired or invalid' });
   }
 };
 
 export const admin = (req, res, next) => {
-  if (req.user?.role !== 'admin') {
-    return res.status(403).json({ success: false, message: 'Unauthorized Access' });
+  if (req.user?.role!== 'admin') {
+    return res.status(403).json({ success: false, message: 'Admin access only' });
   }
   next();
 };
 
-/** Requires valid JWT + admin role */
 export const adminOnly = [protect, admin];

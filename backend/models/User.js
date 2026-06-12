@@ -6,8 +6,9 @@ const userSchema = mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   phone: { type: String },
+  avatar: { type: String, default: '' }, // ✅ Ye line add kar
   role: { type: String, default: 'user' },
-  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Design' }], // ✅ Ye line add kar
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Design' }],
 }, { timestamps: true });
 
 userSchema.methods.matchPassword = async function(enteredPassword) {
@@ -16,7 +17,7 @@ userSchema.methods.matchPassword = async function(enteredPassword) {
 
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
-    next();
+    return next(); // ✅ return lagana zaroori hai
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);

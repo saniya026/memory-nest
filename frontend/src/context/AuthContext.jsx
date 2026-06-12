@@ -20,8 +20,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password, phone) => {
     const { data } = await api.post('/auth/register', { name, email, password, phone });
     localStorage.setItem('mn_token', data.token);
-    localStorage.setItem('memoryNestUser', JSON.stringify(data.user)); // ✅ .user add kiya
-    setUser(data.user); // ✅ .user add kiya
+    localStorage.setItem('memoryNestUser', JSON.stringify(data.user));
+    setUser(data.user);
     toast.success('Account created!');
     navigate('/home');
   }
@@ -29,8 +29,8 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
     localStorage.setItem('mn_token', data.token);
-    localStorage.setItem('memoryNestUser', JSON.stringify(data.user)); // ✅ .user add kiya
-    setUser(data.user); // ✅ .user add kiya
+    localStorage.setItem('memoryNestUser', JSON.stringify(data.user));
+    setUser(data.user);
     toast.success('Welcome back!');
     navigate('/home');
   }
@@ -43,12 +43,13 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   }
 
-  const isAdmin = user?.role === 'admin' || user?.isAdmin === true;
+  const isAdmin = user?.role === 'admin';
 
   return (
     <AuthContext.Provider value={{
       user,
-      isAuthenticated: !!user,
+      setUser, // ✅ YE LINE SABSE ZAROORI HAI
+      isAuthenticated:!!user,
       isAdmin,
       loading,
       register,

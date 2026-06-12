@@ -1,9 +1,9 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import { sendEmail } from '../utils/sendEmail.js'; // Import add kar
+import { sendEmail } from '../utils/sendEmail.js';
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { 
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: "7d"
   });
 };
@@ -11,7 +11,7 @@ const generateToken = (id) => {
 export const register = async (req, res) => {
   const { name, email, password, phone } = req.body;
 
-  if (!name || !email || !password) {
+  if (!name ||!email ||!password) {
     return res.status(400).json({ msg: "Name, email, password required" });
   }
 
@@ -21,22 +21,24 @@ export const register = async (req, res) => {
       return res.status(400).json({ msg: "User already exists" });
     }
 
-    user = await User.create({ 
-      name, 
-      email: email.toLowerCase(), 
+    user = await User.create({
+      name,
+      email: email.toLowerCase(),
       password,
       phone: phone || ''
     });
 
     const token = generateToken(user._id);
 
-    res.status(201).json({ 
-      msg: "Signup successful", 
+    res.status(201).json({
+      msg: "Signup successful",
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        avatar: user.avatar,
         role: user.role
       }
     });
@@ -49,13 +51,13 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
+  if (!email ||!password) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
 
   try {
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
-    
+    const user = await User.findOne({ email: email.toLowerCase() });
+
     if (!user) {
       return res.status(400).json({ msg: "Invalid credentials" });
     }
@@ -67,15 +69,16 @@ export const login = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    res.json({ 
-      msg: "Login successful", 
+    res.json({
+      msg: "Login successful",
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
-        avatar: user.avatar
+        phone: user.phone,
+        avatar: user.avatar,
+        role: user.role
       }
     });
   } catch (err) {
@@ -86,27 +89,47 @@ export const login = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id).select('-password');
     res.json(user);
   } catch (err) {
     res.status(500).json({ msg: "Server error" });
   }
 };
 
+// ✅ YE FUNCTION FIX HUA HAI
 export const updateProfile = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(
-      req.user.id, 
-      req.body, 
-      { new: true, runValidators: true }
-    );
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ msg: "Server error" });
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.name = req.body.name || user.name;
+    user.phone = req.body.phone || user.phone;
+    user.avatar = req.body.avatar || user.avatar;
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      avatar: updatedUser.avatar,
+      role: updatedUser.role,
+      token: generateToken(updatedUser._id)
+    });
+
+  } catch (error) {
+    console.log('Update Profile Error:', error);
+    res.status(400).json({
+      message: 'Update failed',
+      error: error.message
+    });
   }
 };
 
-// YE WALA FUNCTION UPDATE KIYA HAI
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
@@ -116,22 +139,19 @@ export const forgotPassword = async (req, res) => {
 
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
-    
+
     if (!user) {
-      // Security: User exist karta hai ya nahi, ye mat batao
       return res.json({ message: "If email exists, reset link has been sent" });
     }
 
-    // Reset token banao - 15 min ke liye valid
     const resetToken = jwt.sign(
-      { id: user._id }, 
-      process.env.JWT_SECRET, 
+      { id: user._id },
+      process.env.JWT_SECRET,
       { expiresIn: '15m' }
     );
 
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-    // Email bhejo
     await sendEmail({
       to: user.email,
       subject: 'Reset Your Password - Memory Nest',
@@ -160,11 +180,10 @@ export const resetPasswordWithOtp = async (req, res) => {
   res.json({ msg: "Reset password with OTP logic here" });
 };
 
-// YE BHI UPDATE KARNA PADEGA
 export const resetPassword = async (req, res) => {
   const { token, password } = req.body;
 
-  if (!token || !password) {
+  if (!token ||!password) {
     return res.status(400).json({ message: "Token and password required" });
   }
 
@@ -176,7 +195,7 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Invalid token" });
     }
 
-    user.password = password; // Model me pre-save hook hash karega
+    user.password = password;
     await user.save();
 
     res.json({ message: "Password reset successful" });
