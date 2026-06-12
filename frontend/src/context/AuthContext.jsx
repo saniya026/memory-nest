@@ -20,8 +20,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password, phone) => {
     const { data } = await api.post('/auth/register', { name, email, password, phone });
     localStorage.setItem('mn_token', data.token);
-    localStorage.setItem('memoryNestUser', JSON.stringify(data));
-    setUser(data);
+    localStorage.setItem('memoryNestUser', JSON.stringify(data.user)); // ✅ .user add kiya
+    setUser(data.user); // ✅ .user add kiya
     toast.success('Account created!');
     navigate('/home');
   }
@@ -29,8 +29,8 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
     localStorage.setItem('mn_token', data.token);
-    localStorage.setItem('memoryNestUser', JSON.stringify(data));
-    setUser(data);
+    localStorage.setItem('memoryNestUser', JSON.stringify(data.user)); // ✅ .user add kiya
+    setUser(data.user); // ✅ .user add kiya
     toast.success('Welcome back!');
     navigate('/home');
   }
