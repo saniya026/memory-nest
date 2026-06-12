@@ -24,9 +24,10 @@ const upload = multer({
 
 router.post('/add-custom', auth, upload.array('photos'), async (req, res) => {
   try {
-    // ✅ colorName bhi destructure kar le
     const { serviceId, style, color, colorName, message, instructions } = req.body;
     const userId = req.user.id;
+
+    console.log('[Cart] Received files:', req.files?.length);
 
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ success: false, message: 'Upload at least 1 photo' });
@@ -59,7 +60,7 @@ router.post('/add-custom', auth, upload.array('photos'), async (req, res) => {
         photos: photoUrls,
         style,
         color,
-        colorName, // ✅ ye add kar de
+        colorName,
         message,
         instructions,
       }
@@ -73,7 +74,7 @@ router.post('/add-custom', auth, upload.array('photos'), async (req, res) => {
       await cart.save();
     }
 
-    console.log('[Cart Success]', { userId, photoCount: photoUrls.length, color, colorName });
+    console.log('[Cart Success]', { userId, photoCount: photoUrls.length });
 
     res.json({
       success: true,

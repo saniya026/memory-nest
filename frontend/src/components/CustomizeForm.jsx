@@ -20,14 +20,12 @@ const COLOR_OPTIONS = [
   { name: 'Custom', value: 'custom' }
 ];
 
-// Check karta hai ki color naam valid CSS color hai ya nahi
 const isValidColor = (colorName) => {
   const s = new Option().style;
   s.color = colorName;
-  return s.color!== '';
+  return s.color !== '';
 };
 
-// Color naam se hex nikalta hai
 const getColorFromName = (colorName) => {
   const s = new Option().style;
   s.color = colorName;
@@ -50,11 +48,10 @@ export default function CustomizeForm({ service }) {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Custom fields change hote hi form update karo
   useEffect(() => {
     if (isCustomSelected) {
       setForm(prev => ({
-       ...prev,
+        ...prev,
         color: customColorHex,
         colorName: customColorName || 'Custom'
       }));
@@ -88,11 +85,9 @@ export default function CustomizeForm({ service }) {
     setCustomColorHex(e.target.value);
   };
 
-  // Koi bhi color naam type karo - aqua, lime, salmon, hotpink...
   const handleCustomColorName = (e) => {
     const name = e.target.value;
     setCustomColorName(name);
-
     if (name.trim() && isValidColor(name.trim())) {
       const hex = getColorFromName(name.trim());
       setCustomColorHex(hex);
@@ -113,7 +108,7 @@ export default function CustomizeForm({ service }) {
       return;
     }
 
-    if (isCustomSelected &&!customColorName.trim()) {
+    if (isCustomSelected && !customColorName.trim()) {
       toast.error('Please enter custom color name');
       return;
     }
@@ -122,10 +117,11 @@ export default function CustomizeForm({ service }) {
 
     try {
       const formData = new FormData();
-      formData.append('serviceId', service._id);
+      // ✅ Fix: _id ya id jo bhi mile
+      formData.append('serviceId', service._id || service.id);
       formData.append('style', form.style || 'Default');
       formData.append('color', form.color);
-      formData.append('colorName', isCustomSelected? customColorName : form.colorName);
+      formData.append('colorName', isCustomSelected ? customColorName : form.colorName);
       formData.append('message', form.message);
       formData.append('instructions', form.instructions);
 
@@ -161,6 +157,7 @@ export default function CustomizeForm({ service }) {
         </label>
         <input
           type="file"
+          name="photos"
           multiple
           accept="image/*"
           onChange={handleFileChange}
@@ -190,7 +187,7 @@ export default function CustomizeForm({ service }) {
       <div>
         <label className="block text-sm font-medium mb-2">Frame/Theme Color</label>
         <select
-          value={isCustomSelected? 'custom' : form.color}
+          value={isCustomSelected ? 'custom' : form.color}
           onChange={handleColorChange}
           className="w-full border rounded-lg p-2 mb-2"
         >
@@ -224,14 +221,13 @@ export default function CustomizeForm({ service }) {
           </div>
         )}
 
-        {/* ✅ Single preview - double nahi */}
         <div className="mt-2 flex items-center gap-2">
           <div
             className="w-8 h-8 rounded border shadow-sm"
             style={{ backgroundColor: form.color }}
           ></div>
           <span className="text-sm text-gray-600">
-            {isCustomSelected? (customColorName || 'Custom') : form.colorName}
+            {isCustomSelected ? (customColorName || 'Custom') : form.colorName}
           </span>
         </div>
       </div>
@@ -263,7 +259,7 @@ export default function CustomizeForm({ service }) {
         disabled={loading || files.length === 0}
         className="w-full bg-rose-500 hover:bg-rose-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading? 'Adding to Cart...' : `Add ${files.length || ''} Photos to Cart`}
+        {loading ? 'Adding to Cart...' : `Add ${files.length || ''} Photos to Cart`}
       </button>
     </form>
   );
