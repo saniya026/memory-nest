@@ -1,64 +1,104 @@
-import { createContext, useContext, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import toast from 'react-hot-toast'
-import api from '../api/axios'
+import { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
-const AuthContext = createContext()
+const AuthContext = createContext();
+
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // App load hote hi localStorage se user check karo
   useEffect(() => {
-    const token = localStorage.getItem('mn_token')
-    const savedUser = localStorage.getItem('memoryNestUser')
-    if (token && savedUser) setUser(JSON.parse(savedUser))
-    setLoading(false)
-  }, [])
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+      setUser(JSON.parse(userInfo));
+    }
+    setLoading(false);
+  }, []);
 
-  const register = async (name, email, password, phone) => {
-    const { data } = await api.post('/auth/register', { name, email, password, phone });
-    localStorage.setItem('mn_token', data.token);
-    localStorage.setItem('memoryNestUser', JSON.stringify(data.user));
-    setUser(data.user);
-    toast.success('Account created!');
-    navigate('/home');
-  }
-
+  // ✅ Login Function
   const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
-    localStorage.setItem('mn_token', data.token);
-    localStorage.setItem('memoryNestUser', JSON.stringify(data.user));
-    setUser(data.user);
-    toast.success('Welcome back!');
-    navigate('/home');
-  }
+    try {
+      const { data } = await axios.post('/api/auth/login', { email, password });
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      setUser(data);
+      return data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Login failed');
+    }
+  };
 
+  // ✅ Register Function
+  const register = async (name, email, password, phone) => {
+    try {
+      const { data } = await axios.post('/api/auth/register', {
+        name,
+        email,
+        password,
+        phone,
+      });
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      setUser(data);
+      return data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Registration failed');
+    }
+  };
+
+  // ✅ Update Profile Function - Yahi fix hai
+  const updateProfile = async (userData) => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      
+      if (!userInfo?.token) {
+        throw new Error('No token found. Please login again.');
+      }
+
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`, // ✅ Token bhej raha hai
+        },
+      };
+
+      const { data } = await axios.put(
+        '/api/auth/profile', // ✅ Sahi URL
+        userData,
+        config
+      );
+
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      setUser(data); // Context update
+      return data;
+    } catch (error) {
+      console.log('Update Profile Error:', error.response?.data);
+      throw new Error(error.response?.data?.message || 'Update failed');
+    }
+  };
+
+  // ✅ Logout Function
   const logout = () => {
-    localStorage.removeItem('mn_token');
-    localStorage.removeItem('memoryNestUser');
+    localStorage.removeItem('userInfo');
     setUser(null);
-    toast.success('Logged out');
-    navigate('/login');
-  }
+  };
 
-  const isAdmin = user?.role === 'admin';
+  const value = {
+    user,
+    isAuthenticated: !!user,
+    loading,
+    login,
+    register,
+    updateProfile,
+    logout,
+  };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      setUser, // ✅ YE LINE SABSE ZAROORI HAI
-      isAuthenticated:!!user,
-      isAdmin,
-      loading,
-      register,
-      login,
-      logout
-    }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
-  )
-}
-
-export const useAuth = () => useContext(AuthContext)
+  );
+};

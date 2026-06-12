@@ -7,8 +7,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://memory-nest-backend.onrender.com', // ✅ Tera actual backend URL
         changeOrigin: true,
+        secure: false,
       },
     },
   },
