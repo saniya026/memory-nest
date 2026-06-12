@@ -1,5 +1,4 @@
 import { createContext, useContext, useState } from 'react'
-// ❌ useEffect hata diya
 import { useAuth } from './AuthContext'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
@@ -16,22 +15,19 @@ export const WishlistProvider = ({ children }) => {
   const { user } = useAuth()
   const [wishlist, setWishlist] = useState([])
   const [loading, setLoading] = useState(false)
-  const [fetched, setFetched] = useState(false) // ✅ Ye add kiya
+  const [fetched, setFetched] = useState(false)
 
   const fetchWishlist = async () => {
-    if (!user?.token) {
+    if (!user?.token || fetched) {
       setWishlist([])
       return
     }
-
-    // ✅ Ek baar fetch ho gaya to dobara mat karo
-    if (fetched) return
 
     setLoading(true)
     try {
       const { data } = await api.get('/api/wishlist')
       setWishlist(Array.isArray(data) ? data : data?.wishlist || [])
-      setFetched(true) // ✅ Flag set kar diya
+      setFetched(true)
     } catch (err) {
       setWishlist([])
     } finally {
@@ -39,7 +35,7 @@ export const WishlistProvider = ({ children }) => {
     }
   }
 
-  // ❌ useEffect poora hata diya - auto fetch band
+  // ✅ useEffect POORA HATA DIYA - YAHI MAIN FIX HAI
 
   const addToWishlist = async (designId) => {
     if (!user?.token) {
@@ -48,7 +44,7 @@ export const WishlistProvider = ({ children }) => {
     }
     try {
       await api.post('/api/wishlist/save', { designId })
-      setFetched(false) // ✅ Reset karo taaki naya data aaye
+      setFetched(false)
       await fetchWishlist()
       toast.success('Saved to wishlist!')
       return true
@@ -81,7 +77,7 @@ export const WishlistProvider = ({ children }) => {
       addToWishlist,
       removeFromWishlist,
       isInWishlist,
-      fetchWishlist, // ✅ Manual call ke liye expose kar diya
+      fetchWishlist,
       count: wishlist.length
     }}>
       {children}
