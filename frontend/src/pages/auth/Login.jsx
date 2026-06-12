@@ -15,25 +15,25 @@ export default function Login() {
     setLoading(true)
     setError('')
     
-    console.log('1. Login button clicked'); // ← Check 1
-    console.log('2. Form data:', form); // ← Check 2
+    console.log('1. Login button clicked');
+    console.log('2. Form data:', form);
     
     try {
-      console.log('3. Calling login function...'); // ← Check 3
+      console.log('3. Calling login function...');
       const userData = await login(form.email, form.password);
       
-      console.log('4. Login Success! UserData:', userData); // ← Check 4
-      console.log('5. Redirecting to home...'); // ← Check 5
+      console.log('4. Login Success! UserData:', userData);
+      console.log('5. Redirecting to home...');
       
-      navigate('/'); // Login success ke baad home pe redirect
+      navigate('/'); 
     } catch (err) {
-      console.log('6. LOGIN ERROR CAUGHT:', err); // ← Check 6 - Yahi important hai
-      console.log('7. Error message:', err.message); // ← Check 7
-      console.log('8. Error response:', err.response?.data); // ← Check 8
+      console.log('6. LOGIN ERROR CAUGHT:', err);
+      console.log('7. Error message:', err.message);
+      console.log('8. Error response:', err.response?.data);
       setError(err.message)
     } finally {
       setLoading(false)
-      console.log('9. Loading finished'); // ← Check 9
+      console.log('9. Loading finished');
     }
   }
 
