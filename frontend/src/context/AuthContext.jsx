@@ -1,7 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL; // ✅ Ye line add kar
+// ✅ HARDCODE KAR DIYA - 405 FIX
+const API_URL = 'https://memory-nest-backend.onrender.com';
 
 const AuthContext = createContext();
 
@@ -21,23 +22,28 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // ✅ Login Function - API_URL add kiya
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+      const { data } = await axios.post(`${API_URL}/api/auth/login`, { 
+        email, 
+        password 
+      });
       localStorage.setItem('userInfo', JSON.stringify(data));
       setUser(data);
       return data;
     } catch (error) {
+      console.log('Login Error:', error.response?.data);
       throw new Error(error.response?.data?.message || 'Login failed');
     }
   };
 
-  // ✅ Register Function - API_URL add kiya
   const register = async (name, email, password, phone) => {
     try {
       const { data } = await axios.post(`${API_URL}/api/auth/register`, {
-        name, email, password, phone,
+        name, 
+        email, 
+        password, 
+        phone,
       });
       localStorage.setItem('userInfo', JSON.stringify(data));
       setUser(data);
@@ -47,7 +53,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ Update Profile Function - API_URL add kiya
   const updateProfile = async (userData) => {
     try {
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -64,7 +69,7 @@ export const AuthProvider = ({ children }) => {
       };
 
       const { data } = await axios.put(
-        `${API_URL}/api/auth/profile`, // ✅ API_URL add kiya
+        `${API_URL}/api/auth/profile`,
         userData,
         config
       );

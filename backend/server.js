@@ -3,7 +3,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import { connectDB, getMongoHelpMessage } from './config/db.js';
 import memoryRoutes from './routes/memoryRoutes.js';
-import authRoutes from './routes/authRoutes.js'; // ✅ FIXED: authRoutes.js likho
+import authRoutes from './routes/authRoutes.js';
 import designRoutes from './routes/designRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import serviceRoutes from './routes/serviceRoutes.js';
@@ -14,8 +14,17 @@ import cartRoutes from './routes/cart.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// ✅ CORS FIX - Ye wala use kar
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://memory-nest-three.vercel.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
 // Routes
