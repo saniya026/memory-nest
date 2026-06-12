@@ -28,8 +28,8 @@ import DashboardLayout from './pages/dashboard/DashboardLayout';
 import Orders from './pages/dashboard/Orders';
 import UserDashboard from './pages/dashboard/UserDashboard';
 import Home from './pages/Home';
-import ProductDetail from './pages/ProductDetail';
-import Products from './pages/Products';
+// ❌ import ProductDetail from './pages/ProductDetail';  <-- DELETE THIS
+// ❌ import Products from './pages/Products';  <-- DELETE THIS
 import Profile from './pages/Profile';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
@@ -37,7 +37,7 @@ import Refund from './pages/Refund';
 import Return from './pages/Return';
 import Shipping from './pages/Shipping';
 import Services from './pages/Services';
-import ServiceDetail from './pages/ServiceDetail'; // ✅ Added
+import ServiceDetail from './pages/ServiceDetail';
 import DesignGallery from './pages/DesignGallery';
 import Reviews from './pages/Reviews';
 
@@ -105,8 +105,9 @@ export default function App() {
 
       {/* Public Routes */}
       <Route element={<MainLayout />}>
-        <Route path="/products" element={<Products />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
+        {/* ❌ DELETE YE 2 LINES */}
+        {/* <Route path="/products" element={<Products />} /> */}
+        {/* <Route path="/products/:id" element={<ProductDetail />} /> */}
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/refund" element={<Refund />} />
@@ -124,7 +125,7 @@ export default function App() {
       >
         <Route path="/home" element={<Home />} />
         <Route path="/services" element={<Services />} />
-        <Route path="/service/:id" element={<ServiceDetail />} /> {/* ✅ Added */}
+        <Route path="/service/:id" element={<ServiceDetail />} />
         <Route path="/gallery" element={<DesignGallery />} />
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/cart" element={<Cart />} />
@@ -162,6 +163,10 @@ export default function App() {
         <Route path="pricing" element={<AdminPricing />} />
         <Route path="reviews" element={<ReviewsAdmin />} />
       </Route>
+
+      {/* ✅ Redirect old /products to /services */}
+      <Route path="/products" element={<Navigate to="/services" replace />} />
+      <Route path="/products/:id" element={<Navigate to="/services" replace />} />
 
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
