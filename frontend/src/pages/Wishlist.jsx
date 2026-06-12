@@ -9,7 +9,7 @@ import { Trash2, ShoppingBag } from 'lucide-react'
 export default function Wishlist() {
   const { isAuthenticated } = useAuth()
   const { addToCart } = useCart()
-  const { wishlist, loading, removeFromWishlist } = useWishlist()
+  const { wishlist, loading, removeFromWishlist, fetchWishlist } = useWishlist() // ✅ fetchWishlist add kiya
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -17,7 +17,8 @@ export default function Wishlist() {
       navigate('/login')
       return
     }
-  }, [isAuthenticated, navigate])
+    fetchWishlist() // ✅ Ye line add kar - yaha manual call hogi
+  }, [isAuthenticated, navigate, fetchWishlist])
 
   const handleRemove = async (designId) => {
     await removeFromWishlist(designId)
@@ -61,7 +62,7 @@ export default function Wishlist() {
           <p className="text-gray-500 mb-4 text-lg">No saved designs yet</p>
           <p className="text-gray-400 text-sm mb-6">Start exploring and save your favorite designs</p>
           <button
-            onClick={() => navigate('/gallery')} // ✅ /products se /gallery kar diya
+            onClick={() => navigate('/gallery')}
             className="bg-rose text-white px-6 py-3 rounded-lg hover:bg-rose-dark transition font-semibold"
           >
             Browse Designs
@@ -85,7 +86,7 @@ export default function Wishlist() {
               <div className="p-4">
                 <h3 className="font-bold text-lg mb-1 line-clamp-1">{item.title}</h3>
                 <p className="text-gray-500 text-sm mb-2">{item.category || 'Survivor'}</p>
-                <p className="text-gray-600 text-sm mb-3 line-clamp-3 min-h-">{item.description}</p>
+                <p className="text-gray-600 text-sm mb-3 line-clamp-3">{item.description}</p>
 
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-rose font-bold text-xl">₹{item.price || 50}</span>

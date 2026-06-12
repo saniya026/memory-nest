@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useState } from 'react'
+// ❌ useEffect hata diya
 import { useAuth } from './AuthContext'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
@@ -15,39 +16,30 @@ export const WishlistProvider = ({ children }) => {
   const { user } = useAuth()
   const [wishlist, setWishlist] = useState([])
   const [loading, setLoading] = useState(false)
+  const [fetched, setFetched] = useState(false) // ✅ Ye add kiya
 
   const fetchWishlist = async () => {
-    // Token nahi hai to API call mat karo - ye hi main fix hai
     if (!user?.token) {
       setWishlist([])
-      setLoading(false)
       return
     }
+
+    // ✅ Ek baar fetch ho gaya to dobara mat karo
+    if (fetched) return
 
     setLoading(true)
     try {
       const { data } = await api.get('/api/wishlist')
       setWishlist(Array.isArray(data) ? data : data?.wishlist || [])
+      setFetched(true) // ✅ Flag set kar diya
     } catch (err) {
-      // 401/404 error ko silently handle kar
-      if (err.response?.status !== 401 && err.response?.status !== 404) {
-        console.log('Wishlist fetch error:', err)
-      }
       setWishlist([])
     } finally {
       setLoading(false)
     }
   }
 
-  // Sirf jab token mile tabhi call karo
-  useEffect(() => {
-    if (user?.token) {
-      fetchWishlist()
-    } else {
-      setWishlist([])
-      setLoading(false)
-    }
-  }, [user?.token])
+  // ❌ useEffect poora hata diya - auto fetch band
 
   const addToWishlist = async (designId) => {
     if (!user?.token) {
@@ -56,6 +48,7 @@ export const WishlistProvider = ({ children }) => {
     }
     try {
       await api.post('/api/wishlist/save', { designId })
+      setFetched(false) // ✅ Reset karo taaki naya data aaye
       await fetchWishlist()
       toast.success('Saved to wishlist!')
       return true
@@ -88,7 +81,7 @@ export const WishlistProvider = ({ children }) => {
       addToWishlist,
       removeFromWishlist,
       isInWishlist,
-      fetchWishlist,
+      fetchWishlist, // ✅ Manual call ke liye expose kar diya
       count: wishlist.length
     }}>
       {children}
