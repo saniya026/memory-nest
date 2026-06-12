@@ -4,14 +4,28 @@ import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
+const COLOR_OPTIONS = [
+  { name: 'Rose Pink', value: '#FF69B4' },
+  { name: 'Royal Blue', value: '#4169E1' },
+  { name: 'Golden', value: '#FFD700' },
+  { name: 'Lavender', value: '#E6E6FA' },
+  { name: 'Mint Green', value: '#98FB98' },
+  { name: 'Red', value: '#FF0000' },
+  { name: 'Black', value: '#000000' },
+  { name: 'White', value: '#FFFFFF' },
+  { name: 'Custom', value: 'custom' }
+];
+
 export default function CustomizeForm({ service }) {
   const [form, setForm] = useState({
     style: '',
     message: '',
     color: '#FF69B4',
+    colorName: 'Rose Pink',
     instructions: ''
   });
   const [files, setFiles] = useState([]);
+  const [customColor, setCustomColor] = useState('#FF69B4');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -22,13 +36,27 @@ export default function CustomizeForm({ service }) {
       toast.error('Please select at least 1 photo');
       return;
     }
-    // ✅ Limit hata di - jitni marzi
     setFiles(selectedFiles);
+  };
+
+  const handleColorChange = (e) => {
+    const selectedValue = e.target.value;
+    if (selectedValue === 'custom') {
+      setForm({...form, color: customColor, colorName: 'Custom' });
+    } else {
+      const selectedColor = COLOR_OPTIONS.find(c => c.value === selectedValue);
+      setForm({...form, color: selectedValue, colorName: selectedColor.name });
+    }
+  };
+
+  const handleCustomColorChange = (e) => {
+    setCustomColor(e.target.value);
+    setForm({...form, color: e.target.value, colorName: 'Custom' });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (!user) {
       toast.error('Please login first');
       navigate('/login');
@@ -41,15 +69,16 @@ export default function CustomizeForm({ service }) {
     }
 
     setLoading(true);
-
+    
     try {
       const formData = new FormData();
       formData.append('serviceId', service._id);
       formData.append('style', form.style || 'Default');
-      formData.append('color', form.color);
+      formData.append('color', form.color); // Hex code jayega
+      formData.append('colorName', form.colorName); // Color name bhi bhej do
       formData.append('message', form.message);
       formData.append('instructions', form.instructions);
-
+      
       files.forEach((file) => {
         formData.append('photos', file);
       });
@@ -75,7 +104,7 @@ export default function CustomizeForm({ service }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-xl shadow">
       <h2 className="text-2xl font-bold mb-4">Customize Your Memory</h2>
-
+      
       <div>
         <label className="block text-sm font-medium mb-2">
           Upload Photos * <span className="text-xs text-gray-500">(Select all at once)</span>
@@ -89,16 +118,7 @@ export default function CustomizeForm({ service }) {
           required
         />
         {files.length > 0 && (
-          <div className="mt-2">
-            <p className="text-sm text-green-600 mb-1">{files.length} photo(s) selected</p>
-            <div className="max-h-32 overflow-y-auto flex flex-wrap gap-2">
-              {files.map((file, idx) => (
-                <span key={idx} className="text-xs bg-gray-100 px-2 py-1 rounded">
-                  {file.name}
-                </span>
-              ))}
-            </div>
-          </div>
+          <p className="text-sm text-green-600 mt-1">{files.length} photo(s) selected</p>
         )}
       </div>
 
@@ -117,14 +137,48 @@ export default function CustomizeForm({ service }) {
         </select>
       </div>
 
+      {/* ✅ Color Dropdown + Custom */}
       <div>
         <label className="block text-sm font-medium mb-2">Frame/Theme Color</label>
-        <input
-          type="color"
-          value={form.color}
-          onChange={(e) => setForm({...form, color: e.target.value })}
-          className="w-full h-10 border rounded-lg cursor-pointer"
-        />
+        <select
+          value={form.colorName === 'Custom'? 'custom' : form.color}
+          onChange={handleColorChange}
+          className="w-full border rounded-lg p-2 mb-2"
+        >
+          {COLOR_OPTIONS.map((color) => (
+            <option key={color.value} value={color.value}>
+              {color.name}
+            </option>
+          ))}
+        </select>
+        
+        {/* Custom color picker - tabhi dikhega jab Custom select kiya */}
+        {form.colorName === 'Custom' && (
+          <div className="flex items-center gap-3">
+            <input
+              type="color"
+              value={customColor}
+              onChange={handleCustomColorChange}
+              className="w-16 h-10 border rounded-lg cursor-pointer"
+            />
+            <input
+              type="text"
+              value={customColor}
+              onChange={handleCustomColorChange}
+              placeholder="#FF69B4"
+              className="flex-1 border rounded-lg p-2 text-sm"
+            />
+          </div>
+        )}
+        
+        {/* Selected color preview */}
+        <div className="mt-2 flex items-center gap-2">
+          <div 
+            className="w-8 h-8 rounded border"
+            style={{ backgroundColor: form.color }}
+          ></div>
+          <span className="text-sm text-gray-600">{form.colorName} - {form.color}</span>
+        </div>
       </div>
 
       <div>

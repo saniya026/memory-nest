@@ -15,17 +15,17 @@ cloudinary.config({
 const storage = multer.memoryStorage();
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB per file, count ka limit nahi
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true);
     else cb(new Error('Only images allowed'), false);
   }
 });
 
-// ✅ Bas yahan '5' hata diya - ab unlimited photos
 router.post('/add-custom', auth, upload.array('photos'), async (req, res) => {
   try {
-    const { serviceId, style, color, message, instructions } = req.body;
+    // ✅ colorName bhi destructure kar le
+    const { serviceId, style, color, colorName, message, instructions } = req.body;
     const userId = req.user.id;
 
     if (!req.files || req.files.length === 0) {
@@ -37,7 +37,6 @@ router.post('/add-custom', auth, upload.array('photos'), async (req, res) => {
       return res.status(404).json({ success: false, message: 'Service not found' });
     }
 
-    // Photos Cloudinary pe upload - jitni marzi
     const uploadPromises = req.files.map(file => {
       const b64 = Buffer.from(file.buffer).toString('base64');
       const dataURI = `data:${file.mimetype};base64,${b64}`;
@@ -60,6 +59,7 @@ router.post('/add-custom', auth, upload.array('photos'), async (req, res) => {
         photos: photoUrls,
         style,
         color,
+        colorName, // ✅ ye add kar de
         message,
         instructions,
       }
@@ -73,7 +73,7 @@ router.post('/add-custom', auth, upload.array('photos'), async (req, res) => {
       await cart.save();
     }
 
-    console.log('[Cart Success]', { userId, photoCount: photoUrls.length });
+    console.log('[Cart Success]', { userId, photoCount: photoUrls.length, color, colorName });
 
     res.json({
       success: true,
