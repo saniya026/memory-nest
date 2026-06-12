@@ -1,7 +1,7 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { ShoppingCart } from 'lucide-react'; // ✅ 1. Ye import add kar
-import { useCartStore } from '../../store/cartStore'; // ✅ 2. Cart store import kar
+import { useCart } from '../../context/CartContext'; // ✅ 1. Sahi path ye hai
+import { ShoppingCart } from 'lucide-react';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
 
@@ -13,7 +13,9 @@ const links = [
 
 export default function DesktopNavbar() {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
-  const { cartItems } = useCartStore(); // ✅ 3. Cart count nikal
+  const { cartItems } = useCart(); // ✅ 2. useCart hook use karo
+
+  // Count nikal lo. Agar cartItems array hai to length, agar object hai to totalItems
   const cartCount = cartItems?.length || 0;
 
   return (
@@ -28,7 +30,7 @@ export default function DesktopNavbar() {
               className={({ isActive }) =>
                 `text-sm font-semibold transition hover:text-rose ${
                   isActive
-                ? 'text-rose'
+              ? 'text-rose'
                     : 'text-gray-600 dark:text-gray-300 dark:hover:text-rose'
                 }`
               }
@@ -39,7 +41,7 @@ export default function DesktopNavbar() {
         </div>
         <div className="flex items-center gap-3">
 
-          {/* ✅ 4. CART ICON - YE POORA BLOCK PASTE KAR */}
+          {/* ✅ CART ICON + COUNT */}
           <Link to="/cart" className="relative">
             <ShoppingCart className="w-5 h-5 text-gray-600 dark:text-gray-300 hover:text-rose" />
             {cartCount > 0 && (
