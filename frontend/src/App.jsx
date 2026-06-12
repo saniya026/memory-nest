@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { WishlistProvider } from './context/WishlistContext';
 import MainLayout from './components/layout/MainLayout';
 
 // Admin pages
@@ -28,8 +29,6 @@ import DashboardLayout from './pages/dashboard/DashboardLayout';
 import Orders from './pages/dashboard/Orders';
 import UserDashboard from './pages/dashboard/UserDashboard';
 import Home from './pages/Home';
-// ❌ import ProductDetail from './pages/ProductDetail';  <-- DELETE THIS
-// ❌ import Products from './pages/Products';  <-- DELETE THIS
 import Profile from './pages/Profile';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
@@ -53,7 +52,7 @@ export default function App() {
     const timer = setTimeout(() => {
       setShowSplash(false);
       if (location.pathname === '/') {
-        navigate(isAuthenticated? '/home' : '/login', { replace: true });
+        navigate(isAuthenticated ? '/home' : '/login', { replace: true });
       }
     }, 5000);
 
@@ -63,7 +62,7 @@ export default function App() {
   const handleVideoEnd = () => {
     setShowSplash(false);
     if (location.pathname === '/') {
-      navigate(isAuthenticated? '/home' : '/login', { replace: true });
+      navigate(isAuthenticated ? '/home' : '/login', { replace: true });
     }
   };
 
@@ -105,9 +104,6 @@ export default function App() {
 
       {/* Public Routes */}
       <Route element={<MainLayout />}>
-        {/* ❌ DELETE YE 2 LINES */}
-        {/* <Route path="/products" element={<Products />} /> */}
-        {/* <Route path="/products/:id" element={<ProductDetail />} /> */}
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/refund" element={<Refund />} />
@@ -130,7 +126,14 @@ export default function App() {
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
-        <Route path="/wishlist" element={<Wishlist />} />
+        
+        {/* ✅ WishlistProvider sirf yahan */}
+        <Route path="/wishlist" element={
+          <WishlistProvider>
+            <Wishlist />
+          </WishlistProvider>
+        } />
+        
         <Route path="/profile" element={<Profile />} />
       </Route>
 
@@ -164,7 +167,7 @@ export default function App() {
         <Route path="reviews" element={<ReviewsAdmin />} />
       </Route>
 
-      {/* ✅ Redirect old /products to /services */}
+      {/* Redirect old /products to /services */}
       <Route path="/products" element={<Navigate to="/services" replace />} />
       <Route path="/products/:id" element={<Navigate to="/services" replace />} />
 
