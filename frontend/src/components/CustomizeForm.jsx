@@ -25,8 +25,9 @@ export default function CustomizeForm({ service }) {
     instructions: ''
   });
   const [files, setFiles] = useState([]);
-  const [customColorName, setCustomColorName] = useState(''); // ✅ Custom color ka naam
-  const [customColorHex, setCustomColorHex] = useState('#FF69B4');
+  const [isCustomSelected, setIsCustomSelected] = useState(false); // ✅ Ye naya
+  const [customColorName, setCustomColorName] = useState('');
+  const [customColorHex, setCustomColorHex] = useState('#000000'); // ✅ Black default, Pink nahi
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -43,22 +44,28 @@ export default function CustomizeForm({ service }) {
   const handleColorChange = (e) => {
     const selectedValue = e.target.value;
     if (selectedValue === 'custom') {
-      setForm({...form, color: customColorHex, colorName: customColorName || 'Custom' });
+      setIsCustomSelected(true); // ✅ Custom flag on
+      setForm({ ...form, color: customColorHex, colorName: customColorName || 'Custom' });
     } else {
+      setIsCustomSelected(false); // ✅ Custom flag off
       const selectedColor = COLOR_OPTIONS.find(c => c.value === selectedValue);
-      setForm({...form, color: selectedValue, colorName: selectedColor.name });
-      setCustomColorName(''); // Reset custom name
+      setForm({ ...form, color: selectedValue, colorName: selectedColor.name });
+      setCustomColorName(''); // Reset
     }
   };
 
   const handleCustomColorHex = (e) => {
     setCustomColorHex(e.target.value);
-    setForm({...form, color: e.target.value, colorName: customColorName || 'Custom' });
+    if (isCustomSelected) {
+      setForm({ ...form, color: e.target.value });
+    }
   };
 
   const handleCustomColorName = (e) => {
     setCustomColorName(e.target.value);
-    setForm({...form, colorName: e.target.value || 'Custom' });
+    if (isCustomSelected) {
+      setForm({ ...form, colorName: e.target.value || 'Custom' });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -75,8 +82,8 @@ export default function CustomizeForm({ service }) {
       return;
     }
 
-    // Custom select kiya but naam nahi dala
-    if (form.colorName === 'Custom' && !customColorName) {
+    // ✅ Custom select kiya but naam khali hai
+    if (isCustomSelected && !customColorName.trim()) {
       toast.error('Please enter custom color name');
       return;
     }
@@ -88,7 +95,7 @@ export default function CustomizeForm({ service }) {
       formData.append('serviceId', service._id);
       formData.append('style', form.style || 'Default');
       formData.append('color', form.color);
-      formData.append('colorName', form.colorName);
+      formData.append('colorName', isCustomSelected ? customColorName : form.colorName);
       formData.append('message', form.message);
       formData.append('instructions', form.instructions);
       
@@ -113,8 +120,6 @@ export default function CustomizeForm({ service }) {
       setLoading(false);
     }
   };
-
-  const isCustom = form.colorName === 'Custom' || !COLOR_OPTIONS.find(c => c.value === form.color);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-xl shadow">
@@ -152,11 +157,10 @@ export default function CustomizeForm({ service }) {
         </select>
       </div>
 
-      {/* ✅ Fixed Color Section */}
       <div>
         <label className="block text-sm font-medium mb-2">Frame/Theme Color</label>
         <select
-          value={isCustom ? 'custom' : form.color}
+          value={isCustomSelected ? 'custom' : form.color}
           onChange={handleColorChange}
           className="w-full border rounded-lg p-2 mb-2"
         >
@@ -167,8 +171,8 @@ export default function CustomizeForm({ service }) {
           ))}
         </select>
         
-        {/* ✅ Custom select karne pe 2 fields - Color picker + Name input */}
-        {isCustom && (
+        {/* ✅ Custom fields - ab sahi kaam karenge */}
+        {isCustomSelected && (
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <input
@@ -181,21 +185,22 @@ export default function CustomizeForm({ service }) {
                 type="text"
                 value={customColorName}
                 onChange={handleCustomColorName}
-                placeholder="Enter color name like: Sky Blue, Peach, etc."
+                placeholder="Enter color name like: Sky Blue, Peach"
                 className="flex-1 border rounded-lg p-2 text-sm"
-                required
               />
             </div>
           </div>
         )}
         
-        {/* ✅ Sirf color name show karo, hex nahi */}
+        {/* ✅ Sirf color name, hex nahi */}
         <div className="mt-2 flex items-center gap-2">
           <div 
             className="w-8 h-8 rounded border"
             style={{ backgroundColor: form.color }}
           ></div>
-          <span className="text-sm text-gray-600">{form.colorName}</span>
+          <span className="text-sm text-gray-600">
+            {isCustomSelected ? (customColorName || 'Custom') : form.colorName}
+          </span>
         </div>
       </div>
 
