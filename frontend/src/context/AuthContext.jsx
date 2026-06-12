@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-// ✅ HARDCODE KAR DIYA - 405 FIX
 const API_URL = 'https://memory-nest-backend.onrender.com';
 
 const AuthContext = createContext();
@@ -28,9 +27,16 @@ export const AuthProvider = ({ children }) => {
         email, 
         password 
       });
-      localStorage.setItem('userInfo', JSON.stringify(data));
-      setUser(data);
-      return data;
+      
+      // ✅ CHANGE 1: token aur user merge karo
+      const userData = {
+        ...data.user,
+        token: data.token
+      };
+      
+      localStorage.setItem('userInfo', JSON.stringify(userData));
+      setUser(userData);
+      return userData;
     } catch (error) {
       console.log('Login Error:', error.response?.data);
       throw new Error(error.response?.data?.message || 'Login failed');
@@ -40,14 +46,18 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password, phone) => {
     try {
       const { data } = await axios.post(`${API_URL}/api/auth/register`, {
-        name, 
-        email, 
-        password, 
-        phone,
+        name, email, password, phone,
       });
-      localStorage.setItem('userInfo', JSON.stringify(data));
-      setUser(data);
-      return data;
+      
+      // ✅ CHANGE 2: Yahan bhi merge karo
+      const userData = {
+        ...data.user,
+        token: data.token
+      };
+      
+      localStorage.setItem('userInfo', JSON.stringify(userData));
+      setUser(userData);
+      return userData;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Registration failed');
     }
@@ -74,9 +84,14 @@ export const AuthProvider = ({ children }) => {
         config
       );
 
-      localStorage.setItem('userInfo', JSON.stringify(data));
-      setUser(data);
-      return data;
+      const updatedUserData = {
+        ...data.user,
+        token: data.token || userInfo.token
+      };
+
+      localStorage.setItem('userInfo', JSON.stringify(updatedUserData));
+      setUser(updatedUserData);
+      return updatedUserData;
     } catch (error) {
       console.log('Update Profile Error:', error.response?.data);
       throw new Error(error.response?.data?.message || 'Update failed');
@@ -90,7 +105,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user?.token, // ✅ CHANGE 3: token check karo
     loading,
     login,
     register,
