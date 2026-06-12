@@ -14,17 +14,32 @@ import cartRoutes from './routes/cart.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ CORS FIX - Ye wala use kar
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://memory-nest-three.vercel.app'
-  ],
+// ✅ CORS FIX - Ab kabhi URL change ka tension nahi
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin like Postman, mobile apps
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ];
+    
+    // Localhost ya koi bhi .vercel.app domain allow karo
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked for origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200 // Render/old browsers ke liye zaroori
+};
 
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes
