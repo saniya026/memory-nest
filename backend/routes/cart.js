@@ -1,11 +1,12 @@
-const express = require('express');
+import express from 'express';
+import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import Cart from '../models/Cart.js';
+import Service from '../models/Service.js';
+import auth from '../middleware/auth.js';
+
 const router = express.Router();
-const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('../config/cloudinary');
-const Cart = require('../models/Cart');
-const Service = require('../models/Service');
-const auth = require('../middleware/auth');
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -17,10 +18,9 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 } // 5MB per file
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
 });
 
-// ✅ Ye route hona zaruri hai
 router.post('/add-custom', auth, upload.array('photos'), async (req, res) => {
   try {
     const { serviceId, style, color, colorName, message, instructions } = req.body;
@@ -76,4 +76,4 @@ router.post('/add-custom', auth, upload.array('photos'), async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router; // ✅ Ye line zaruri hai
