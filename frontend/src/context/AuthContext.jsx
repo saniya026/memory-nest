@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axios'; // ← axios hata ke ye import kar
 import toast from 'react-hot-toast';
 
-const API_URL = 'https://memory-nest-backend.onrender.com';
+// const API_URL = 'https://memory-nest-backend.onrender.com'; ← Ye line delete kar de
+
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -34,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+      const { data } = await api.post('/auth/login', { email, password }); // ← /api hata diya
       const userData = {
         _id: data.user._id,
         name: data.user.name,
@@ -55,7 +56,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password, phone) => {
     try {
-      const { data } = await axios.post(`${API_URL}/api/auth/register`, {
+      const { data } = await api.post('/auth/register', { // ← /api hata diya
         name, email, password, phone,
       });
       const userData = {
