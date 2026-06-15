@@ -15,9 +15,22 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const userInfo = localStorage.getItem('userInfo');
-    if (userInfo) {
-      setUser(JSON.parse(userInfo));
+    // FIX 1: try-catch add kiya JSON parse ke liye
+    try {
+      const userInfo = localStorage.getItem('userInfo');
+      if (userInfo) {
+        const parsedUser = JSON.parse(userInfo);
+        // FIX 2: token check karo, agar hai tabhi set karo
+        if (parsedUser?.token) {
+          setUser(parsedUser);
+          console.log('User loaded from localStorage:', parsedUser.email);
+        } else {
+          localStorage.removeItem('userInfo');
+        }
+      }
+    } catch (error) {
+      console.log('Error parsing userInfo:', error);
+      localStorage.removeItem('userInfo');
     }
     setLoading(false);
   }, []);
@@ -29,7 +42,6 @@ export const AuthProvider = ({ children }) => {
         password 
       });
       
-      // Backend se {token, user} aa raha hai, isko merge karo
       const userData = {
         _id: data.user._id,
         name: data.user.name,
@@ -39,6 +51,7 @@ export const AuthProvider = ({ children }) => {
       
       localStorage.setItem('userInfo', JSON.stringify(userData));
       setUser(userData);
+      console.log('Login success, user set:', userData.email);
       return userData;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Login failed');
@@ -105,6 +118,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('userInfo');
     setUser(null);
+    // FIX 3: logout ke baad bhi reload karo
+    window.location.href = '/login';
   };
 
   const value = {
