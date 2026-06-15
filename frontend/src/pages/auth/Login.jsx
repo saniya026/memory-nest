@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Logo from '../../components/layout/Logo'
 
@@ -8,6 +8,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const { login } = useAuth()
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -15,13 +16,8 @@ export default function Login() {
     setError('')
 
     try {
-      await login(form.email, form.password);
-
-      // FIX: Delay de localStorage save hone ke liye
-      setTimeout(() => {
-        window.location.replace('/')
-      }, 300);
-
+      await login(form.email, form.password)
+      navigate('/', { replace: true }) // ← FIX: window.location.replace hata diya
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.')
       setLoading(false)
@@ -70,7 +66,7 @@ export default function Login() {
         </div>
 
         <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading? 'Logging in...' : 'Login'}
+          {loading ? 'Logging in...' : 'Login'}
         </button>
 
         <p className="text-center text-sm text-gray-500">
