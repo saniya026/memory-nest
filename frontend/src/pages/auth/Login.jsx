@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Logo from '../../components/layout/Logo'
 
@@ -7,16 +7,7 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const { login, user } = useAuth() // user add kiya
-  const navigate = useNavigate()
-
-  // Ye useEffect add kar - user set hote hi home bhej dega
-  useEffect(() => {
-    if (user) {
-      console.log('6. User state detected, redirecting to home...');
-      navigate('/');
-    }
-  }, [user, navigate]);
+  const { login } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -31,18 +22,17 @@ export default function Login() {
       const userData = await login(form.email, form.password);
       
       console.log('4. Login Success! UserData:', userData);
-      console.log('5. Waiting for user state update...');
       
-      // navigate('/') hata diya - ab useEffect handle karega
+      // Full page reload karo - Vercel pe navigate() kaam nahi karta
+      window.location.href = '/'
       
     } catch (err) {
-      console.log('6. LOGIN ERROR CAUGHT:', err);
-      console.log('7. Error message:', err.message);
-      console.log('8. Error response:', err.response?.data);
-      setError(err.message)
+      console.log('5. LOGIN ERROR CAUGHT:', err);
+      console.log('6. Error message:', err.message);
+      console.log('7. Error response:', err.response?.data);
+      setError(err.message || 'Login failed. Please try again.')
       setLoading(false)
     } 
-    // finally hata diya kyunki success me redirect ho jayega
   }
 
   return (
