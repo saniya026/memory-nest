@@ -1,4 +1,4 @@
-import { Home, LayoutDashboard, Package, ShoppingCart, User } from 'lucide-react';
+import { Home, LayoutDashboard, ShoppingCart, User } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -8,15 +8,15 @@ export default function BottomNav() {
   const { isAuthenticated, isAdmin } = useAuth();
 
   const tabs = [
-    { to: '/', icon: Home, label: 'Home', end: true },
-    { to: '/products', icon: Package, label: 'Designs' },
+    { to: '/home', icon: Home, label: 'Home', end: true },
+    // { to: '/products', icon: Package, label: 'Designs' }, // ❌ Ye hata diya
     {
-      to: isAuthenticated ? (isAdmin ? '/admin' : '/dashboard') : '/login',
+      to: isAuthenticated? (isAdmin? '/admin' : '/dashboard/orders') : '/login',
       icon: LayoutDashboard,
-      label: isAdmin ? 'Admin' : 'Orders',
+      label: isAdmin? 'Admin' : 'Orders',
     },
-    { to: isAuthenticated ? '/cart' : '/login', icon: ShoppingCart, label: 'Cart' },
-    { to: isAuthenticated ? '/profile' : '/login', icon: User, label: 'Profile' },
+    { to: isAuthenticated? '/cart' : '/login', icon: ShoppingCart, label: 'Cart' },
+    { to: isAuthenticated? '/profile' : '/login', icon: User, label: 'Profile' },
   ];
 
   return (
@@ -29,7 +29,7 @@ export default function BottomNav() {
             end={end}
             className={({ isActive }) =>
               `flex flex-1 flex-col items-center justify-center gap-0.5 text-xs transition ${
-                isActive ? 'text-rose font-semibold' : 'text-gray-500 dark:text-gray-400'
+                isActive? 'text-rose font-semibold' : 'text-gray-500 dark:text-gray-400'
               }`
             }
           >

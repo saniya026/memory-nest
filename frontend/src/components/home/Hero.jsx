@@ -48,7 +48,7 @@ export default function Hero() {
           transition={{ duration: 0.6 }}
           className="relative col-span-1 h-40 md:h-96"
         >
-          {/* Left top - Mobile chhota */}
+          {/* Left top */}
           <div className="card-polaroid absolute left-0 top-0 z-10 w-16 rotate-[-6deg] animate-float md:left-8 md:w-48">
             <img
               src="/hero1.jpg"
@@ -57,7 +57,7 @@ export default function Hero() {
             />
           </div>
 
-          {/* Right - Mobile chhota */}
+          {/* Right */}
           <div className="card-polaroid absolute right-0 top-6 z-20 w-16 rotate-3 md:right-4 md:top-16 md:w-56">
             <img
               src="/hero2.jpg"
@@ -66,18 +66,14 @@ export default function Hero() {
             />
           </div>
 
-          {/* Center bottom - Mobile chhota */}
+          {/* Center bottom - Overlay HATA DIYA */}
           <div className="card-polaroid absolute left-1/2 top-12 z-30 w-20 -translate-x-1/2 -rotate-2 md:relative md:left-auto md:top-0 md:mx-auto md:mt-24 md:w-64 md:translate-x-0">
             <img
               src="/hero3.jpg"
               alt="Birthday celebration"
               className="aspect-[4/5] rounded-sm object-cover md:rounded"
             />
-            <div className="absolute inset-0 flex items-center justify-center rounded-sm bg-black/70 md:rounded">
-              <p className="font-handwriting text-[6px] text-white md:text-base">
-                Making<br/>Memories 📷
-              </p>
-            </div>
+            {/* ❌ Ye overlay div delete kar di - "Making Memories" text wala */}
           </div>
         </motion.div>
       </div>
