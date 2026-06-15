@@ -10,6 +10,7 @@ import serviceRoutes from './routes/serviceRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import cartRoutes from './routes/cart.js';
+import userRoutes from './routes/user.js'; // ✅ Ye line add kar
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -34,7 +35,7 @@ const corsOptions = {
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // ✅ PATCH add kiya
   allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200 // Render/old browsers ke liye zaroori
 };
@@ -51,6 +52,7 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/user', userRoutes); // ✅ Ye line add kar
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'MemoryNest API Running' });
@@ -80,6 +82,7 @@ const startServer = async () => {
     console.log(`[Server] Reviews API: http://localhost:${PORT}/api/reviews`);
     console.log(`[Server] Wishlist API: http://localhost:${PORT}/api/wishlist`);
     console.log(`[Server] Cart API: http://localhost:${PORT}/api/cart/add-custom`);
+    console.log(`[Server] User API: http://localhost:${PORT}/api/user/addresses`); // ✅ Ye add kar
   });
 };
 
