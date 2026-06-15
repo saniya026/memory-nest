@@ -1,12 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-/**
- * @param {'admin' | 'customer' | 'any'} role
- *   - admin: only site administrator
- *   - customer: any logged-in user (admin or customer)
- *   - any: same as customer (default)
- */
 export function ProtectedRoute({ children, role = 'any' }) {
   const { isAuthenticated, isAdmin, loading } = useAuth();
   const location = useLocation();
@@ -29,12 +23,12 @@ export function ProtectedRoute({ children, role = 'any' }) {
     );
   }
 
-  if (role === 'admin' && !isAdmin) {
+  if (role === 'admin' &&!isAdmin) {
     return (
       <Navigate
-        to="/login"
+        to="/"
         replace
-        state={{ message: 'Unauthorized Access — admin only', from: location.pathname }}
+        state={{ message: 'Unauthorized Access — admin only' }}
       />
     );
   }

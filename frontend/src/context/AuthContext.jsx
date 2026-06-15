@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const API_URL = 'https://memory-nest-backend.onrender.com';
 const AuthContext = createContext();
@@ -12,10 +13,9 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Wapas true kar
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Page load pe localStorage se user uthao
     const userInfo = localStorage.getItem('userInfo');
     if (userInfo) {
       try {
@@ -29,80 +29,66 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('userInfo');
       }
     }
-    setLoading(false); // Sab check ke baad false kar
+    setLoading(false);
   }, []);
 
   const login = async (email, password) => {
-    const { data } = await axios.post(`${API_URL}/api/auth/login`, { email, password });
-    
-    const userData = {
-      _id: data.user._id,
-      name: data.user.name,
-      email: data.user.email,
-      token: data.token
-    };
-    
-    localStorage.setItem('userInfo', JSON.stringify(userData));
-    setUser(userData);
-    return userData;
+    try {
+      const { data } = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+      const userData = {
+        _id: data.user._id,
+        name: data.user.name,
+        email: data.user.email,
+        isAdmin: data.user.isAdmin || false,
+        token: data.token
+      };
+      localStorage.setItem('userInfo', JSON.stringify(userData));
+      setUser(userData);
+      toast.success('Login successful!');
+      return userData;
+    } catch (error) {
+      const message = error.response?.data?.message || 'Login failed';
+      toast.error(message);
+      throw new Error(message);
+    }
   };
 
   const register = async (name, email, password, phone) => {
-    const { data } = await axios.post(`${API_URL}/api/auth/register`, {
-      name, email, password, phone,
-    });
-    
-    const userData = {
-      _id: data.user._id,
-      name: data.user.name,
-      email: data.user.email,
-      token: data.token
-    };
-    
-    localStorage.setItem('userInfo', JSON.stringify(userData));
-    setUser(userData);
-    return userData;
-  };
-
-  const updateProfile = async (userData) => {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    if (!userInfo?.token) throw new Error('No token found. Please login again.');
-
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userInfo.token}`,
-      },
-    };
-
-    const { data } = await axios.put(`${API_URL}/api/auth/profile`, userData, config);
-
-    const updatedUserData = {
-      _id: data.user._id,
-      name: data.user.name,
-      email: data.user.email,
-      token: data.token || userInfo.token
-    };
-
-    localStorage.setItem('userInfo', JSON.stringify(updatedUserData));
-    setUser(updatedUserData);
-    return updatedUserData;
+    try {
+      const { data } = await axios.post(`${API_URL}/api/auth/register`, {
+        name, email, password, phone,
+      });
+      const userData = {
+        _id: data.user._id,
+        name: data.user.name,
+        email: data.user.email,
+        isAdmin: data.user.isAdmin || false,
+        token: data.token
+      };
+      localStorage.setItem('userInfo', JSON.stringify(userData));
+      setUser(userData);
+      toast.success('Account created!');
+      return userData;
+    } catch (error) {
+      const message = error.response?.data?.message || 'Signup failed';
+      toast.error(message);
+      throw new Error(message);
+    }
   };
 
   const logout = () => {
     localStorage.removeItem('userInfo');
     setUser(null);
-    window.location.href = '/login';
+    window.location.replace('/login');
   };
 
   const value = {
     user,
-    isAuthenticated: !!user?.token,
-    isAdmin: user?.isAdmin || false, // Ye add kar de
-    loading, // Asli loading state bhej
+    isAuthenticated:!!user?.token,
+    isAdmin: user?.isAdmin || false,
+    loading,
     login,
     register,
-    updateProfile,
     logout,
   };
 

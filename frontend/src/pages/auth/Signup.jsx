@@ -13,15 +13,19 @@ export default function Signup() {
     setLoading(true)
     try {
       await register(form.name, form.email, form.password, form.phone)
+
+      // FIX: Register ke baad home pe bhej
+      setTimeout(() => {
+        window.location.replace('/')
+      }, 300);
+
     } catch (err) {
-      // Error handled in register
-    } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="mx-auto flex min-h- max-w-md flex-col justify-center px-4">
+    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
       <div className="mb-8 text-center">
         <Logo className="justify-center text-2xl" />
         <h1 className="mt-4 font-display text-2xl font-bold">Create your account</h1>

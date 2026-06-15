@@ -1,22 +1,41 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import api from '../../api/axios';
+import axios from 'axios';
+
+const API_URL = 'https://memory-nest-backend.onrender.com';
 
 export default function ResetPassword() {
   const { token } = useParams();
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const submit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const { data } = await api.put(`/auth/reset-password/${token}`, { password });
-      localStorage.setItem('mn_token', data.token);
+      const { data } = await axios.put(`${API_URL}/api/auth/reset-password/${token}`, { password });
+
+      // FIX: AuthContext ke format me save karo
+      const userData = {
+        _id: data.user._id,
+        name: data.user.name,
+        email: data.user.email,
+        isAdmin: data.user.isAdmin || false,
+        token: data.token
+      };
+
+      localStorage.setItem('userInfo', JSON.stringify(userData));
       toast.success('Password updated!');
-      navigate('/dashboard');
+
+      setTimeout(() => {
+        window.location.replace('/');
+      }, 300);
+
     } catch (err) {
       toast.error(err.response?.data?.message || 'Reset failed');
+      setLoading(false);
     }
   };
 
@@ -33,8 +52,8 @@ export default function ResetPassword() {
           minLength={6}
           required
         />
-        <button type="submit" className="btn-primary w-full">
-          Update Password
+        <button type="submit" disabled={loading} className="btn-primary w-full">
+          {loading? 'Updating...' : 'Update Password'}
         </button>
         <Link to="/login" className="block text-center text-sm text-rose">
           Login
