@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Logo from '../../components/layout/Logo'
@@ -7,8 +7,15 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const { login } = useAuth()
+  const { login, user, isAuthenticated } = useAuth() // ← user, isAuthenticated add karo
   const navigate = useNavigate()
+
+  // FIX: user set hote hi navigate karo
+  useEffect(() => {
+    if (isAuthenticated && user?.token) {
+      navigate('/', { replace: true })
+    }
+  }, [isAuthenticated, user, navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -17,7 +24,7 @@ export default function Login() {
 
     try {
       await login(form.email, form.password)
-      navigate('/', { replace: true }) // ← FIX: window.location.replace hata diya
+      // navigate() yaha se hata diya. useEffect handle karega
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.')
       setLoading(false)
