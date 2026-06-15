@@ -94,13 +94,6 @@ export default function MobileDrawer({ open, onClose }) {
             Reviews
           </button>
 
-          <button
-            onClick={() => handleAnchorClick('#pricing')}
-            className="rounded-lg px-3 py-2.5 text-left text-base font-semibold text-gray-700 transition hover:bg-rose/10 hover:text-rose dark:text-gray-200 dark:hover:bg-gray-700"
-          >
-            Pricing
-          </button>
-
           <hr className="my-3 border-lavender/40 dark:border-gray-700" />
 
           {/* Auth Links */}
