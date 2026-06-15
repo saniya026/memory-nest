@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Logo from '../../components/layout/Logo'
 
@@ -7,24 +7,15 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const { login, user, isAuthenticated } = useAuth() // ← user, isAuthenticated add karo
-  const navigate = useNavigate()
-
-  // FIX: user set hote hi navigate karo
-  useEffect(() => {
-    if (isAuthenticated && user?.token) {
-      navigate('/', { replace: true })
-    }
-  }, [isAuthenticated, user, navigate])
+  const { login } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError('')
-
     try {
       await login(form.email, form.password)
-      // navigate() yaha se hata diya. useEffect handle karega
+      // Redirect PublicRoute handle karega
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.')
       setLoading(false)
@@ -73,7 +64,7 @@ export default function Login() {
         </div>
 
         <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? 'Logging in...' : 'Login'}
+          {loading? 'Logging in...' : 'Login'}
         </button>
 
         <p className="text-center text-sm text-gray-500">

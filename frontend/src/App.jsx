@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -39,30 +39,27 @@ import ServiceDetail from './pages/ServiceDetail';
 import DesignGallery from './pages/DesignGallery';
 import Reviews from './pages/Reviews';
 
+// PublicRoute component - logged in user ko login page nahi dikhayega
+function PublicRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  return user?.token? <Navigate to="/home" replace /> : children;
+}
+
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { isAuthenticated, loading } = useAuth();
+  const { loading } = useAuth();
 
   useEffect(() => {
     if (loading) return;
-
     const timer = setTimeout(() => {
       setShowSplash(false);
-      if (location.pathname === '/') {
-        navigate(isAuthenticated ? '/home' : '/login', { replace: true });
-      }
-    }, 5000);
-
+    }, 3000);
     return () => clearTimeout(timer);
-  }, [navigate, location.pathname, isAuthenticated, loading]);
+  }, [loading]);
 
   const handleVideoEnd = () => {
     setShowSplash(false);
-    if (location.pathname === '/') {
-      navigate(isAuthenticated ? '/home' : '/login', { replace: true });
-    }
   };
 
   if (showSplash) {
@@ -95,8 +92,8 @@ export default function App() {
   return (
     <Routes>
       {/* Auth Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+      <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
@@ -125,10 +122,7 @@ export default function App() {
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
-        
-        {/* ✅ DOUBLE WRAP HATA DIYA - AB SAHI HAI */}
         <Route path="/wishlist" element={<Wishlist />} />
-        
         <Route path="/profile" element={<Profile />} />
       </Route>
 
@@ -162,12 +156,9 @@ export default function App() {
         <Route path="reviews" element={<ReviewsAdmin />} />
       </Route>
 
-      {/* Redirect old /products to /services */}
-      <Route path="/products" element={<Navigate to="/services" replace />} />
-      <Route path="/products/:id" element={<Navigate to="/services" replace />} />
-
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      {/* Default Routes */}
+      <Route path="/" element={<Navigate to="/home" replace />} />
+      <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   );
 }
