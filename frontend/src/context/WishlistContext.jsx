@@ -18,10 +18,10 @@ export const WishlistProvider = ({ children }) => {
   const [fetched, setFetched] = useState(false)
 
   const fetchWishlist = async () => {
-    if (!user?.token || fetched) return
+    if (!user || fetched) return
     setLoading(true)
     try {
-      const { data } = await api.get('/api/wishlist')
+      const { data } = await api.get('/wishlist') // ← /api hata diya
       setWishlist(Array.isArray(data)? data : data?.wishlist || [])
       setFetched(true)
     } catch (err) {
@@ -32,17 +32,17 @@ export const WishlistProvider = ({ children }) => {
   }
 
   const addToWishlist = async (designId) => {
-    if (!user?.token) {
-      toast.error('Please login first')
-      return false
-    }
     try {
-      await api.post('/api/wishlist/save', { designId })
+      await api.post('/wishlist/save', { designId }) // ← /api hata diya
       setFetched(false)
       await fetchWishlist()
       toast.success('Saved to wishlist!')
       return true
     } catch (err) {
+      if (err.response?.status === 401) {
+        toast.error('Please login first')
+        return false
+      }
       toast.error(err.response?.data?.message || 'Failed to save')
       return false
     }
@@ -50,8 +50,8 @@ export const WishlistProvider = ({ children }) => {
 
   const removeFromWishlist = async (designId) => {
     try {
-      await api.delete(`/api/wishlist/${designId}`)
-      setWishlist(prev => prev.filter(item => item._id!== designId))
+      await api.delete(`/wishlist/${designId}`) // ← /api hata diya
+      setWishlist(prev => prev.filter(item => item._id !== designId))
       toast.success('Removed from wishlist')
       return true
     } catch (err) {
