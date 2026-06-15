@@ -11,7 +11,7 @@ const generateToken = (id) => {
 export const register = async (req, res) => {
   const { name, email, password, phone } = req.body;
 
-  if (!name ||!email ||!password) {
+  if (!name || !email || !password) {
     return res.status(400).json({ msg: "Name, email, password required" });
   }
 
@@ -39,7 +39,8 @@ export const register = async (req, res) => {
         email: user.email,
         phone: user.phone,
         avatar: user.avatar,
-        role: user.role
+        role: user.role,
+        isAdmin: user.role === 'admin'
       }
     });
   } catch (err) {
@@ -51,7 +52,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email ||!password) {
+  if (!email || !password) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
 
@@ -78,7 +79,8 @@ export const login = async (req, res) => {
         email: user.email,
         phone: user.phone,
         avatar: user.avatar,
-        role: user.role
+        role: user.role,
+        isAdmin: user.role === 'admin'
       }
     });
   } catch (err) {
@@ -96,7 +98,6 @@ export const getMe = async (req, res) => {
   }
 };
 
-// ✅ YE FUNCTION FIX HUA HAI
 export const updateProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -118,6 +119,7 @@ export const updateProfile = async (req, res) => {
       phone: updatedUser.phone,
       avatar: updatedUser.avatar,
       role: updatedUser.role,
+      isAdmin: updatedUser.role === 'admin',
       token: generateToken(updatedUser._id)
     });
 
@@ -176,14 +178,12 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-export const resetPasswordWithOtp = async (req, res) => {
-  res.json({ msg: "Reset password with OTP logic here" });
-};
-
+// FIX: Ab token + user bhej raha
 export const resetPassword = async (req, res) => {
-  const { token, password } = req.body;
+  const { token } = useParams ? req.params : req.body; // params ya body dono support
+  const { password } = req.body;
 
-  if (!token ||!password) {
+  if (!token || !password) {
     return res.status(400).json({ message: "Token and password required" });
   }
 
@@ -198,7 +198,21 @@ export const resetPassword = async (req, res) => {
     user.password = password;
     await user.save();
 
-    res.json({ message: "Password reset successful" });
+    const newToken = generateToken(user._id);
+
+    res.json({
+      message: "Password reset successful",
+      token: newToken,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        avatar: user.avatar,
+        role: user.role,
+        isAdmin: user.role === 'admin'
+      }
+    });
 
   } catch (error) {
     console.error('Reset Password Error:', error);

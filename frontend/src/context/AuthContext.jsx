@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
         _id: data.user._id,
         name: data.user.name,
         email: data.user.email,
-        isAdmin: data.user.isAdmin || false,
+        isAdmin: data.user.isAdmin,
         token: data.token
       };
       localStorage.setItem('userInfo', JSON.stringify(userData));
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
       toast.success('Login successful!');
       return userData;
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      const message = error.response?.data?.msg || 'Login failed';
       toast.error(message);
       throw new Error(message);
     }
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
         _id: data.user._id,
         name: data.user.name,
         email: data.user.email,
-        isAdmin: data.user.isAdmin || false,
+        isAdmin: data.user.isAdmin,
         token: data.token
       };
       localStorage.setItem('userInfo', JSON.stringify(userData));
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
       toast.success('Account created!');
       return userData;
     } catch (error) {
-      const message = error.response?.data?.message || 'Signup failed';
+      const message = error.response?.data?.msg || 'Signup failed';
       toast.error(message);
       throw new Error(message);
     }
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
-    isAuthenticated:!!user?.token,
+    isAuthenticated: !!user?.token,
     isAdmin: user?.isAdmin || false,
     loading,
     login,

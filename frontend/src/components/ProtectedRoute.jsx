@@ -7,7 +7,7 @@ export function ProtectedRoute({ children, role = 'any' }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-rose border-t-transparent" />
       </div>
     );
@@ -23,7 +23,7 @@ export function ProtectedRoute({ children, role = 'any' }) {
     );
   }
 
-  if (role === 'admin' &&!isAdmin) {
+  if (role === 'admin' && !isAdmin) {
     return (
       <Navigate
         to="/"
