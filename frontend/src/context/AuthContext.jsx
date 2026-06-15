@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 import axios from 'axios';
 
 const API_URL = 'https://memory-nest-backend.onrender.com';
@@ -10,30 +10,23 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // FIX 1: try-catch add kiya JSON parse ke liye
-    try {
-      const userInfo = localStorage.getItem('userInfo');
-      if (userInfo) {
-        const parsedUser = JSON.parse(userInfo);
-        // FIX 2: token check karo, agar hai tabhi set karo
-        if (parsedUser?.token) {
-          setUser(parsedUser);
-          console.log('User loaded from localStorage:', parsedUser.email);
-        } else {
-          localStorage.removeItem('userInfo');
-        }
-      }
-    } catch (error) {
-      console.log('Error parsing userInfo:', error);
-      localStorage.removeItem('userInfo');
+// Ye function localStorage se user uthayega app start hote hi
+const getInitialUser = () => {
+  try {
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+      const parsedUser = JSON.parse(userInfo);
+      return parsedUser?.token ? parsedUser : null;
     }
-    setLoading(false);
-  }, []);
+  } catch (error) {
+    localStorage.removeItem('userInfo');
+  }
+  return null;
+};
+
+export const AuthProvider = ({ children }) => {
+  // Direct localStorage se user set ho jayega - No delay
+  const [user, setUser] = useState(getInitialUser);
 
   const login = async (email, password) => {
     try {
@@ -51,7 +44,6 @@ export const AuthProvider = ({ children }) => {
       
       localStorage.setItem('userInfo', JSON.stringify(userData));
       setUser(userData);
-      console.log('Login success, user set:', userData.email);
       return userData;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Login failed');
@@ -82,10 +74,7 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (userData) => {
     try {
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-      
-      if (!userInfo?.token) {
-        throw new Error('No token found. Please login again.');
-      }
+      if (!userInfo?.token) throw new Error('No token found. Please login again.');
 
       const config = {
         headers: {
@@ -94,11 +83,7 @@ export const AuthProvider = ({ children }) => {
         },
       };
 
-      const { data } = await axios.put(
-        `${API_URL}/api/auth/profile`,
-        userData,
-        config
-      );
+      const { data } = await axios.put(`${API_URL}/api/auth/profile`, userData, config);
 
       const updatedUserData = {
         _id: data.user._id,
@@ -118,14 +103,13 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('userInfo');
     setUser(null);
-    // FIX 3: logout ke baad bhi reload karo
     window.location.href = '/login';
   };
 
   const value = {
     user,
     isAuthenticated: !!user?.token,
-    loading,
+    loading: false,
     login,
     register,
     updateProfile,
@@ -134,7 +118,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
