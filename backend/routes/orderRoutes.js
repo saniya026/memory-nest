@@ -23,7 +23,7 @@ const razorpay = new Razorpay({
 // CREATE RAZORPAY ORDER
 router.post('/create-razorpay-order', protect, async (req, res) => {
   try {
-    const { amount, items } = req.body;
+    const { amount, items, deliveryAddress } = req.body; // ✅ deliveryAddress liya
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: 'Cart is empty' });
@@ -31,6 +31,11 @@ router.post('/create-razorpay-order', protect, async (req, res) => {
 
     if (!amount || amount < 1) {
       return res.status(400).json({ message: 'Invalid amount' });
+    }
+
+    // ✅ Address validation
+    if (!deliveryAddress || !deliveryAddress.name || !deliveryAddress.phone || !deliveryAddress.pincode) {
+      return res.status(400).json({ message: 'Complete delivery address is required' });
     }
 
     // Items ko DB schema ke hisaab se format karo
@@ -46,7 +51,7 @@ router.post('/create-razorpay-order', protect, async (req, res) => {
       customColorPrimary: item.customColorPrimary || '',
       customColorSecondary: item.customColorSecondary || '',
       photos: (item.photos || []).map(url => ({
-        url: typeof url === 'string'? url : url.url,
+        url: typeof url === 'string' ? url : url.url,
         publicId: '',
         caption: ''
       }))
@@ -64,6 +69,7 @@ router.post('/create-razorpay-order', protect, async (req, res) => {
       user: req.user._id,
       items: formattedItems,
       totalAmount: amount,
+      deliveryAddress, // ✅ Address save kar diya
       razorpayOrderId: razorpayOrder.id,
       paymentStatus: 'created',
       status: 'created'
@@ -89,9 +95,9 @@ router.post('/verify-payment', protect, async (req, res) => {
 
     const sign = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSign = crypto
-    .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-    .update(sign.toString())
-    .digest('hex');
+   .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+   .update(sign.toString())
+   .digest('hex');
 
     if (razorpay_signature === expectedSign) {
       await Order.findByIdAndUpdate(orderId, {

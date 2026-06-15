@@ -22,6 +22,17 @@ async function sendOrderEmail(orderDetails) {
       }
     });
 
+    const address = orderDetails.deliveryAddress;
+    const addressHtml = address? `
+      <h3>Delivery Address:</h3>
+      <p>
+        <b>${address.name}</b><br/>
+        ${address.address}, ${address.landmark? address.landmark + ',' : ''}<br/>
+        ${address.city}, ${address.state} - ${address.pincode}<br/>
+        Phone: ${address.phone}
+      </p>
+    ` : '';
+
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: 'alisaniya026@gmail.com',
@@ -33,6 +44,7 @@ async function sendOrderEmail(orderDetails) {
         <p><b>Status:</b> ${orderDetails.status}</p>
         <p><b>Payment ID:</b> ${orderDetails.razorpayPaymentId || 'N/A'}</p>
         <p><b>Items:</b> ${orderDetails.items.length}</p>
+        ${addressHtml}
       `
     };
 
@@ -43,10 +55,10 @@ async function sendOrderEmail(orderDetails) {
   }
 }
 
-// ✅ CREATE RAZORPAY ORDER - Ye naya function
+// ✅ CREATE RAZORPAY ORDER - deliveryAddress add kiya
 export const createRazorpayOrder = async (req, res, next) => {
   try {
-    const { amount, items } = req.body;
+    const { amount, items, deliveryAddress } = req.body; // ✅ Address le liya
 
     if (!items || items.length === 0) {
       throw new AppError('Cart is empty', 400);
@@ -54,6 +66,11 @@ export const createRazorpayOrder = async (req, res, next) => {
 
     if (!amount || amount < 1) {
       throw new AppError('Invalid amount', 400);
+    }
+
+    // ✅ Address validation
+    if (!deliveryAddress ||!deliveryAddress.name ||!deliveryAddress.phone ||!deliveryAddress.pincode) {
+      throw new AppError('Complete delivery address is required', 400);
     }
 
     const formattedItems = items.map(item => ({
@@ -75,7 +92,7 @@ export const createRazorpayOrder = async (req, res, next) => {
     }));
 
     const options = {
-      amount: Math.round(amount * 100), // ₹50 -> 5000 paise
+      amount: Math.round(amount * 100),
       currency: 'INR',
       receipt: `rcpt_${Date.now()}`,
     };
@@ -86,6 +103,7 @@ export const createRazorpayOrder = async (req, res, next) => {
       user: req.user._id,
       items: formattedItems,
       totalAmount: amount,
+      deliveryAddress, // ✅ Address save ho gaya
       razorpayOrderId: razorpayOrder.id,
       paymentStatus: 'created',
       status: 'created'
@@ -103,16 +121,16 @@ export const createRazorpayOrder = async (req, res, next) => {
   }
 };
 
-// ✅ VERIFY PAYMENT - Ye naya function
+// ✅ VERIFY PAYMENT - Same rahega
 export const verifyPayment = async (req, res, next) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
 
     const sign = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSign = crypto
-    .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-    .update(sign.toString())
-    .digest('hex');
+   .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+   .update(sign.toString())
+   .digest('hex');
 
     if (razorpay_signature!== expectedSign) {
       throw new AppError('Invalid payment signature', 400);
@@ -155,7 +173,8 @@ export const createOrder = async (req) => {
       customColorSecondary,
       razorpayOrderId,
       status,
-      photos: photoUrls
+      photos: photoUrls,
+      deliveryAddress // ✅ Add kiya
     } = req.body;
 
     let design = null;
@@ -213,6 +232,7 @@ export const createOrder = async (req) => {
         amount: orderAmount,
       }],
       totalAmount: orderAmount,
+      deliveryAddress: deliveryAddress || undefined, // ✅ Address save
       status: status || 'pending',
       razorpayOrderId: razorpayOrderId || '',
     });
@@ -231,8 +251,8 @@ export const createOrder = async (req) => {
 export const getMyOrders = async (req, res, next) => {
   try {
     const orders = await Order.find({ user: req.user._id })
-   .populate('items.service')
-   .sort('-createdAt');
+  .populate('items.service')
+  .sort('-createdAt');
     res.json({ success: true, orders });
   } catch (e) {
     next(e);
@@ -255,9 +275,9 @@ export const getOrder = async (req, res, next) => {
 export const getAllOrders = async (req, res, next) => {
   try {
     const orders = await Order.find()
-   .populate('user', 'name email')
-   .populate('items.service')
-   .sort('-createdAt');
+  .populate('user', 'name email')
+  .populate('items.service')
+  .sort('-createdAt');
     res.json({ success: true, orders });
   } catch (e) {
     next(e);
@@ -277,8 +297,8 @@ export const updateOrderStatus = async (req, res) => {
       updateData,
       { new: true }
     )
-   .populate('user', 'name email')
-   .populate('items.service');
+  .populate('user', 'name email')
+  .populate('items.service');
 
     if (!order) throw new AppError('Order not found', 404);
 

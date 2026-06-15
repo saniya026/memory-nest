@@ -38,23 +38,28 @@ export default function Cart() {
             key={item.id}
             className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-card dark:bg-gray-800"
           >
-            {/* ✅ FIX: Image puri dikhegi - object-contain */}
+            {/* ✅ Image Fallback - Custom design ke liye */}
             <div className="h-20 w-20 bg-gray-50 rounded-xl flex items-center justify-center shrink-0">
               <img
-                src={item.service?.image}
-                alt={item.service?.title}
+                src={item.service?.image || item.orderDraft?.photos?.[0] || '/placeholder.jpg'}
+                alt={item.service?.title || 'Custom Design'}
                 className="h-full w-full object-contain rounded-xl"
+                onError={(e) => { e.target.src = '/placeholder.jpg' }}
               />
             </div>
 
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold truncate">{item.service?.title}</h3>
+              <h3 className="font-semibold truncate">
+                {item.service?.title || item.orderDraft?.title || 'Custom Design'}
+              </h3>
               {item.orderDraft?.occasion && (
                 <p className="text-sm text-gray-500">
                   {item.orderDraft.occasion} · {item.orderDraft.theme}
                 </p>
               )}
-              <p className="font-bold text-rose text-lg">₹{item.service?.price || 50}</p>
+              <p className="font-bold text-rose text-lg">
+                ₹{item.service?.price || item.orderDraft?.amount || 50}
+              </p>
             </div>
 
             <button

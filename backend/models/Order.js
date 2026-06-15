@@ -7,23 +7,16 @@ const photoSchema = new mongoose.Schema({
 });
 
 const orderItemSchema = new mongoose.Schema({
-  service: { type: mongoose.Schema.Types.ObjectId, ref: 'Design', required: false }, // ✅ required false kiya
+  service: { type: mongoose.Schema.Types.ObjectId, ref: 'Design', required: false },
   photos: [photoSchema],
   occasion: {
     type: String,
     enum: [
       'Birthday',
-      'Anniversary',
       'Wedding',
-      'Graduation',
-      'Baby Shower',
-      "Valentine's Day",
-      "Mother's Day",
-      "Father's Day",
-      'Friendship',
-      'Farewell',
-      'Custom',
-    ],
+      'Love',
+      'Custom'
+    ], // ✅ Sirf 4 occasions
     required: true,
   },
   theme: { type: String, required: true },
@@ -41,6 +34,18 @@ const orderSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     items: [orderItemSchema],
     totalAmount: { type: Number, required: true },
+
+    // ✅ Delivery Address Field
+    deliveryAddress: {
+      name: { type: String, required: true },
+      phone: { type: String, required: true },
+      pincode: { type: String, required: true },
+      address: { type: String, required: true },
+      city: { type: String, required: true },
+      state: { type: String, required: true },
+      landmark: { type: String, default: '' },
+    },
+
     status: {
       type: String,
       enum: ['pending', 'created', 'paid', 'processing', 'completed', 'cancelled', 'Paid'],
