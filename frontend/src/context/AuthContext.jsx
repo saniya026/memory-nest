@@ -1,8 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import api from '../api/axios'; // ← axios hata ke ye import kar
+import api from '../api/axios';
 import toast from 'react-hot-toast';
-
-// const API_URL = 'https://memory-nest-backend.onrender.com'; ← Ye line delete kar de
 
 const AuthContext = createContext();
 
@@ -35,12 +33,14 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { data } = await api.post('/auth/login', { email, password }); // ← /api hata diya
+      const { data } = await api.post('/auth/login', { email, password });
       const userData = {
         _id: data.user._id,
         name: data.user.name,
         email: data.user.email,
         isAdmin: data.user.isAdmin,
+        phone: data.user.phone,      // ← add kar
+        avatar: data.user.avatar,    // ← add kar
         token: data.token
       };
       localStorage.setItem('userInfo', JSON.stringify(userData));
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password, phone) => {
     try {
-      const { data } = await api.post('/auth/register', { // ← /api hata diya
+      const { data } = await api.post('/auth/register', {
         name, email, password, phone,
       });
       const userData = {
@@ -64,6 +64,8 @@ export const AuthProvider = ({ children }) => {
         name: data.user.name,
         email: data.user.email,
         isAdmin: data.user.isAdmin,
+        phone: data.user.phone,      // ← add kar
+        avatar: data.user.avatar,    // ← add kar
         token: data.token
       };
       localStorage.setItem('userInfo', JSON.stringify(userData));
@@ -73,6 +75,33 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       const message = error.response?.data?.msg || 'Signup failed';
       toast.error(message);
+      throw new Error(message);
+    }
+  };
+
+  // ✅ Ye function add kar - Profile update ke liye
+  const updateProfile = async (formData) => {
+    try {
+      const { data } = await api.put('/user/profile', {
+        name: formData.name,
+        phone: formData.phone,
+        avatar: formData.avatar
+      });
+
+      if (data.success) {
+        const updatedUser = {
+          ...user, // purana token, isAdmin rakh
+          name: data.user.name,
+          phone: data.user.phone,
+          avatar: data.user.avatar
+        };
+        
+        localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+        setUser(updatedUser); // ← Context update hoga, UI refresh
+        return updatedUser;
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || 'Update failed';
       throw new Error(message);
     }
   };
@@ -91,6 +120,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateProfile, // ← ye add kiya
   };
 
   return (
