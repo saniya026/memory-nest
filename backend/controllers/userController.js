@@ -1,6 +1,45 @@
 import User from '../models/User.js';
 import { AppError } from '../middleware/errorHandler.js';
 
+// ✅ GET - User profile
+export const getUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    if (!user) throw new AppError('User not found', 404);
+    res.json({ success: true, user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ✅ PUT - Update user profile
+export const updateUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) throw new AppError('User not found', 404);
+
+    user.name = req.body.name || user.name;
+    user.phone = req.body.phone || user.phone;
+    user.avatar = req.body.avatar || user.avatar;
+
+    const updatedUser = await user.save();
+
+    res.json({
+      success: true,
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        avatar: updatedUser.avatar
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ✅ GET - Saare addresses
 export const getAddresses = async (req, res, next) => {
   try {
