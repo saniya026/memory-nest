@@ -11,16 +11,16 @@ export default function MobileDrawer({ open, onClose }) {
 
   const handleAnchorClick = (hash) => {
     onClose();
-    // Agar home page pe nahi hai to pehle home pe jao
+    
     if (location.pathname!== '/home' && location.pathname!== '/') {
       navigate('/home');
-      // Navigate ke baad scroll karne ke liye thoda wait
+      
       setTimeout(() => {
         const element = document.querySelector(hash);
         element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     } else {
-      // Home pe hai to direct scroll
+      
       const element = document.querySelector(hash);
       element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }

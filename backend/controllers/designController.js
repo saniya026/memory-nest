@@ -4,12 +4,12 @@ export const getDesigns = async (req, res) => {
   try {
     const filter = {};
     
-    // ✅ type filter add kar diya
+    
     if (req.query.type) {
       filter.type = req.query.type; // service ya gallery
     }
     
-    // ✅ category filter bhi add kar sakte
+    
     if (req.query.category) {
       filter.category = req.query.category;
     }

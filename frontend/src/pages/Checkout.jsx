@@ -67,7 +67,7 @@ export default function Checkout() {
           customColorSecondary: item.orderDraft?.customColorSecondary,
           photos: item.orderDraft?.photos || [],
         })),
-        deliveryAddress: selectedAddress // ✅ Address bhej rahe backend ko
+        deliveryAddress: selectedAddress 
       });
 
       const options = {

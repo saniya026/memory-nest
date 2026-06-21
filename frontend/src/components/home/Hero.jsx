@@ -41,7 +41,7 @@ export default function Hero() {
           </Link>
         </motion.div>
 
-        {/* Right Images - Mobile pe bhi dikhega */}
+        
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -66,14 +66,14 @@ export default function Hero() {
             />
           </div>
 
-          {/* Center bottom - Overlay HATA DIYA */}
+          
           <div className="card-polaroid absolute left-1/2 top-12 z-30 w-20 -translate-x-1/2 -rotate-2 md:relative md:left-auto md:top-0 md:mx-auto md:mt-24 md:w-64 md:translate-x-0">
             <img
               src="/hero3.jpg"
               alt="Birthday celebration"
               className="aspect-[4/5] rounded-sm object-cover md:rounded"
             />
-            {/* ❌ Ye overlay div delete kar di - "Making Memories" text wala */}
+          
           </div>
         </motion.div>
       </div>

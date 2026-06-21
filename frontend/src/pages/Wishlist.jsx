@@ -18,7 +18,7 @@ export default function Wishlist() {
       return
     }
     fetchWishlist()
-  }, [isAuthenticated]) // ✅ fetchWishlist hata diya dependency se
+  }, [isAuthenticated])
 
   const handleRemove = async (designId) => {
     await removeFromWishlist(designId)

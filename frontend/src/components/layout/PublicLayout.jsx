@@ -4,7 +4,7 @@ import DesktopNavbar from './DesktopNavbar';
 import MobileAppBar from './MobileAppBar';
 import MobileDrawer from './MobileDrawer';
 
-/** Landing + admin login only — no bottom nav */
+
 export default function PublicLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 

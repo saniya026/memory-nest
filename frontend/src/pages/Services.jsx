@@ -3,7 +3,7 @@ import api from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-// ✅ Anniversary add kar diya
+
 const SERVICE_CATEGORIES = ['Birthday', 'Wedding', 'Anniversary', 'Love', 'Custom'];
 
 export default function Services() {

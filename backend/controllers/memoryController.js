@@ -15,7 +15,7 @@ export const createMemory = async (req, res, next) => {
       title: title.trim(),
       description: description?.trim() || '',
       imageUrl: result.secure_url,
-      cloudinary_id: result.public_id, // Ye line add hui
+      cloudinary_id: result.public_id, 
       date: date ? new Date(date) : new Date(),
       userId: req.user._id,
     });
@@ -40,7 +40,7 @@ export const deleteMemory = async (req, res, next) => {
     const memory = await Memory.findOne({ _id: req.params.id, userId: req.user._id });
     if (!memory) throw new AppError('Memory not found', 404);
 
-    // Cloudinary se bhi delete karo
+    
     if (memory.cloudinary_id) {
       await cloudinary.uploader.destroy(memory.cloudinary_id);
       console.log('Deleted from Cloudinary:', memory.cloudinary_id);

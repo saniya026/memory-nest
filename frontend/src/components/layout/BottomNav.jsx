@@ -9,7 +9,7 @@ export default function BottomNav() {
 
   const tabs = [
     { to: '/home', icon: Home, label: 'Home', end: true },
-    // { to: '/products', icon: Package, label: 'Designs' }, // ❌ Ye hata diya
+    
     {
       to: isAuthenticated? (isAdmin? '/admin' : '/dashboard/orders') : '/login',
       icon: LayoutDashboard,

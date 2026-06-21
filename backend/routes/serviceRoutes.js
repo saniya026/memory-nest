@@ -30,7 +30,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/services - Nayi service add karo
+
 router.post('/', async (req, res) => {
   try {
     const service = new Service(req.body);

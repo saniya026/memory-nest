@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import { Palette, Sparkles } from 'lucide-react';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
-// LANDING_SERVICES hata de, zarurat nahi
+
 
 export default function Products() {
-  const [designs, setDesigns] = useState([]); // Khali array, LANDING_SERVICES nahi
+  const [designs, setDesigns] = useState([]); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function Products() {
         const fromApi = Array.isArray(r.data) ? r.data : [];
         setDesigns(fromApi);
       })
-      .catch(() => setDesigns([])) // Error pe khali array
+      .catch(() => setDesigns([])) 
       .finally(() => setLoading(false));
   }, []);
 

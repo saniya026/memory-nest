@@ -61,7 +61,7 @@ export default function DesktopNavbar() {
                   Dashboard
                 </Link>
               )}
-              {/* ❌ DELETE KAR DIYA: Saved duplicate tha */}
+              
               {/* <Link to="/wishlist" className="text-sm font-semibold text-gray-600 dark:text-gray-300">
                 Saved
               </Link> */}

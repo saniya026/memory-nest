@@ -30,9 +30,9 @@ export default function DesignGallery() {
     fetchDesigns()
   }, [])
 
-  // ❌ Wishlist fetch wala useEffect hata de - Context automatically handle karega
+  
 
-  // Save/Remove toggle - ✅ Context se
+
   const handleSaveForLater = async (design) => {
     if (!isAuthenticated) {
       toast.error('Please login first')

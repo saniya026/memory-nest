@@ -65,7 +65,7 @@ export const getMyReviews = async (req, res, next) => {
   }
 };
 
-// Admin: Reply karo
+// Admin: Reply 
 export const replyToReview = async (req, res, next) => {
   try {
     const { text } = req.body;

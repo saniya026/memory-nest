@@ -6,7 +6,7 @@ import api from '../../api/axios';
 import ProductCard from '../ProductCard';
 
 export function ServicesSection({ services }) {
-  // ✅ LANDING_SERVICES fallback hataya
+  
   const list = Array.isArray(services) ? services : [];
 
   return (
