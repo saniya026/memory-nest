@@ -11,7 +11,8 @@ import reviewRoutes from './routes/reviewRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import cartRoutes from './routes/cart.js';
 import userRoutes from './routes/user.js'; // ✅ Ye line add kar
-
+import dns from 'node:dns';
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
