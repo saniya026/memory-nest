@@ -30,7 +30,7 @@ export default function Orders() {
   const location = useLocation();
 
   // =====================================================
-  // FETCH ORDERS
+  // FETCH ONLY PAID ORDERS
   // =====================================================
 
   const fetchData = async () => {
@@ -46,13 +46,19 @@ export default function Orders() {
         ordersRes.data
       );
 
-      const fetchedOrders =
-        ordersRes.data?.orders || [];
+      const allOrders = ordersRes.data?.orders || [];
 
-      setOrders(fetchedOrders);
+      // ONLY PAID ORDERS WILL BE SHOWN
+      const paidOrders = allOrders.filter(
+        (order) => order.paymentStatus === 'paid'
+      );
 
-      // Reviews are optional.
-      // If review API fails, orders should still show.
+      setOrders(paidOrders);
+
+      // =================================================
+      // REVIEWS ARE OPTIONAL
+      // =================================================
+
       try {
         const eligibleRes =
           await api.get('/reviews/eligible');
@@ -62,7 +68,9 @@ export default function Orders() {
 
         setEligibleIds(
           new Set(
-            eligibleOrders.map((order) => order._id)
+            eligibleOrders.map(
+              (order) => order._id
+            )
           )
         );
       } catch (reviewError) {
@@ -82,13 +90,13 @@ export default function Orders() {
 
       console.error(
         error.response?.data ||
-        error.message ||
-        error
+          error.message ||
+          error
       );
 
       toast.error(
         error.response?.data?.message ||
-        'Unable to load your orders'
+          'Unable to load your orders'
       );
 
       setOrders([]);
@@ -106,8 +114,10 @@ export default function Orders() {
     if (location.state?.success) {
       toast.success('Order confirmed!');
 
-      // Remove state from URL/history after showing toast
-      window.history.replaceState({}, document.title);
+      window.history.replaceState(
+        {},
+        document.title
+      );
     }
 
     fetchData();
@@ -173,18 +183,18 @@ export default function Orders() {
       </p>
 
       {/* =================================================
-          NO ORDERS
+          NO PAID ORDERS
       ================================================= */}
 
       {orders.length === 0 && (
         <div className="mt-6 rounded-2xl bg-white p-6 shadow-card dark:bg-gray-800">
           <p className="text-gray-500">
-            No orders yet. Start creating memories!
+            No paid orders yet. Start creating memories!
           </p>
 
           <button
             type="button"
-            onClick={() => fetchData()}
+            onClick={fetchData}
             className="mt-4 btn-secondary !py-2 !px-4 text-sm"
           >
             Refresh Orders
@@ -193,28 +203,11 @@ export default function Orders() {
       )}
 
       {/* =================================================
-          ORDERS
+          PAID ORDERS
       ================================================= */}
 
       <div className="mt-6 space-y-4">
-
         {orders.map((order) => {
-
-          /*
-           * Backend structure:
-           *
-           * Order
-           * ├── _id
-           * ├── totalAmount
-           * ├── status
-           * ├── paymentStatus
-           * ├── createdAt
-           * └── items[]
-           *
-           * So we use order.items instead of
-           * order.service / order.amount.
-           */
-
           const items = Array.isArray(order.items)
             ? order.items
             : [];
@@ -260,15 +253,12 @@ export default function Orders() {
               key={order._id}
               className="rounded-2xl bg-white p-5 shadow-card dark:bg-gray-800"
             >
-
               {/* =========================================
                   HEADER
               ========================================= */}
 
               <div className="flex flex-wrap items-start justify-between gap-2">
-
                 <div>
-
                   <p className="font-mono text-xs text-gray-400">
                     {formatOrderId(order._id)}
                   </p>
@@ -299,7 +289,6 @@ export default function Orders() {
                         )
                       : ''}
                   </p>
-
                 </div>
 
                 <span
@@ -308,9 +297,8 @@ export default function Orders() {
                     'bg-gray-200 text-gray-700'
                   }`}
                 >
-                  {order.status || 'created'}
+                  {order.status || 'paid'}
                 </span>
-
               </div>
 
               {/* =========================================
@@ -318,18 +306,9 @@ export default function Orders() {
               ========================================= */}
 
               <div className="mt-2">
-
-                <span
-                  className={`text-xs font-medium ${
-                    order.paymentStatus === 'paid'
-                      ? 'text-green-600'
-                      : 'text-gray-500'
-                  }`}
-                >
-                  Payment:{' '}
-                  {order.paymentStatus || 'created'}
+                <span className="text-xs font-medium text-green-600">
+                  Payment: paid
                 </span>
-
               </div>
 
               {/* =========================================
@@ -353,7 +332,6 @@ export default function Orders() {
               ========================================= */}
 
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-
                 <span className="font-bold text-rose">
                   ₹{totalAmount}
                 </span>
@@ -405,7 +383,6 @@ export default function Orders() {
                       Download
                     </a>
                   )}
-
                 </div>
               </div>
 
@@ -431,7 +408,6 @@ export default function Orders() {
 
               {allPhotos.length > 0 && (
                 <div className="mt-3 flex gap-2 overflow-x-auto">
-
                   {allPhotos
                     .slice(0, 4)
                     .map((photo, index) => (
@@ -442,14 +418,11 @@ export default function Orders() {
                         className="h-16 w-16 rounded-lg object-cover"
                       />
                     ))}
-
                 </div>
               )}
-
             </div>
           );
         })}
-
       </div>
     </div>
   );

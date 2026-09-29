@@ -3,8 +3,6 @@ import toast from 'react-hot-toast';
 import api from '../../api/axios';
 
 const STATUSES = [
-  'pending',
-  'created',
   'paid',
   'processing',
   'completed',
@@ -16,7 +14,7 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
 
   // ==========================================
-  // LOAD ALL ORDERS
+  // LOAD ONLY PAID ORDERS
   // ==========================================
 
   const load = async () => {
@@ -32,7 +30,14 @@ export default function AdminOrders() {
         response.data
       );
 
-      setOrders(response.data?.orders || []);
+      const allOrders = response.data?.orders || [];
+
+      // ONLY PAID ORDERS
+      const paidOrders = allOrders.filter(
+        (order) => order.paymentStatus === 'paid'
+      );
+
+      setOrders(paidOrders);
 
     } catch (error) {
       console.error(
@@ -105,8 +110,7 @@ export default function AdminOrders() {
         fd,
         {
           headers: {
-            'Content-Type':
-              'multipart/form-data',
+            'Content-Type': 'multipart/form-data',
           },
         }
       );
@@ -145,7 +149,7 @@ export default function AdminOrders() {
 
         <div className="mt-6 rounded-2xl bg-white p-6 shadow-card dark:bg-gray-800">
           <p className="text-gray-500">
-            Loading orders...
+            Loading paid orders...
           </p>
         </div>
       </div>
@@ -158,6 +162,9 @@ export default function AdminOrders() {
 
   return (
     <div>
+
+      {/* HEADER */}
+
       <div className="flex items-center justify-between">
 
         <div>
@@ -166,7 +173,7 @@ export default function AdminOrders() {
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            {orders.length} order
+            {orders.length} paid order
             {orders.length !== 1 ? 's' : ''}
           </p>
         </div>
@@ -181,42 +188,21 @@ export default function AdminOrders() {
 
       </div>
 
-      {/* ========================================
-          NO ORDERS
-      ======================================== */}
+      {/* NO PAID ORDERS */}
 
       {orders.length === 0 && (
         <div className="mt-6 rounded-2xl bg-white p-6 shadow-card dark:bg-gray-800">
-
           <p className="text-gray-500">
-            No orders found.
+            No paid orders found.
           </p>
-
         </div>
       )}
 
-      {/* ========================================
-          ORDERS
-      ======================================== */}
+      {/* ORDERS */}
 
       <div className="mt-6 space-y-4">
 
         {orders.map((order) => {
-
-          /*
-           * Backend structure:
-           *
-           * order
-           * ├── _id
-           * ├── user
-           * ├── items[]
-           * ├── totalAmount
-           * ├── status
-           * ├── paymentStatus
-           * ├── razorpayOrderId
-           * ├── razorpayPaymentId
-           * └── createdAt
-           */
 
           const items = Array.isArray(order.items)
             ? order.items
@@ -255,9 +241,7 @@ export default function AdminOrders() {
                 {/* STATUS */}
 
                 <select
-                  value={
-                    order.status || 'created'
-                  }
+                  value={order.status || 'paid'}
                   onChange={(e) =>
                     updateStatus(
                       order._id,
@@ -286,24 +270,21 @@ export default function AdminOrders() {
 
                 <div className="flex flex-wrap justify-between gap-3">
 
+                  {/* PAYMENT STATUS */}
+
                   <div>
 
                     <p className="text-xs text-gray-400">
                       Payment Status
                     </p>
 
-                    <p
-                      className={`font-semibold ${
-                        order.paymentStatus === 'paid'
-                          ? 'text-green-600'
-                          : 'text-gray-600'
-                      }`}
-                    >
-                      {order.paymentStatus ||
-                        'created'}
+                    <p className="font-semibold text-green-600">
+                      PAID
                     </p>
 
                   </div>
+
+                  {/* TOTAL */}
 
                   <div>
 
@@ -316,6 +297,8 @@ export default function AdminOrders() {
                     </p>
 
                   </div>
+
+                  {/* DATE */}
 
                   <div>
 
@@ -340,8 +323,10 @@ export default function AdminOrders() {
 
                 </div>
 
+                {/* RAZORPAY PAYMENT ID */}
+
                 {order.razorpayPaymentId && (
-                  <p className="mt-3 text-xs text-gray-400 break-all">
+                  <p className="mt-3 break-all text-xs text-gray-400">
                     Payment ID:{' '}
                     {order.razorpayPaymentId}
                   </p>
@@ -350,7 +335,7 @@ export default function AdminOrders() {
               </div>
 
               {/* ======================================
-                  ITEMS
+                  ORDER ITEMS
               ====================================== */}
 
               <div className="mt-4">
@@ -454,6 +439,7 @@ export default function AdminOrders() {
                   accept="image/*,.pdf"
                   className="hidden"
                   onChange={(e) => {
+
                     const file =
                       e.target.files?.[0];
 
@@ -465,6 +451,7 @@ export default function AdminOrders() {
                     }
 
                     e.target.value = '';
+
                   }}
                 />
 
@@ -475,6 +462,7 @@ export default function AdminOrders() {
         })}
 
       </div>
+
     </div>
   );
 }
